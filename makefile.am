@@ -1,0 +1,6 @@
+#SUBDIRS = doc tests
+
+lib_LTLIBRARIES = libzz.la
+libzz_la_SOURCES = zz.c
+
+pkginclude_HEADERS = zz.h
