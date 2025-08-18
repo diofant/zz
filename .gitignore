@@ -26,7 +26,6 @@ configure
 stamp-h1
 test
 texinfo.tex
-COPYING
 INSTALL
 install-sh
 libtool
