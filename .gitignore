@@ -38,3 +38,5 @@ compile
 test-driver
 *~
 a.out
+m4/
+*.pc

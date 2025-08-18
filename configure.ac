@@ -1,7 +1,36 @@
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT([libzz],[0.1],[skirpichev@gmail.com])
+define(ZZ_COPYRIGHT,[[
+Copyright (C) 2024, 2025 Sergey B Kirpichev
+
+This file is part of the ZZ Library.
+
+The ZZ Library is free software: you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License (LGPL) as published by the
+Free Software Foundation; either version 3 of the License, or (at your option)
+any later version.  See <https://www.gnu.org/licenses/>.
+
+]])
+define(ZZ_COPYRIGHT_C,[[/*
+    Copyright (C) 2024, 2025 Sergey B Kirpichev
+
+    This file is part of  the ZZ Library.
+
+    The ZZ Library is free software: you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License (LGPL) as
+    published by the Free Software Foundation; either version 3 of the License,
+    or (at your option) any later version.  See
+    <https://www.gnu.org/licenses/>.
+*/]])
+
+AC_COPYRIGHT(ZZ_COPYRIGHT)
+AH_TOP(ZZ_COPYRIGHT_C)
+
+AC_PREREQ(2.62)
+
+AC_INIT([zz],[0.1],[skirpichev@gmail.com])
 #AC_CONFIG_SRCDIR(zz.h)
+AC_CONFIG_MACRO_DIRS([m4])
 
 AM_INIT_AUTOMAKE([gnu no-dependencies])
 AC_CONFIG_HEADERS([config.h])
@@ -33,6 +62,5 @@ AC_CHECK_HEADERS([assert.h ctype.h float.h inttypes.h math.h setjmp.h
 AC_C_CONST
 AC_C_INLINE
 
-#AC_CONFIG_FILES([makefile doc/makefile tests/makefile])
-AC_CONFIG_FILES([makefile])
+AC_CONFIG_FILES([makefile zz.pc])
 AC_OUTPUT

@@ -1,6 +1,12 @@
-#SUBDIRS = doc tests
+.POSIX:
+
+AUTOMAKE_OPTIONS = gnu
+ACLOCAL_AMFLAGS = -I m4
 
 lib_LTLIBRARIES = libzz.la
 libzz_la_SOURCES = zz.c
 
 pkginclude_HEADERS = zz.h
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = zz.pc
