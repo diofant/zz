@@ -1,10 +1,19 @@
 #include <assert.h>
 #include <ctype.h>
 #include <float.h>
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wconversion"
+#endif
 #ifdef __GNUC__
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
 #include <gmp.h>
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
+#if defined(__MINGW32__) && defined(__GNUC__)
 #  pragma GCC diagnostic pop
 #endif
 #include <inttypes.h>
@@ -657,9 +666,16 @@ done:
         *d = -*d;
     }
     *d = ldexp(*d, e - shift);
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wfloat-conversion"
+#endif
     if (e > DBL_MAX_EXP || isinf(*d)) {
         return ZZ_BUF;
     }
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
     return ZZ_OK;
 }
 
@@ -1175,7 +1191,7 @@ zz_quo_2exp(const zz_t *u, uint64_t shift, zz_t *v)
         return ZZ_OK;
     }
 
-    mp_size_t whole = (int64_t)(shift / GMP_NUMB_BITS);
+    mp_size_t whole = (mp_size_t)(shift / GMP_NUMB_BITS);
     zz_size_t size = u->size;
 
     shift %= GMP_NUMB_BITS;
@@ -1232,7 +1248,7 @@ zz_mul_2exp(const zz_t *u, uint64_t shift, zz_t *v)
         return ZZ_OK;
     }
 
-    mp_size_t whole = (int64_t)(shift / GMP_NUMB_BITS);
+    mp_size_t whole = (mp_size_t)(shift / GMP_NUMB_BITS);
     mp_size_t u_size = u->size, v_size = u_size + whole;
 
     shift %= GMP_NUMB_BITS;
@@ -1936,6 +1952,26 @@ zz_inverse(const zz_t *u, const zz_t *v, zz_t *w)
 }
 
 zz_err
+zz_lcm(const zz_t *u, const zz_t *v, zz_t *w)
+{
+    zz_t g;
+
+    if (zz_init(&g) || zz_gcd(u, v, &g)) {
+        /* LCOV_EXCL_START */
+err:
+        zz_clear(&g);
+        return ZZ_MEM;
+        /* LCOV_EXCL_STOP */
+    }
+    if (zz_div(u, &g, ZZ_RNDD, w, NULL) || zz_mul(w, v, w)) {
+        goto err; /* LCOV_EXCL_LINE */
+    }
+    zz_clear(&g);
+    (void)zz_abs(w, w);
+    return ZZ_OK;
+}
+
+zz_err
 zz_powm(const zz_t *u, const zz_t *v, const zz_t *w, zz_t *res)
 {
     if (!w->size) {
@@ -2116,96 +2152,26 @@ MK_ZZ_FUNC_UL(fac2, 2fac_ui)
 MK_ZZ_FUNC_UL(fib, fib_ui)
 
 zz_err
-_zz_mpmath_normalize(zz_bitcnt_t prec, zz_rnd rnd, bool *negative,
-                     zz_t *man, zz_t *exp, zz_bitcnt_t *bc)
+zz_bin(uint64_t n, uint64_t k, zz_t *v)
 {
-    /* If the mantissa is 0, return the normalized representation. */
-    if (zz_iszero(man)) {
-        *negative = false;
-        *bc = 0;
-        return zz_from_i32(0, exp);
+    if (n > ULONG_MAX || k > ULONG_MAX) {
+        return ZZ_BUF;
     }
-    /* if size <= prec and the number is odd return it */
-    if (*bc <= prec && zz_isodd(man)) {
-        return ZZ_OK;
-    }
-    if (*bc > prec) {
-        zz_bitcnt_t shift = *bc - prec;
-
-do_rnd:
-        switch (rnd) {
-            case ZZ_RNDD:
-                rnd = *negative ? ZZ_RNDA : ZZ_RNDZ;
-                goto do_rnd;
-            case ZZ_RNDU:
-                rnd = *negative ? ZZ_RNDZ : ZZ_RNDA;
-                goto do_rnd;
-            case ZZ_RNDZ:
-                zz_quo_2exp(man, shift, man);
-                break;
-            case ZZ_RNDA:
-                zz_neg(man, man);
-                zz_quo_2exp(man, shift, man);
-                zz_abs(man, man);
-                break;
-            case ZZ_RNDN:
-            default:
-                {
-                    bool t = zz_lsbpos(man) + 2 <= shift;
-
-                    if (zz_quo_2exp(man, shift - 1, man)) {
-                        return ZZ_MEM; /* LCOV_EXCL_LINE */
-                    }
-                    t = zz_isodd(man) && (man->digits[0]&2 || t);
-                    if (zz_quo_2exp(man, 1, man)) {
-                        return ZZ_MEM; /* LCOV_EXCL_LINE */
-                    }
-                    if (t && zz_add_i32(man, 1, man)) {
-                        return ZZ_MEM; /* LCOV_EXCL_LINE */
-                    }
-                }
-        }
-
-        zz_t tmp;
-
-        if (zz_init(&tmp) || shift > INT64_MAX
-            || zz_from_i64((int64_t)shift, &tmp)
-            || zz_add(exp, &tmp, exp))
-        {
-            /* LCOV_EXCL_START */
-            zz_clear(&tmp);
-            return ZZ_MEM;
-            /* LCOV_EXCL_STOP */
-        }
-        zz_clear(&tmp);
-        *bc = prec;
+    if (TMP_OVERFLOW) {
+        return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
 
-    zz_bitcnt_t zbits = 0;
+    mpz_t z;
 
-    /* Strip trailing 0 bits. */
-    if (!zz_iszero(man) && (zbits = zz_lsbpos(man))) {
-        if (zz_quo_2exp(man, zbits, man)) {
-            return ZZ_MEM; /* LCOV_EXCL_LINE */
-        }
-    }
-
-    zz_t tmp;
-
-    if (zz_init(&tmp) || zbits > INT64_MAX
-        || zz_from_i64((int64_t)zbits, &tmp)
-        || zz_add(exp, &tmp, exp))
-    {
+    mpz_init(z);
+    mpz_bin_uiui(z, (unsigned long)n, (unsigned long)k);
+    if (zz_resize(z->_mp_size, v) == ZZ_MEM) {
         /* LCOV_EXCL_START */
-        zz_clear(&tmp);
+        mpz_clear(z);
         return ZZ_MEM;
         /* LCOV_EXCL_STOP */
     }
-    zz_clear(&tmp);
-    *bc -= zbits;
-    /* Check if one less than a power of 2 was rounded up. */
-    if (zz_cmp_i32(man, 1) == ZZ_EQ) {
-        *bc = 1;
-    }
+    mpn_copyi(v->digits, z->_mp_d, z->_mp_size);
+    mpz_clear(z);
     return ZZ_OK;
 }

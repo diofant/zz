@@ -122,6 +122,7 @@ zz_err zz_pow(const zz_t *u, uint64_t v, zz_t *w);
 zz_err zz_gcd(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t);
 zz_err zz_inverse(const zz_t *u, const zz_t *v, zz_t *w);
+zz_err zz_lcm(const zz_t *u, const zz_t *v, zz_t *w);
 
 zz_err zz_powm(const zz_t *u, const zz_t *v, const zz_t *w, zz_t *res);
 
@@ -131,7 +132,6 @@ zz_err zz_fac(uint64_t u, zz_t *v);
 zz_err zz_fac2(uint64_t u, zz_t *v);
 zz_err zz_fib(uint64_t u, zz_t *v);
 
-zz_err _zz_mpmath_normalize(zz_bitcnt_t prec, zz_rnd rnd, bool *negative,
-                            zz_t *man, zz_t *exp, zz_bitcnt_t *bc);
+zz_err zz_bin(uint64_t n, uint64_t k, zz_t *v);
 
 #endif /* ZZ_H */
