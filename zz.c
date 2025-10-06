@@ -897,12 +897,14 @@ _zz_addsub_i32(const zz_t *u, int32_t v, bool subtract, zz_t *w)
     zz_size_t u_size = u->size, v_size = v != 0;
     zz_limb_t digit = (zz_limb_t)imaxabs(v);
 
-    if (u_size < v_size) {
-        assert(v_size == 1);
+    if (!u_size || u_size < v_size) {
+        assert(!u_size);
         if (zz_resize(v_size, w)) {
             return ZZ_MEM; /* LCOV_EXCL_LINE */
         }
-        w->digits[0] = digit;
+        if (v_size) {
+            w->digits[0] = digit;
+        }
         w->negative = negv;
         return ZZ_OK;
     }
