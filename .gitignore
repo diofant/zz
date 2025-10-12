@@ -43,3 +43,5 @@ m4/
 tests/*.trs
 tests/t-fac
 tests/t-mul
+doc/zz.html/
+doc/zz.t2p/
