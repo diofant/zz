@@ -62,5 +62,5 @@ AC_CHECK_HEADERS([assert.h ctype.h float.h inttypes.h math.h setjmp.h
 AC_C_CONST
 AC_C_INLINE
 
-AC_CONFIG_FILES([makefile zz.pc])
+AC_CONFIG_FILES([makefile tests/makefile zz.pc])
 AC_OUTPUT

@@ -3,6 +3,8 @@
 AUTOMAKE_OPTIONS = gnu
 ACLOCAL_AMFLAGS = -I m4
 
+SUBDIRS = tests
+
 lib_LTLIBRARIES = libzz.la
 libzz_la_SOURCES = zz.c
 
