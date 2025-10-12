@@ -4,7 +4,7 @@ libdir=@libdir@
 includedir=@includedir@
 
 Name: @PACKAGE_NAME@
-URL: https://github.com/diofant/libzz
+URL: https://github.com/diofant/zz
 Description: C library for arbitrary precision arithmetic on integers
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -lzz
