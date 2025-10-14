@@ -1,0 +1,22 @@
+name: Run CI tests
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  tests:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - run: sh scripts/cibw_before_all.sh
+      - run: autoreconf -if
+      - run: ./configure -q
+      - run: make -s
+      - run: make -s check
