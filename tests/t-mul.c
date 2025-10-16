@@ -45,8 +45,13 @@ int main(void)
     srand(time(NULL));
     zz_setup(NULL);
 
-    struct rlimit new;
+    struct rlimit new, old;
 
+    if (getrlimit(RLIMIT_AS, &old)) {
+        fprintf(stderr, "can't query memory limits\n");
+        return 1;
+    }
+    new.rlim_max = old.rlim_max;
     new.rlim_max = new.rlim_cur = 32*1000*1000;
     if (setrlimit(RLIMIT_AS, &new)) {
         fprintf(stderr, "can't set memory limits\n");
