@@ -54,6 +54,12 @@ LT_INIT
 # Checks for libraries...
 AC_CHECK_LIB(gmp,__gmpz_init,,AC_MSG_ERROR([GNU GMP library is required.]))
 
+AC_CHECK_LIB([pthread], [pthread_create], [HAVE_PTHREAD=yes], [HAVE_PTHREAD=no])
+AS_IF([test "x$HAVE_PTHREAD" = xyes],
+      [AC_DEFINE_UNQUOTED([HAVE_PTHREAD_H], [1], [Define to 1 if you have the <pthread.h> header file.])
+       LIBS="$LIBS -lpthread"],
+      [AC_DEFINE_UNQUOTED([HAVE_PTHREAD_H], [0], [Define to 0 if you do not have the <pthread.h> header file.])])
+
 # Checks for header files.
 AC_CHECK_HEADERS([assert.h ctype.h float.h inttypes.h math.h setjmp.h
                   stdlib.h string.h stdbool.h stddef.h stdint.h])
