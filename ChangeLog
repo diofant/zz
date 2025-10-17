@@ -1,0 +1,66 @@
+2025-10-17  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Fill README, closes #9
+
+	Rename COPYING.LESSER -> COPYING
+
+	Add workflow to publish releases
+
+	Run make distcheck in CI
+
+	Fixes for "make distcheck"
+
+	Enable test coverage in CI
+
+	Support --enable-gcov configure option
+
+	Set CFLAGS
+
+2025-10-16  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Test with pthread's
+
+	Don't alter hard limits
+
+2025-10-15  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Add CI tests
+
+2025-10-12  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Init docs (texinfo)
+
+	Correct repo url
+
+	Add some tests
+
+	Add copyrights
+
+	Drop unsupported rounding modes
+
+2025-10-06  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Fix _zz_addsub_i32() in case both u and v are zero
+
+2025-09-22  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Disallow length=0 for signed integers
+
+2025-08-29  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Update zz.*
+
+2025-08-18  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Update configure.ac/makefile.am, add zz.pc.in
+
+	Add LGPL
+
+	Revert "Add example, using pthread's"
+	This reverts commit 753bcd9be5e32b34814848946d2949436a2e7fa3.
+
+2025-08-17  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Add example, using pthread's
+
+	Init

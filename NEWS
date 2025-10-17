@@ -1,0 +1,5 @@
+Changes between versions 0.1.* and 0.5.0
+
+  BUGS FIXED
+  * Disallow length=0 in zz_to_bytes() for signed integers
+  * Correct zz_add/sub_i32() in case u and v are both zeros
