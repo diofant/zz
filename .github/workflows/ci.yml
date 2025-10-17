@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: sudo apt-get update
-      - run: sudo apt-get install lcov
+      - run: sudo apt-get install lcov texlive
       - run: sh scripts/cibw_before_all.sh
       - run: autoreconf -if
       - run: ./configure -q --enable-gcov
@@ -26,6 +26,7 @@ jobs:
       - run: make -s check
       - run: lcov --capture --directory . --output-file coverage.info
       - run: genhtml coverage.info --output-directory coverage
+      - run: make -s distcheck
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
