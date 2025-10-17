@@ -17,8 +17,24 @@ jobs:
       CFLAGS: -Wall -Wpedantic -Werror -std=c17 -Wconversion
     steps:
       - uses: actions/checkout@v5
+      - run: sudo apt-get update
+      - run: sudo apt-get install lcov
       - run: sh scripts/cibw_before_all.sh
       - run: autoreconf -if
-      - run: ./configure -q
+      - run: ./configure -q --enable-gcov
       - run: make -s
       - run: make -s check
+      - run: lcov --capture --directory . --output-file coverage.info
+      - run: genhtml coverage.info --output-directory coverage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            coverage/
+            coverage.info
+      - uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          gcov_include: '*.c'
+          gcov_args: --no-external
+          fail_ci_if_error: true
