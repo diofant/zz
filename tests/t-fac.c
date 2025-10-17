@@ -20,7 +20,7 @@
 void check_fac_outofmem()
 {
     for (size_t i = 0; i < 7; i++) {
-        uint64_t x = 12811 + (rand() % 12173);
+        uint64_t x = 12811 + (uint64_t)(rand() % 12173);
         zz_t mx;
 
         if (zz_init(&mx)) {
@@ -43,7 +43,7 @@ void check_fac_outofmem()
 
 int main(void)
 {
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     zz_setup(NULL);
 
     struct rlimit new, old;

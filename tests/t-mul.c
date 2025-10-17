@@ -97,7 +97,7 @@ void check_square_outofmem_pthread()
 
 int main(void)
 {
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     zz_setup(NULL);
 
     struct rlimit new, old;

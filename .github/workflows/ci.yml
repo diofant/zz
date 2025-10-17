@@ -13,6 +13,8 @@ jobs:
       matrix:
         os: [ubuntu-24.04]
     runs-on: ${{ matrix.os }}
+    env:
+      CFLAGS: -Wall -Wpedantic -Werror -std=c17 -Wconversion
     steps:
       - uses: actions/checkout@v5
       - run: sh scripts/cibw_before_all.sh
