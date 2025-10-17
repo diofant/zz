@@ -68,5 +68,8 @@ AC_CHECK_HEADERS([assert.h ctype.h float.h inttypes.h math.h setjmp.h
 AC_C_CONST
 AC_C_INLINE
 
+AC_ARG_ENABLE(gcov,[AS_HELP_STRING([--enable-gcov], [enable coverage test])])
+AM_CONDITIONAL([ENABLE_GCOV],[test "x${enable_gcov}" = "xyes"])
+
 AC_CONFIG_FILES([makefile doc/makefile tests/makefile zz.pc])
 AC_OUTPUT
