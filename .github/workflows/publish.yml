@@ -1,0 +1,36 @@
+name: Publish on Github
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: sudo apt-get update
+      - run: sudo apt-get install lcov texlive
+      - run: sh scripts/cibw_before_all.sh
+      - run: autoreconf -if
+      - run: ./configure -q
+      - run: make -s dist
+      - run: make -s pdf
+      - run: mkdir dist
+      - run: cp zz*.tar.gz doc/zz.pdf dist/
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create '${{ github.ref_name }}'
+          --repo '${{ github.repository }}'
+          --prerelease
+          --generate-notes
+      - name: Upload artifacts to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release upload
+          '${{ github.ref_name }}' dist/**
+          --repo '${{ github.repository }}'
