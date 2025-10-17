@@ -1,0 +1,2 @@
+The ZZ Library is a tiny wrapper for the GNU GMP Library, providing
+memory-safe API for arbitrary precision arithmetic over integers.
