@@ -48,3 +48,4 @@ doc/zz.t2p/
 coverage.info
 coverage/
 *.gcno
+zz-*.tar.gz

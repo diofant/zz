@@ -1,2 +1,2 @@
 info_TEXINFOS = zz.texi
-odextra_TEXINFOS = fdl.texi
+zz_TEXINFOS = fdl.texi
