@@ -62,17 +62,39 @@ _Thread_local jmp_buf zz_env;
    might be changed - please add a workaround. */
 #define TMP_OVERFLOW (setjmp(zz_env) == 1)
 
-#define TRACKER_MAX_SIZE 64
+#define TRACKER_SIZE_INCR 64
 _Thread_local struct {
     size_t size;
-    void *ptrs[TRACKER_MAX_SIZE];
+    size_t alloc;
+    void **ptrs;
 } zz_tracker;
 
 static void *
 _zz_reallocate_function(void *ptr, size_t old_size, size_t new_size)
 {
-    if (zz_tracker.size >= TRACKER_MAX_SIZE) {
-        goto err; /* LCOV_EXCL_LINE */
+    if (zz_tracker.size >= zz_tracker.alloc) {
+        /* Reallocation shouldn't be required.  Unless...
+           you are using the mpz_t from the GNU GMP with
+           our memory functions. */
+        /* LCOV_EXCL_START */
+        void **tmp = zz_tracker.ptrs;
+
+        zz_tracker.alloc += TRACKER_SIZE_INCR;
+        zz_tracker.ptrs = realloc(tmp, zz_tracker.alloc * sizeof(void *));
+        if (!zz_tracker.ptrs) {
+            zz_tracker.alloc -= TRACKER_SIZE_INCR;
+            /* https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110501 */
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 12
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wuse-after-free"
+#endif
+            zz_tracker.ptrs = tmp;
+#if defined(__GNUC__) && !defined(__clang__)
+#  pragma GCC diagnostic pop
+#endif
+            goto err;
+        }
+        /* LCOV_EXCL_STOP */
     }
     if (!ptr) {
         void *ret = malloc(new_size);
@@ -106,6 +128,7 @@ err:
         zz_tracker.ptrs[i] = NULL;
     }
     zz_tracker.size = 0;
+    zz_tracker.alloc = 0;
     longjmp(zz_env, 1);
     /* LCOV_EXCL_STOP */
 }
