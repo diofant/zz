@@ -110,6 +110,9 @@ zz_err zz_mul(const zz_t *u, const zz_t *v, zz_t *w);
 typedef enum {
     ZZ_RNDD = 0,
     ZZ_RNDN = 1,
+    ZZ_RNDU = 2,
+    ZZ_RNDZ = 3,
+    ZZ_RNDA = 4,
 } zz_rnd;
 
 zz_err zz_div(const zz_t *u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r);
