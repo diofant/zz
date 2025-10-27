@@ -17,7 +17,7 @@
 
 #include "zz.h"
 
-void check_fac_outofmem()
+void check_fac_outofmem(void)
 {
     for (size_t i = 0; i < 7; i++) {
         uint64_t x = 12811 + (uint64_t)(rand() % 12173);
@@ -49,13 +49,13 @@ int main(void)
     struct rlimit new, old;
 
     if (getrlimit(RLIMIT_AS, &old)) {
-        fprintf(stderr, "can't query memory limits\n");
+        perror("getrlimit");
         return 1;
     }
     new.rlim_max = old.rlim_max;
-    new.rlim_max = new.rlim_cur = 32*1000*1000;
+    new.rlim_cur = 32*1000*1000;
     if (setrlimit(RLIMIT_AS, &new)) {
-        fprintf(stderr, "can't set memory limits\n");
+        perror("setrlimit");
         return 1;
     }
     check_fac_outofmem();

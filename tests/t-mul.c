@@ -20,7 +20,7 @@
 
 #include "zz.h"
 
-void check_square_outofmem()
+void check_square_outofmem(void)
 {
     for (size_t i = 0; i < 7; i++) {
         int64_t x = 49846727467293 + rand();
@@ -69,7 +69,7 @@ worker(void *args)
     return NULL;
 }
 
-void check_square_outofmem_pthread()
+void check_square_outofmem_pthread(void)
 {
     size_t nthreads = 7;
 
@@ -103,13 +103,13 @@ int main(void)
     struct rlimit new, old;
 
     if (getrlimit(RLIMIT_AS, &old)) {
-        fprintf(stderr, "can't query memory limits\n");
+        perror("getrlimit");
         return 1;
     }
     new.rlim_max = old.rlim_max;
-    new.rlim_max = new.rlim_cur = 64*1000*1000;
+    new.rlim_cur = 64*1000*1000;
     if (setrlimit(RLIMIT_AS, &new)) {
-        fprintf(stderr, "can't set memory limits\n");
+        perror("setrlimit");
         return 1;
     }
     check_square_outofmem();
