@@ -8,9 +8,6 @@
 * zz: (zz).                   ZZ, wrapper for the GNU GMP
 @end direntry
 
-@c define our special TeX math macros
-@c @include mathinclude.texi
-@c @include version-ref.texi
 @set UPDATED 12 Oct 2025
 @set EDITION 0.1
 @set VERSION 0.1
@@ -25,6 +22,12 @@ Sections, no Front-Cover Texts, and no Back-Cover Texts.  A copy of the license
 is included in the section entitled "GNU Free Documentation License".
 @end copying
 @end iftex
+
+@ifnottex
+@macro bmod
+mod
+@end macro
+@end ifnottex
 
 @titlepage
 @title The ZZ Library
@@ -45,7 +48,8 @@ is included in the section entitled "GNU Free Documentation License".
 @node Top, Introduction, (dir), (dir)
 @top ZZ
 
-TBD
+This manual describes how to install and use the ZZ library,
+version @value{VERSION}.
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License.
@@ -54,8 +58,7 @@ under the terms of the GNU Free Documentation License.
 @menu
 * Introduction::
 * Functions::
-* Examples::
-* References and Further Reading::
+* References::
 * GNU Free Documentation License::
 * Function Index::
 * Variable Index::
@@ -67,23 +70,348 @@ under the terms of the GNU Free Documentation License.
 @chapter Introduction
 
 Library functions and structures are declared in the header file @file{zz.h}.
+Names of public functions and structures are beginning with @code{zz_}.  The
+data type for big integers is @code{zz_t}.
 
-@node Functions, Examples, Introduction, Top
+If function might fail, it has the @code{zz_err} as returned type.  Following
+return codes are supported:
+
+@itemize @bullet
+@item @code{ZZ_OK}: The function succeeded.
+@item @code{ZZ_MEM}: Heap memory exhausted.
+@item @code{ZZ_VAL}: The function input was invalid.
+@item @code{ZZ_BUF}: Buffer overflow, supplied buffer too small.
+@end itemize
+
+@node Functions, References, Introduction, Top
 @chapter Functions
 
-TBD
+@menu
+* Library Setup::
+* Initializing Integers::
+* Assigning Integers::
+* Converting Integers::
+* Arithmetics on Integers::
+* Exponentiation::
+* Comparison Functions::
+* Logical Functions::
+* Number Theoretic Functions::
+* Combinatorics::
+* Import and Export::
+* Miscellaneous Functions::
+@end menu
 
-@node Examples, References and Further Reading, Functions, Top
-@chapter Examples
+@node Library Setup, Initializing Integers, Functions, Functions
+@section Library Setup
+@cindex Library setup functions
+@cindex Library setup
 
-TBD
+The information about linked GNU GMP library can be kept in the type
+@code{zz_info}:
 
-@node References and Further Reading, GNU Free Documentation License, Examples, Top
-@chapter References and Further Reading
+@itemize @bullet
+@item @code{version}: major, minor and patch level, as array of integers.
+@item @code{bits_per_limb}: number of bits per limb.
+@item @code{limb_bytes}: limb size in bytes.
+@item @code{limbcnt_bytes}: size of @code{mp_size_t} in bytes.
+@item @code{bitcnt_bytes}: size of @code{mp_bitcnt_t} in bytes.
+@end itemize
 
-TBD
+@deftypefun zz_err zz_setup (zz_info *@var{info})
+Initialize the library and optionally set @var{info}, if its not @code{NULL}.
+Must be called before all other its functions.
+@end deftypefun
 
-@node GNU Free Documentation License, Function Index, References and Further Reading, Top
+@deftypefun void zz_finish (void)
+Must be called last.
+@end deftypefun
+
+@node Initializing Integers, Assigning Integers, Functions, Functions
+@section Initialization
+@cindex Integer initialization functions
+@cindex Initialization functions
+
+@deftypefun zz_err zz_init (zz_t *@var{u})
+Initialize @var{u} and set its value to 0.
+@end deftypefun
+
+@deftypefun void zz_clear (zz_t *@var{u})
+Free the space occupied by @var{u} and set its value to 0.
+@end deftypefun
+
+@node Assigning Integers, Converting Integers, Initializing Integers, Functions
+@section Assignment
+@cindex Integer assignment functions
+@cindex Assignment functions
+
+@deftypefun zz_err zz_copy (const zz_t *@var{u}, zz_t *@var{v})
+@deftypefunx zz_err zz_from_i32 (int32_t @var{u}, zz_t *@var{v})
+@deftypefunx zz_err zz_from_i64 (int64_t @var{u}, zz_t *@var{v})
+Set @var{u} from @var{v}.
+@end deftypefun
+
+@deftypefun zz_err zz_from_str (const int8_t *@var{str}, size_t @var{len}, int8_t @var{base}, zz_t *@var{u})
+Set @var{u} from string @var{str} of size @var{len} digits in the given
+@var{base}, which may vary from 2 to 36.  Case of characters is ignored.  Ascii
+letters represent values in range 10 to 35.
+@end deftypefun
+
+@deftypefun zz_err zz_from_bytes (const uint8_t *@var{buf}, size_t @var{len}, bool @var{negative}, zz_t *@var{u})
+Set @var{u} from bytes array in @var{buf} of size @var{len}, interpreted as an
+integer in twos complement representation, being negative if @var{negative} is
+@code{true}.
+@end deftypefun
+
+@node Converting Integers, Arithmetics on Integers, Assigning Integers, Functions
+@section Conversion
+@cindex Integer conversion functions
+@cindex Conversion functions
+
+@deftypefun zz_err zz_to_i32 (const zz_t *@var{u}, int32_t *@var{v})
+@deftypefunx zz_err zz_to_i64 (const zz_t *@var{u}, int64_t *@var{v})
+@deftypefunx zz_err zz_to_double (const zz_t *@var{u}, double *@var{v})
+Convert @var{u} to @var{v}.
+@end deftypefun
+
+@deftypefun zz_err zz_to_str (const zz_t *@var{u}, int8_t @var{base}, int8_t *@var{str}, size_t *@var{len})
+Convert @var{u} to string @var{str} of digits in the given @var{base}, which
+may vary from 2 to 36, and return the number of characters in @var{len}.  The
+@var{str} has to have enough space, which can be estimated by
+@code{zz_sizeinbase(@var{u}, base)}.
+@end deftypefun
+
+@deftypefun zz_err zz_to_bytes (const zz_t *@var{u}, size_t @var{len}, bool @var{is_signed}, uint8_t **@var{buf})
+Convert @var{u} to array of bytes @var{buf} of size @var{len}, using twos
+complement representation if @var{is_signed} is @code{true}.  The @var{buf} has
+to have enough space.
+@end deftypefun
+
+@node Arithmetics on Integers, Exponentiation, Converting Integers, Functions
+@section Arithmetics
+@cindex Arithmetics on Integers
+@cindex Arithmetics
+
+@deftypefun zz_err zz_add (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
+@deftypefunx zz_err zz_add_i32 (const zz_t *@var{u}, int32_t @var{v}, zz_t *@var{w})
+Set @var{w} to @math{@var{u} + @var{v}}.
+@end deftypefun
+
+@deftypefun zz_err zz_sub (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
+Set @var{w} to @math{@var{u} \minus @var{v}}.
+@end deftypefun
+
+@deftypefun zz_err zz_abs (const zz_t *@var{u}, zz_t *@var{v})
+Set @var{v} to the absolute value of @var{u}.
+@end deftypefun
+
+@deftypefun zz_err zz_neg (const zz_t *@var{u}, zz_t *@var{v})
+Set @var{v} to @math{-@var{u}}.
+@end deftypefun
+
+@deftypefun zz_err zz_mul (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
+Set @var{w} to @math{@var{u} \times @var{v}}.
+@end deftypefun
+
+The following rounding modes are supported as possible values for the data type
+@code{zz_rnd}:
+
+@itemize @bullet
+@item @code{ZZ_RNDD}: round toward negative infinity.
+@item @code{ZZ_RNDN}: round to nearest, with the even rounding rule.
+@item @code{ZZ_RNDU}: round toward positive infinity.
+@item @code{ZZ_RNDZ}: round toward zero.
+@item @code{ZZ_RNDA}: round away from zero.
+@end itemize
+
+@deftypefun zz_err zz_div (const zz_t *@var{u}, const zz_t *@var{v}, zz_rnd @var{rnd}, zz_t *@var{q}, zz_t *@var{r})
+Divide @var{u} by @var{v}, using the specified rounding mode @var{rnd} and set
+the quotient @var{q} and the remainder @var{r}.  Either @var{q} or @var{r} can
+be set to @code{NULL}, if their value is not required.
+@end deftypefun
+
+@deftypefun zz_err zz_rem_u64 (const zz_t* @var{u}, uint64_t @var{v}, zz_rnd @var{rnd}, uint64_t *@var{w})
+Divide @var{u} by @var{v}, using the specified rounding mode @var{rnd} and set
+the remainder @var{w}.
+@end deftypefun
+
+@deftypefun zz_err zz_truediv (const zz_t *@var{u}, const zz_t *@var{v}, double *@var{w})
+Divide @var{u} by @var{v} and return the floating-point approximation in
+@var{w} with the @code{ZZ_RNDN} rounding mode.
+@end deftypefun
+
+@node Exponentiation, Comparison Functions, Arithmetics on Integers, Functions
+@section Exponentiation
+@cindex Integer exponentiation functions
+@cindex Exponentiation functions
+
+@deftypefun zz_err zz_pow (const zz_t *@var{u}, uint64_t @var{v}, zz_t *@var{w})
+Set @var{w} to @math{{@var{u}}^{@var{v}}}.
+@end deftypefun
+
+@deftypefun zz_err zz_powm (const zz_t *@var{u}, const zz_t *@var{v}, const zz_t *@var{w}, zz_t *@var{x})
+Set @var{x} to @math{{@var{u}}^{@var{v}} @bmod @var{w}}.  Negative @var{v} is
+supported if @var{u} has an inverse modulo @var{w}.
+@end deftypefun
+
+@node Comparison Functions, Logical Functions, Exponentiation, Functions
+@section Comparisons
+@cindex Integer comparison functions
+@cindex Comparison functions
+
+The following comparison results are supported as possible
+values for the data type @code{zz_ord}:
+
+@itemize @bullet
+@item @code{ZZ_GT}: Left operand is greater then right.
+@item @code{ZZ_EQ}: Operands are equal.
+@item @code{ZZ_LT}: Left openrand is less then right.
+@end itemize
+
+@deftypefun zz_ord zz_cmp (const zz_t *@var{u}, const zz_t *@var{v})
+@deftypefunx zz_ord zz_cmp_i32 (const zz_t *@var{u}, int32_t @var{v})
+Compare @var{u} and @var{v}.
+@end deftypefun
+
+@node Logical Functions, Number Theoretic Functions, Comparison Functions, Functions
+@section Logical Functions
+@cindex Integer logical functions
+@cindex Logical functions
+
+These functions behave as if twos complement arithmetic were used.
+
+@deftypefun zz_err zz_invert (const zz_t *@var{u}, zz_t *@var{v})
+Set @var{v} to the ones complement of @var{u}.
+@end deftypefun
+
+@deftypefun zz_err zz_and (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
+Set @var{w} to @var{u} bitwise-and @var{v}.
+@end deftypefun
+
+@deftypefun zz_err zz_or (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
+Set @var{w} to @var{u} bitwise-or @var{v}.
+@end deftypefun
+
+@deftypefun zz_err zz_xor (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
+Set @var{w} to @var{u} bitwise exclusive-or @var{v}.
+@end deftypefun
+
+@deftypefun zz_err zz_mul_2exp (const zz_t *@var{u}, uint64_t @var{v}, zz_t *@var{w})
+Set @var{w} to @math{@var{u} \times 2^{@var{v}}} (left shift by @var{v} bits).
+@end deftypefun
+
+@deftypefun zz_err zz_quo_2exp (const zz_t *@var{u}, uint64_t @var{v}, zz_t *@var{w})
+Set @var{w} to @math{@var{u} / 2^{@var{v}}} with @code{ZZ_RNDD}
+rounding (right shift by @var{v} bits).
+@end deftypefun
+
+@node Number Theoretic Functions, Combinatorics, Logical Functions, Functions
+@section Number Theoretic Functions
+@cindex Number theoretic functions
+
+@deftypefun zz_err zz_sqrtrem (const zz_t *@var{u}, zz_t *@var{v}, zz_t *@var{w})
+Set @var{v} to @math{\lfloor\sqrt{@var{u}}\rfloor}.  If @var{w} is not
+@code{NULL}, set it to @math{@var{u}-@var{v}^2}.
+@end deftypefun
+
+@deftypefun zz_err zz_gcd (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
+Set @var{w} to the greatest common divisor of @var{u} and @var{v}.
+@end deftypefun
+
+@deftypefun zz_err zz_gcdext (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{g}, zz_t *@var{s}, zz_t *@var{t})
+Set @var{g} to the greatest common divisor of @var{u} and @var{v}, and in
+addition set @var{s} and @var{t} to coefficients satisfying
+@math{@var{u}@var{s}+@var{v}@var{t}=@var{g}}.  Any output parameter can be set
+to @code{NULL}, if its value not required.
+@end deftypefun
+
+@deftypefun zz_err zz_lcm (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
+Set @var{w} to the least common multiple of @var{u} and @var{v}.
+@end deftypefun
+
+@node Combinatorics, Import and Export, Number Theoretic Functions, Functions
+@section Combinatorics
+
+@deftypefun zz_err zz_fac (uint64_t @var{u}, zz_t *@var{v})
+Set @var{v} to @math{u!}.
+@end deftypefun
+
+@deftypefun zz_err zz_fac2 (uint64_t @var{u}, zz_t *@var{v})
+Set @var{v} to @math{u!!}.
+@end deftypefun
+
+@deftypefun zz_err zz_fib (uint64_t @var{u}, zz_t *@var{v})
+Set @var{v} to the @var{v}-th Fibonacci number.
+@end deftypefun
+
+@deftypefun zz_err zz_bin (uint64_t @var{n}, uint64_t @var{k}, zz_t *@var{v})
+Set @var{v} to the binomial coefficient @math{\left({n}\atop{k}\right)}.
+@end deftypefun
+
+@node Import and Export, Miscellaneous Functions, Combinatorics, Functions
+@section Import and Export
+@cindex Import and export of integers
+@cindex Import and export
+
+The layout of big integer representation as an array of limbs can be specified
+by the type @code{zz_layout} with following fields:
+
+@itemize @bullet
+@item @code{bits_per_limb}: number of bits per limb.
+@item @code{limb_size}: limb size in bytes.
+@item @code{limbs_order}: order of limbs, either 1 for most significant limb
+      first or -1 for last.
+@item @code{limb_endianness}: limb endianness, either 1 for MSB or -1 for LSB.
+@end itemize
+
+@deftypefun zz_err zz_import (size_t @var{len}, const void *@var{data}, zz_layout @var{layout}, zz_t *@var{u})
+Set @var{u} from @var{data} array in specified @var{layout}.
+@end deftypefun
+
+@deftypefun zz_err zz_export (const zz_t *@var{u}, zz_layout @var{layout}, size_t @var{len}, void *@var{data})
+Export magnitude of @var{u} as pre-allocated @var{data} array in specified
+@var{layout}.
+@end deftypefun
+
+@node Miscellaneous Functions, References, Import and Export, Functions
+@section Miscellaneous
+@cindex Miscellaneous functions
+
+@deftypefun zz_err zz_sizeinbase (const zz_t *@var{u}, int8_t @var{base}, size_t *@var{size})
+Return the @var{size} of @var{u} magnitude, measured in number of digits in the
+given @var{base}.  The absolute value of @var{base} might vary from 2 to 36.
+The @var{size} will be either exact or 1 too big.  If @var{base} is a power of
+2, its always exact.
+@end deftypefun
+
+@deftypefun zz_bitcnt_t zz_bitlen (const zz_t *@var{u})
+Return the number of bits necessary to represent @var{u} magnitude in binary.
+@end deftypefun
+
+@deftypefun zz_bitcnt_t zz_lsbpos (const zz_t *@var{u})
+Return the position of the lowest bit set of @var{u} magnitude in binary.
+@end deftypefun
+
+@deftypefun zz_bitcnt_t zz_bitcnt (const zz_t *@var{u})
+Return the population count of @var{u} magnitude in binary.
+@end deftypefun
+
+@deftypefun bool zz_iszero (const zz_t *@var{u})
+@deftypefunx bool zz_isneg (const zz_t *@var{u})
+@deftypefunx bool zz_isodd (const zz_t *@var{u})
+Determine whether @var{u} is zero, negative or odd.
+@end deftypefun
+
+@node References, GNU Free Documentation License, Miscellaneous Functions, Top
+@chapter References
+
+@itemize @bullet
+@item
+Torbj@"orn Granlund, "GNU MP: The GNU Multiple Precision Arithmetic Library",
+version 6.3.0, 29 July 2016, @url{https://gmplib.org/}.
+
+@end itemize
+
+@node GNU Free Documentation License, Function Index, References, Top
 @unnumbered GNU Free Documentation License
 @include fdl.texi
 
