@@ -83,6 +83,10 @@ return codes are supported:
 @item @code{ZZ_BUF}: Buffer overflow, supplied buffer too small.
 @end itemize
 
+Please note, that the GNU GMP library must be compiled with the
+@option{--disable-alloca} configure option to prevent using alloca() for temporary
+workspace allocation (and use the heap instead).
+
 @node Functions, References, Introduction, Top
 @chapter Functions
 
@@ -332,11 +336,11 @@ Set @var{w} to the least common multiple of @var{u} and @var{v}.
 @section Combinatorics
 
 @deftypefun zz_err zz_fac (uint64_t @var{u}, zz_t *@var{v})
-Set @var{v} to @math{u!}.
+Set @var{v} to @math{@var{u}!}.
 @end deftypefun
 
 @deftypefun zz_err zz_fac2 (uint64_t @var{u}, zz_t *@var{v})
-Set @var{v} to @math{u!!}.
+Set @var{v} to @math{@var{u}!!}.
 @end deftypefun
 
 @deftypefun zz_err zz_fib (uint64_t @var{u}, zz_t *@var{v})

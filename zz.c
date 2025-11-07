@@ -995,7 +995,7 @@ zz_mul(const zz_t *u, const zz_t *v, zz_t *w)
             /* LCOV_EXCL_STOP */
         }
 
-        zz_err ret = zz_mul(&tmp, v, w);
+        zz_err ret = u == v ? zz_mul(&tmp, &tmp, w) : zz_mul(&tmp, v, w);
 
         zz_clear(&tmp);
         return ret;

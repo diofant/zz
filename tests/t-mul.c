@@ -116,5 +116,6 @@ int main(void)
 #if HAVE_PTHREAD_H
     check_square_outofmem_pthread();
 #endif
+    zz_finish();
     return 0;
 }

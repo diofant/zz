@@ -58,6 +58,18 @@ int main(void)
         perror("setrlimit");
         return 1;
     }
+    /* to trigger crash for GMP builds with alloca() enabled */
+    if (getrlimit(RLIMIT_STACK, &old)) {
+        perror("getrlimit");
+        return 1;
+    }
+    new.rlim_max = old.rlim_max;
+    new.rlim_cur = 128*1000;
+    if (setrlimit(RLIMIT_STACK, &new)) {
+        perror("setrlimit");
+        return 1;
+    }
     check_fac_outofmem();
+    zz_finish();
     return 0;
 }

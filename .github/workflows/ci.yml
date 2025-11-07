@@ -19,14 +19,27 @@ jobs:
       - uses: actions/checkout@v5
       - run: sudo apt-get update
       - run: sudo apt-get install lcov texlive
+      - name: Cache GNU GMP builds
+        id: cache-gmp
+        uses: actions/cache@v4
+        with:
+          path: .local
+          key: ${{ matrix.os }}-${{ hashFiles('scripts/*') }}
       - run: sh scripts/cibw_before_all.sh
+        if: steps.cache-gmp.outputs.cache-hit != 'true'
       - run: autoreconf -if
       - run: ./configure -q --enable-gcov
+        env:
+          PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
       - run: make -s
       - run: make -s check
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
       - run: lcov --capture --directory . --output-file coverage.info
       - run: genhtml coverage.info --output-directory coverage
       - run: make -s distcheck
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
