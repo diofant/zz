@@ -11,8 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: sudo apt-get update
-      - run: sudo apt-get install lcov texlive
-      - run: sh scripts/cibw_before_all.sh
+      - run: sudo apt-get install texlive
       - run: autoreconf -if
       - run: ./configure -q
       - run: make -s dist
