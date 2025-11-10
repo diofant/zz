@@ -211,6 +211,7 @@ Set @var{v} to @math{-@var{u}}.
 @end deftypefun
 
 @deftypefun zz_err zz_mul (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
+@deftypefunx zz_err zz_mul_sl (const zz_t *@var{u}, zz_slimb_t @var{v}, zz_t *@var{w})
 Set @var{w} to @math{@var{u} \times @var{v}}.
 @end deftypefun
 
@@ -234,6 +235,12 @@ be set to @code{NULL}, if their value is not required.
 @deftypefun zz_err zz_rem_ul (const zz_t* @var{u}, zz_limb_t @var{v}, zz_rnd @var{rnd}, zz_limb_t *@var{w})
 Divide @var{u} by @var{v}, using the specified rounding mode @var{rnd} and set
 the remainder @var{w}.
+@end deftypefun
+
+@deftypefun zz_err zz_sl_quo(zz_slimb_t u, const zz_t *v, zz_rnd rnd, zz_t *w)
+@deftypefunx zz_err zz_quo_sl(const zz_t *u, zz_slimb_t v, zz_rnd rnd, zz_t *w)
+Divide @var{u} by @var{v}, using the specified rounding mode @var{rnd} and set
+the quotient @var{w}.
 @end deftypefun
 
 @deftypefun zz_err zz_truediv (const zz_t *@var{u}, const zz_t *@var{v}, double *@var{w})
@@ -286,6 +293,7 @@ Set @var{v} to the ones complement of @var{u}.
 @end deftypefun
 
 @deftypefun zz_err zz_and (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
+@deftypefunx zz_err zz_and_sl (const zz_t *@var{u}, zz_slimb_t @var{v}, zz_t *@var{w})
 Set @var{w} to @var{u} bitwise-and @var{v}.
 @end deftypefun
 
