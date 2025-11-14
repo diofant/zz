@@ -84,12 +84,16 @@ typedef enum {
 zz_err zz_add(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_add_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
 zz_err zz_sub(const zz_t *u, const zz_t *v, zz_t *w);
+zz_err zz_sub_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
+zz_err zz_sl_sub(zz_slimb_t u, const zz_t *v, zz_t *w);
 zz_err zz_abs(const zz_t *u, zz_t *v);
 zz_err zz_neg(const zz_t *u, zz_t *v);
 zz_err zz_mul(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_mul_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
 zz_err zz_div(const zz_t *u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r);
 zz_err zz_rem_ul(const zz_t* u, zz_limb_t v, zz_rnd rnd, zz_limb_t *w);
+zz_err zz_rem_sl(const zz_t* u, zz_slimb_t v, zz_rnd rnd, zz_t *w);
+zz_err zz_sl_rem(zz_slimb_t u, const zz_t* v, zz_rnd rnd, zz_t *w);
 zz_err zz_sl_quo(zz_slimb_t u, const zz_t *v, zz_rnd rnd, zz_t *w);
 zz_err zz_quo_sl(const zz_t *u, zz_slimb_t v, zz_rnd rnd, zz_t *w);
 zz_err zz_truediv(const zz_t *u, const zz_t *v, double *res);
@@ -110,7 +114,9 @@ zz_err zz_invert(const zz_t *u, zz_t *v);
 zz_err zz_and(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_and_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
 zz_err zz_or(const zz_t *u, const zz_t *v, zz_t *w);
+zz_err zz_or_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
 zz_err zz_xor(const zz_t *u, const zz_t *v, zz_t *w);
+zz_err zz_xor_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
 zz_err zz_mul_2exp(const zz_t *u, zz_limb_t v, zz_t *w);
 zz_err zz_quo_2exp(const zz_t *u, zz_limb_t v, zz_t *w);
 

@@ -895,7 +895,9 @@ _zz_addsub_sl(const zz_t *u, zz_slimb_t v, bool subtract, zz_t *w)
         if (v_size) {
             w->digits[0] = digit;
         }
-        w->negative = negv;
+        if (w->size) {
+            w->negative = negv;
+        }
         return ZZ_OK;
     }
 
@@ -938,6 +940,26 @@ zz_err
 zz_add_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
 {
     return _zz_addsub_sl(u, v, false, w);
+}
+
+zz_err
+zz_sub_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
+{
+    return _zz_addsub_sl(u, v, true, w);
+}
+
+/* TODO */
+zz_err
+zz_sl_sub(zz_slimb_t u, const zz_t *v, zz_t *w)
+{
+    zz_t tmp;
+    zz_err ret = ZZ_MEM;
+
+    if (zz_init(&tmp) || zz_from_sl(u, &tmp) || (ret = zz_sub(&tmp, v, w))) {
+        return ret; /* LCOV_EXCL_LINE */
+    }
+    zz_clear(&tmp);
+    return ZZ_OK;
 }
 
 zz_err
@@ -1255,6 +1277,38 @@ zz_quo_sl(const zz_t *u, zz_slimb_t v, zz_rnd rnd, zz_t *w)
     if (w->size) {
         w->negative = u->negative;
     }
+    return ZZ_OK;
+}
+
+/* TODO */
+zz_err
+zz_sl_rem(zz_slimb_t u, const zz_t *v, zz_rnd rnd, zz_t *w)
+{
+    zz_t tmp;
+    zz_err ret = ZZ_MEM;
+
+    if (zz_init(&tmp) || zz_from_sl(u, &tmp)
+        || (ret = zz_div(&tmp, v, ZZ_RNDD, NULL, w)))
+    {
+        return ret; /* LCOV_EXCL_LINE */
+    }
+    zz_clear(&tmp);
+    return ZZ_OK;
+}
+
+/* TODO */
+zz_err
+zz_rem_sl(const zz_t* u, zz_slimb_t v, zz_rnd rnd, zz_t *w)
+{
+    zz_t tmp;
+    zz_err ret = ZZ_MEM;
+
+    if (zz_init(&tmp) || zz_from_sl(v, &tmp)
+        || (ret = zz_div(u, &tmp, ZZ_RNDD, NULL, w)))
+    {
+        return ret; /* LCOV_EXCL_LINE */
+    }
+    zz_clear(&tmp);
     return ZZ_OK;
 }
 
@@ -1708,6 +1762,20 @@ err:
     return ZZ_OK;
 }
 
+/* TODO */
+zz_err
+zz_or_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
+{
+    zz_t tmp;
+    zz_err ret = ZZ_MEM;
+
+    if (zz_init(&tmp) || zz_from_sl(v, &tmp) || (ret = zz_or(u, &tmp, w))) {
+        return ret; /* LCOV_EXCL_LINE */
+    }
+    zz_clear(&tmp);
+    return ZZ_OK;
+}
+
 zz_err
 zz_xor(const zz_t *u, const zz_t *v, zz_t *w)
 {
@@ -1816,6 +1884,20 @@ err:
     else {
         zz_normalize(w);
     }
+    return ZZ_OK;
+}
+
+/* TODO */
+zz_err
+zz_xor_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
+{
+    zz_t tmp;
+    zz_err ret = ZZ_MEM;
+
+    if (zz_init(&tmp) || zz_from_sl(v, &tmp) || (ret = zz_xor(u, &tmp, w))) {
+        return ret; /* LCOV_EXCL_LINE */
+    }
+    zz_clear(&tmp);
     return ZZ_OK;
 }
 
