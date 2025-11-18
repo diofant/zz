@@ -19,6 +19,7 @@ if ENABLE_GCOV
 AM_CFLAGS += -fprofile-arcs -ftest-coverage
 AM_LDFLAGS += -fprofile-arcs -ftest-coverage
 endif
+AM_LDFLAGS += $(ZZ_LDFLAGS)
 
 updatechangelog:
 	/usr/share/gnulib/build-aux/gitlog-to-changelog > ChangeLog
