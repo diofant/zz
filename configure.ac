@@ -51,6 +51,14 @@ AC_PROG_CC
 AC_LANG(C)
 LT_INIT
 
+AC_ARG_WITH([gmp],
+            [AS_HELP_STRING([--with-gmp=DIR],
+                           [GMP install directory])],
+            [
+            CPPFLAGS="-I$withval/include $CPPFLAGS"
+            LDFLAGS="-L$withval/lib $LDFLAGS"
+            ])
+
 # Checks for libraries...
 AC_CHECK_LIB(gmp,__gmpz_init,,AC_MSG_ERROR([GNU GMP library is required.]))
 
@@ -70,6 +78,44 @@ AC_C_INLINE
 
 AC_ARG_ENABLE(gcov,[AS_HELP_STRING([--enable-gcov], [enable coverage test])])
 AM_CONDITIONAL([ENABLE_GCOV],[test "x${enable_gcov}" = "xyes"])
+
+# Configs for Windows DLLs
+AC_SUBST(ZZ_LDFLAGS)
+#
+# Additional checks on windows
+# libtool requires "-no-undefined" for win32 dll
+# It also disables the tests involving the linking with LIBGMP if DLL
+#
+AC_DEFUN([ZZ_WINDOWS], [
+   if test "$enable_shared" = yes; then
+     ZZ_LDFLAGS="$ZZ_LDFLAGS -no-undefined"
+     AC_MSG_CHECKING(for DLL/static gmp)
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include "gmp.h"
+#if !__GMP_LIBGMP_DLL
+#error
+error
+#endif
+     ]], [[]])],[AC_MSG_RESULT(DLL)],[
+  AC_MSG_RESULT(static)
+  AC_MSG_ERROR([gmp is not available as a DLL: use --enable-static --disable-shared]) ])
+   else
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include "gmp.h"
+#if __GMP_LIBGMP_DLL
+#error
+error
+#endif
+     ]], [[]])],[AC_MSG_RESULT(static)],[
+  AC_MSG_RESULT(DLL)
+  AC_MSG_ERROR([gmp is only available as a DLL: use --disable-static --enable-shared]) ])
+  fi
+  ;;
+])
+case $host in
+  *-*-cygwin* | *-*-mingw* | *-*-pw32* | *-*-os2*)
+     ZZ_WINDOWS
+esac
 
 AC_CONFIG_FILES([makefile doc/makefile tests/makefile zz.pc])
 AC_OUTPUT
