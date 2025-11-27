@@ -13,6 +13,13 @@
 #include <assert.h>
 #include <ctype.h>
 #include <float.h>
+#include <inttypes.h>
+#include <math.h>
+#include <setjmp.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 #if defined(__MINGW32__) && defined(__GNUC__)
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wconversion"
@@ -28,14 +35,9 @@
 #if defined(__MINGW32__) && defined(__GNUC__)
 #  pragma GCC diagnostic pop
 #endif
-#include <inttypes.h>
-#include <math.h>
-#include <setjmp.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "zz.h"
+#include "impl/zz.h"
 
 #if GMP_NAIL_BITS != 0
 #  error "GMP_NAIL_BITS expected to be 0"
@@ -53,14 +55,6 @@
 #endif
 
 _Thread_local jmp_buf zz_env;
-/* Function should include if(TMP_OVERFLOW){...} workaround in
-   case it calls any mpn_*() API, which does memory allocation for
-   temporary storage.  Not all functions do this, sometimes it's
-   obvious (e.g. mpn_cmp() or mpn_add/sub()), sometimes - not (e.g.
-   mpn_get/set_str() for power of 2 bases).  Though, these details
-   aren't documented and if you feel that in the given case things
-   might be changed - please add a workaround. */
-#define TMP_OVERFLOW (setjmp(zz_env) == 1)
 
 #define TRACKER_SIZE_INCR 64
 _Thread_local struct {
@@ -206,7 +200,7 @@ zz_init(zz_t *u)
     return ZZ_OK;
 }
 
-static zz_err
+zz_err
 _zz_resize(int64_t size, zz_t *u)
 {
     if (u->alloc >= size) {
@@ -781,13 +775,6 @@ zz_bitcnt(const zz_t *u)
     return u->size ? mpn_popcount(u->digits, u->size) : 0;
 }
 
-#define TMP_ZZ(z, u)                                \
-    mpz_t z;                                        \
-                                                    \
-    z->_mp_d = u->digits;                           \
-    z->_mp_size = (u->negative ? -1 : 1) * u->size; \
-    z->_mp_alloc = u->alloc;
-
 #define BITS_TO_LIMBS(n) (((n) + (GMP_NUMB_BITS - 1))/GMP_NUMB_BITS)
 
 zz_err
@@ -801,7 +788,7 @@ zz_import(size_t len, const void *digits, zz_layout layout, zz_t *u)
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
 
-    TMP_ZZ(z, u);
+    TMP_MPZ(z, u);
     assert(layout.limb_size*8 >= layout.bits_per_limb);
     mpz_import(z, len, layout.limbs_order, layout.limb_size,
                layout.limb_endianness,
@@ -820,7 +807,7 @@ zz_export(const zz_t *u, zz_layout layout, size_t len, void *digits)
         return ZZ_VAL;
     }
 
-    TMP_ZZ(z, u);
+    TMP_MPZ(z, u);
     assert(layout.limb_size*8 >= layout.bits_per_limb);
     mpz_export(digits, NULL, layout.limbs_order, layout.limb_size,
                layout.limb_endianness,
@@ -2236,9 +2223,9 @@ mem:
     }
 
     mpz_t z;
-    TMP_ZZ(b, u)
-    TMP_ZZ(e, v)
-    TMP_ZZ(m, w)
+    TMP_MPZ(b, u)
+    TMP_MPZ(e, v)
+    TMP_MPZ(m, w)
     if (TMP_OVERFLOW) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
