@@ -42,6 +42,7 @@ m4/
 *.pc
 tests/*.trs
 tests/t-fac
+tests/t-misc
 tests/t-mul
 doc/zz.html/
 doc/zz.t2p/

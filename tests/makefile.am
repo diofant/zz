@@ -1,5 +1,5 @@
 TESTS = $(check_PROGRAMS)
 
-check_PROGRAMS = t-fac t-mul
+check_PROGRAMS = t-fac t-misc t-mul
 LDADD = $(top_builddir)/libzz.la
 AM_CFLAGS = -I$(top_srcdir)
