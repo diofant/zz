@@ -41,8 +41,7 @@ a.out
 m4/
 *.pc
 tests/*.trs
-tests/t-fac
-tests/t-mul
+tests/t-*
 doc/zz.html/
 doc/zz.t2p/
 coverage.info
