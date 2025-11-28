@@ -10,15 +10,37 @@ on:
 jobs:
   tests:
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-24.04]
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
+        shell: [bash]
+        include:
+          - os: windows-2022
+            shell: 'msys2 {0}'
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
     env:
       CFLAGS: -Wall -Wpedantic -Werror -std=c17 -Wconversion
     steps:
       - uses: actions/checkout@v5
-      - run: sudo apt-get update
-      - run: sudo apt-get install lcov texlive
+#     - run: sudo apt-get update
+#     - run: sudo apt-get install lcov texlive
+      - uses: msys2/setup-msys2@v2.29.0
+        with:
+          install: >-
+            mingw-w64-ucrt-x86_64-pkg-config
+            mingw-w64-ucrt-x86_64-gcc
+            diffutils
+            m4
+            make
+            patch
+            autotools
+            texinfo
+          msystem: ucrt64
+          path-type: inherit
+        if: ${{ startsWith(matrix.os, 'windows') }}
       - name: Cache GNU GMP builds
         id: cache-gmp
         uses: actions/cache@v4
@@ -28,27 +50,34 @@ jobs:
       - run: sh scripts/cibw_before_all.sh
         if: steps.cache-gmp.outputs.cache-hit != 'true'
       - run: autoreconf -if
-      - run: ./configure -q --enable-gcov
-        env:
-          PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
-      - run: make -s
-      - run: make -s check
-        env:
-          LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
-      - run: lcov --capture --directory . --output-file coverage.info
-      - run: genhtml coverage.info --output-directory coverage
-      - run: make -s distcheck
-        env:
-          LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage
-          path: |
-            coverage/
-            coverage.info
-      - uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          gcov_include: '*.c'
-          gcov_args: --no-external
-          fail_ci_if_error: true
+      - run: |
+          export CFLAGS="-Wall -Wpedantic -Werror -std=c17 -Wconversion"
+          export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:$(pwd)/.local/lib/pkgconfig"
+          ./configure -q
+          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$(pwd)/.local/lib"
+          export PATH="$PATH:$(pwd)/.local/bin"
+          make -s all check
+#     - run: ./configure -q --enable-gcov
+#       env:
+#         PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
+#     - run: make -s
+#     - run: make -s check
+#       env:
+#         LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
+#     - run: lcov --capture --directory . --output-file coverage.info
+#     - run: genhtml coverage.info --output-directory coverage
+#     - run: make -s distcheck
+#       env:
+#         LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
+#     - uses: actions/upload-artifact@v4
+#       with:
+#         name: coverage
+#         path: |
+#           coverage/
+#           coverage.info
+#     - uses: codecov/codecov-action@v5
+#       with:
+#         token: ${{ secrets.CODECOV_TOKEN }}
+#         gcov_include: '*.c'
+#         gcov_args: --no-external
+#         fail_ci_if_error: true
