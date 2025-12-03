@@ -96,6 +96,7 @@ workspace allocation (and use the heap instead).
 * Assigning Integers::
 * Converting Integers::
 * Arithmetics on Integers::
+* Division::
 * Exponentiation::
 * Comparison Functions::
 * Logical Functions::
@@ -188,7 +189,7 @@ complement representation if @var{is_signed} is @code{true}.  The @var{buf} has
 to have enough space.
 @end deftypefun
 
-@node Arithmetics on Integers, Exponentiation, Converting Integers, Functions
+@node Arithmetics on Integers, Division, Converting Integers, Functions
 @section Arithmetics
 @cindex Arithmetics on Integers
 @cindex Arithmetics
@@ -220,6 +221,10 @@ Set @var{w} to @math{@var{u} \times @var{v}}.
 @deftypefun zz_err zz_mul_2exp (const zz_t *@var{u}, zz_limb_t @var{v}, zz_t *@var{w})
 Set @var{w} to @math{@var{u} \times 2^{@var{v}}} (left shift by @var{v} bits).
 @end deftypefun
+
+@node Division, Exponentiation, Arithmetics on Integers, Functions
+@section Division
+@cindex Division
 
 The following rounding modes are supported as possible values for the data type
 @code{zz_rnd}:
@@ -261,7 +266,7 @@ Divide @var{u} by @var{v} and return the floating-point approximation in
 @var{w} with the @code{ZZ_RNDN} rounding mode.
 @end deftypefun
 
-@node Exponentiation, Comparison Functions, Arithmetics on Integers, Functions
+@node Exponentiation, Comparison Functions, Division, Functions
 @section Exponentiation
 @cindex Integer exponentiation functions
 @cindex Exponentiation functions
