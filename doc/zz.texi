@@ -66,6 +66,19 @@ under the terms of the GNU Free Documentation License.
 * Concept Index::
 @end menu
 
+@c  @m{T,N} is $T$ in tex or @math{N} otherwise.  Commas in N or T don't work,
+@c  but @C{} can be used instead.
+@iftex
+@macro m {T,N}
+@tex$\T\$@end tex
+@end macro
+@end iftex
+@ifnottex
+@macro m {T,N}
+@math{\N\}
+@end macro
+@end ifnottex
+
 @node  Introduction, Functions, Top, Top
 @chapter Introduction
 
@@ -202,7 +215,7 @@ Set @var{w} to @math{@var{u} + @var{v}}.
 @deftypefun zz_err zz_sub (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
 @deftypefunx zz_err zz_sub_sl (const zz_t *@var{u}, zz_slimb_t @var{v}, zz_t *@var{w})
 @deftypefunx zz_err zz_sl_sub (zz_slimb_t @var{u}, const zz_t *@var{v}, zz_t *@var{w})
-Set @var{w} to @math{@var{u} \minus @var{v}}.
+Set @var{w} to @math{@var{u} - @var{v}}.
 @end deftypefun
 
 @deftypefun zz_err zz_abs (const zz_t *@var{u}, zz_t *@var{v})
@@ -215,11 +228,12 @@ Set @var{v} to @math{-@var{u}}.
 
 @deftypefun zz_err zz_mul (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
 @deftypefunx zz_err zz_mul_sl (const zz_t *@var{u}, zz_slimb_t @var{v}, zz_t *@var{w})
-Set @var{w} to @math{@var{u} \times @var{v}}.
+Set @var{w} to @m{@var{u} \times @var{v}, @var{u} × @var{v}}.
 @end deftypefun
 
 @deftypefun zz_err zz_mul_2exp (const zz_t *@var{u}, zz_limb_t @var{v}, zz_t *@var{w})
-Set @var{w} to @math{@var{u} \times 2^{@var{v}}} (left shift by @var{v} bits).
+Set @var{w} to @m{@var{u} \times 2^{@var{v}}, @var{u} × 2 raised to @var{v}}
+(left shift by @var{v} bits).
 @end deftypefun
 
 @node Division, Exponentiation, Arithmetics on Integers, Functions
@@ -257,8 +271,8 @@ the quotient @var{w}.
 @end deftypefun
 
 @deftypefun zz_err zz_quo_2exp (const zz_t *@var{u}, zz_limb_t @var{v}, zz_t *@var{w})
-Set @var{w} to @math{@var{u} / 2^{@var{v}}} with @code{ZZ_RNDD}
-rounding (right shift by @var{v} bits).
+Set @var{w} to quotent of @var{u} and @m{2^{@var{v}}, 2 raised to @var{v}},
+with @code{ZZ_RNDD} rounding (right shift by @var{v} bits).
 @end deftypefun
 
 @deftypefun zz_err zz_truediv (const zz_t *@var{u}, const zz_t *@var{v}, double *@var{w})
@@ -272,12 +286,13 @@ Divide @var{u} by @var{v} and return the floating-point approximation in
 @cindex Exponentiation functions
 
 @deftypefun zz_err zz_pow (const zz_t *@var{u}, zz_limb_t @var{v}, zz_t *@var{w})
-Set @var{w} to @math{{@var{u}}^{@var{v}}}.
+Set @var{w} to @m{@var{u}^{@var{v}},@var{u} raised to @var{v}}.
 @end deftypefun
 
 @deftypefun zz_err zz_powm (const zz_t *@var{u}, const zz_t *@var{v}, const zz_t *@var{w}, zz_t *@var{x})
-Set @var{x} to @math{{@var{u}}^{@var{v}} @bmod @var{w}}.  Negative @var{v} is
-supported if @var{u} has an inverse modulo @var{w}.
+Set @var{x} to @m{@var{u}^{@var{v}} @bmod @var{w},@var{u} raised to @var{v}
+modulo @var{w}}.  Negative @var{v} is supported if @var{u} has an inverse
+modulo @var{w}.
 @end deftypefun
 
 @node Comparison Functions, Logical Functions, Exponentiation, Functions
@@ -328,8 +343,9 @@ Set @var{w} to @var{u} bitwise exclusive-or @var{v}.
 @cindex Number theoretic functions
 
 @deftypefun zz_err zz_sqrtrem (const zz_t *@var{u}, zz_t *@var{v}, zz_t *@var{w})
-Set @var{v} to @math{\lfloor\sqrt{@var{u}}\rfloor}.  If @var{w} is not
-@code{NULL}, set it to @math{@var{u}-@var{v}^2}.
+Set @var{v} to @m{\lfloor\sqrt{@var{u}}\rfloor,the truncated integer part of
+the square root of @var{u}}.  If @var{w} is not @code{NULL}, set it to the
+remainder @m{@var{u}-@var{v}^2, @var{u} - @var{v}*@var{v}}.
 @end deftypefun
 
 @deftypefun zz_err zz_gcd (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
@@ -363,7 +379,8 @@ Set @var{v} to the @var{v}-th Fibonacci number.
 @end deftypefun
 
 @deftypefun zz_err zz_bin (zz_limb_t @var{n}, zz_limb_t @var{k}, zz_t *@var{v})
-Set @var{v} to the binomial coefficient @math{\left({n}\atop{k}\right)}.
+Set @var{v} to the binomial coefficient @m{\left({n}\atop{k}\right),@var{n}
+over @var{k}}.
 @end deftypefun
 
 @node Import and Export, Miscellaneous Functions, Combinatorics, Functions
