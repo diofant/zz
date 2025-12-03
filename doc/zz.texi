@@ -217,6 +217,10 @@ Set @var{v} to @math{-@var{u}}.
 Set @var{w} to @math{@var{u} \times @var{v}}.
 @end deftypefun
 
+@deftypefun zz_err zz_mul_2exp (const zz_t *@var{u}, zz_limb_t @var{v}, zz_t *@var{w})
+Set @var{w} to @math{@var{u} \times 2^{@var{v}}} (left shift by @var{v} bits).
+@end deftypefun
+
 The following rounding modes are supported as possible values for the data type
 @code{zz_rnd}:
 
@@ -245,6 +249,11 @@ the remainder @var{w}.
 @deftypefunx zz_err zz_sl_quo (zz_slimb_t @var{u}, const zz_t *@var{v}, zz_rnd @var{rnd}, zz_t *@var{w})
 Divide @var{u} by @var{v}, using the specified rounding mode @var{rnd} and set
 the quotient @var{w}.
+@end deftypefun
+
+@deftypefun zz_err zz_quo_2exp (const zz_t *@var{u}, zz_limb_t @var{v}, zz_t *@var{w})
+Set @var{w} to @math{@var{u} / 2^{@var{v}}} with @code{ZZ_RNDD}
+rounding (right shift by @var{v} bits).
 @end deftypefun
 
 @deftypefun zz_err zz_truediv (const zz_t *@var{u}, const zz_t *@var{v}, double *@var{w})
@@ -307,15 +316,6 @@ Set @var{w} to @var{u} bitwise-or @var{v}.
 
 @deftypefun zz_err zz_xor (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
 Set @var{w} to @var{u} bitwise exclusive-or @var{v}.
-@end deftypefun
-
-@deftypefun zz_err zz_mul_2exp (const zz_t *@var{u}, zz_limb_t @var{v}, zz_t *@var{w})
-Set @var{w} to @math{@var{u} \times 2^{@var{v}}} (left shift by @var{v} bits).
-@end deftypefun
-
-@deftypefun zz_err zz_quo_2exp (const zz_t *@var{u}, zz_limb_t @var{v}, zz_t *@var{w})
-Set @var{w} to @math{@var{u} / 2^{@var{v}}} with @code{ZZ_RNDD}
-rounding (right shift by @var{v} bits).
 @end deftypefun
 
 @node Number Theoretic Functions, Combinatorics, Logical Functions, Functions
