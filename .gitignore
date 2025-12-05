@@ -41,6 +41,7 @@ a.out
 m4/
 *.pc
 tests/*.trs
+tests/t-binop
 tests/t-fac
 tests/t-misc
 tests/t-mul
