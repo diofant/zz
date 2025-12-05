@@ -11,8 +11,9 @@
 */
 
 #include <stdlib.h>
+#include <string.h>
 
-#include "zz.h"
+#include "tests/tests.h"
 
 void
 check_cmp_sl(void)
@@ -23,6 +24,9 @@ check_cmp_sl(void)
         abort();
     }
     if (zz_cmp_sl(&u, 1) != ZZ_GT || zz_cmp_sl(&u, 100) != ZZ_LT) {
+        abort();
+    }
+    if (zz_cmp_sl(&u, -100) != ZZ_GT) {
         abort();
     }
     zz_clear(&u);
@@ -40,6 +44,32 @@ check_cmp(void)
         abort();
     }
     zz_clear(&u);
+}
+
+void
+check_cmp_bulk(void)
+{
+    zz_bitcnt_t bs = 512;
+    size_t nex = 1000000;
+
+    for (size_t i = 0; i < nex; i++) {
+        zz_t u, v;
+
+        if (zz_init(&u) || zz_random(bs, true, &u)) {
+            abort();
+        }
+        if (zz_init(&v) || zz_random(bs, true, &v)) {
+            abort();
+        }
+
+        TMP_MPZ(mu, &u);
+        TMP_MPZ(mv, &v);
+        if (zz_cmp(&u, &v) != mpz_cmp(mu, mv)) {
+            abort();
+        }
+        zz_clear(&u);
+        zz_clear(&v);
+    }
 }
 
 void
@@ -106,6 +136,32 @@ check_to_str()
 }
 
 void
+check_from_str()
+{
+    zz_t u;
+
+    if (zz_init(&u) || zz_from_str((int8_t *)" ", 1, 2, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_init(&u) || zz_from_str((int8_t *)"-", 1, 2, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_str((int8_t *)"_", 1, 2, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_str((int8_t *)"1__", 3, 2, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_str((int8_t *)"1_3", 3, 2, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_str((int8_t *)" ", 1, 42, &u) != ZZ_VAL) {
+        abort();
+    }
+    zz_clear(&u);
+}
+
+void
 check_mul()
 {
     zz_t u, v;
@@ -127,7 +183,7 @@ check_mul()
 }
 
 void
-check_div()
+check_div(void)
 {
     zz_t u, v;
 
@@ -143,7 +199,41 @@ check_div()
     if (zz_div(&u, &v, NULL, NULL) != ZZ_VAL) {
         abort();
     }
+    if (zz_from_sl(0, &v) || zz_div(&u, &v, &v, NULL) != ZZ_VAL) {
+        abort();
+    }
     zz_clear(&u);
+    zz_clear(&v);
+}
+
+void
+check_div_sl()
+{
+    zz_t u;
+
+    if (zz_init(&u) || zz_from_sl(1, &u)) {
+        abort();
+    }
+    if (zz_div_sl(&u, 0, &u, NULL) != ZZ_VAL) {
+        abort();
+    }
+    zz_clear(&u);
+}
+
+void
+check_sl_div()
+{
+    zz_t v;
+
+    if (zz_init(&v) || zz_from_sl(0, &v)) {
+        abort();
+    }
+    if (zz_sl_div(1, &v, &v, NULL) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_sl(1, &v) || zz_sl_div(1, &v, NULL, NULL) != ZZ_VAL) {
+        abort();
+    }
     zz_clear(&v);
 }
 
@@ -173,6 +263,13 @@ check_quo_2exp()
     {
         abort();
     }
+#if ZZ_LIMB_T_BITS == 64
+    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u)
+        || zz_pow(&u, ((zz_limb_t)1<<63), &u) != ZZ_BUF)
+    {
+        abort();
+    }
+#endif
     zz_clear(&u);
     zz_clear(&v);
 }
@@ -186,6 +283,16 @@ check_pow()
         abort();
     }
     if (zz_pow(&u, 2, &u) || zz_cmp_sl(&u, 4) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_pow(&u, 0, &u) || zz_cmp_sl(&u, 1) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_pow(&u, 123, &u) || zz_cmp_sl(&u, 1) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_from_sl(0, &u) || zz_pow(&u, 123, &u) || zz_cmp_sl(&u, 0) != ZZ_EQ)
+    {
         abort();
     }
     zz_clear(&u);
@@ -205,6 +312,12 @@ check_sqrtrem()
     if (zz_sqrtrem(&u, &u, &v) || zz_cmp_sl(&u, 2) != ZZ_EQ
         || zz_cmp_sl(&v, 0) != ZZ_EQ)
     {
+        abort();
+    }
+    if (zz_sqrtrem(&v, &v, &u) || zz_cmp_sl(&u, 0) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_from_sl(-1, &u) || zz_sqrtrem(&u, &v, NULL) != ZZ_VAL) {
         abort();
     }
     zz_clear(&u);
@@ -238,13 +351,219 @@ check_powm()
     {
         abort();
     }
+    if (zz_from_sl(0, &w) || zz_powm(&u, &v, &w, &w) != ZZ_VAL) {
+        abort();
+    }
     zz_clear(&u);
     zz_clear(&v);
     zz_clear(&w);
 }
 
+void
+check_bin(void)
+{
+    zz_t u;
+
+    if (zz_init(&u) || zz_bin(13, 5, &u) || zz_cmp_sl(&u, 1287) != ZZ_EQ) {
+        abort();
+    }
+    zz_clear(&u);
+}
+
+void
+check_bytes(void)
+{
+    zz_t u;
+
+    if (zz_init(&u) || zz_from_bytes(NULL, 0, false, &u)
+        || zz_cmp_sl(&u, 0) != ZZ_EQ)
+    {
+        abort();
+    }
+
+    uint8_t *buf = malloc(1);
+
+    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u) || zz_neg(&u, &u)
+        || zz_to_bytes(&u, 1, true, &buf) != ZZ_BUF)
+    {
+        abort();
+    }
+    if (zz_to_bytes(&u, 1, false, &buf) != ZZ_BUF) {
+        abort();
+    }
+    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u)
+        || zz_to_bytes(&u, 1, true, &buf) != ZZ_BUF)
+    {
+        abort();
+    }
+    free(buf);
+    zz_clear(&u);
+}
+
+void
+check_isodd_bulk(void)
+{
+    zz_bitcnt_t bs = 512;
+    size_t nex = 1000000;
+
+    for (size_t i = 0; i < nex; i++) {
+        zz_t u;
+
+        if (zz_init(&u) || zz_random(bs, true, &u)) {
+            abort();
+        }
+
+        TMP_MPZ(mu, &u);
+        if (zz_isodd(&u) != mpz_odd_p(mu)) {
+            abort();
+        }
+        zz_clear(&u);
+    }
+}
+
+void
+check_gcdext(void)
+{
+    zz_t u, v, a, b;
+
+    if (zz_init(&u) || zz_init(&v) || zz_from_sl(-2, &u)
+        || zz_from_sl(6, &v))
+    {
+        abort();
+    }
+    if (zz_init(&a) || zz_gcdext(&u, &v, &a, NULL, NULL)
+        || zz_cmp_sl(&a, 2) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_gcdext(&u, &v, NULL, &a, NULL) || zz_cmp_sl(&a, -1) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_gcdext(&u, &v, NULL, NULL, &a) || zz_cmp_sl(&a, 0) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_from_sl(0, &u) || zz_gcdext(&u, &v, &a, NULL, NULL)
+        || zz_cmp_sl(&a, 6) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_gcdext(&u, &v, NULL, &a, NULL) || zz_cmp_sl(&a, 0) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_gcdext(&u, &v, NULL, NULL, &a) || zz_cmp_sl(&a, 1) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_init(&b) || zz_gcdext(&u, &v, &a, &b, NULL)
+        || zz_cmp_sl(&b, 0) != ZZ_EQ)
+    {
+        abort();
+    }
+    zz_clear(&u);
+    zz_clear(&v);
+    zz_clear(&a);
+    zz_clear(&b);
+}
+
+void
+check_to_double(void)
+{
+    zz_t u;
+    double d;
+
+    if (zz_init(&u) || zz_from_sl(1, &u) || zz_mul_2exp(&u, 2000, &u)) {
+        abort();
+    }
+    if (zz_to_double(&u, &d) != ZZ_BUF) {
+        abort();
+    }
+    if (zz_from_sl(9007199254740993, &u) || zz_to_double(&u, &d)
+        || d != 9007199254740992.0)
+    {
+        abort();
+    }
+    if (zz_from_sl(18014398509481987, &u) || zz_to_double(&u, &d)
+        || d != 1.8014398509481988e+16)
+    {
+        abort();
+    }
+    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 1024, &u)
+        || zz_to_double(&u, &d) != ZZ_BUF)
+    {
+        abort();
+    }
+    zz_clear(&u);
+}
+
+void
+check_shifts(void)
+{
+    zz_t u, v;
+
+    if (zz_init(&u) || zz_from_sl(0, &u) || zz_init(&v)) {
+        abort();
+    }
+    if (zz_mul_2exp(&u, 123, &v) || zz_cmp_sl(&v, 0)) {
+        abort();
+    }
+    if (zz_quo_2exp(&u, 123, &v) || zz_cmp_sl(&v, 0)) {
+        abort();
+    }
+    if (zz_from_dec("-340282366920938463444927863358058659840", &u)
+        || zz_quo_2exp(&u, 64, &v))
+    {
+        abort();
+    }
+    if (zz_from_dec("-18446744073709551615", &u)
+        || zz_cmp(&u, &v) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_dec("-514220174162876888173427869549172"
+                    "032807104958010493707296440352", &u)
+        || zz_quo_2exp(&u, 206, &v) || zz_cmp_sl(&v, -6) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_dec("-62771017353866807634955070562867279"
+                    "52638980837032266301441", &u)
+        || zz_quo_2exp(&u, 128, &v))
+    {
+        abort();
+    }
+    if (zz_from_dec("-18446744073709551616", &u) || zz_cmp(&u, &v)) {
+        abort();
+    }
+    if (zz_from_sl(-1, &u) || zz_quo_2exp(&u, 1, &v)
+        || zz_cmp_sl(&v, -1) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(1, &u) ||
+        zz_mul_2exp(&u, ZZ_MAX_BITS, &u) != ZZ_MEM)
+    {
+        abort();
+    }
+    zz_clear(&u);
+    zz_clear(&v);
+}
+
+void
+check_sizeinbase(void)
+{
+    zz_t u;
+
+    if (zz_init(&u) || zz_from_sl(1, &u)
+        || zz_sizeinbase(&u, 42, NULL) != ZZ_VAL)
+    {
+        abort();
+    }
+    zz_clear(&u);
+}
+
 int main(void)
 {
+    zz_testinit();
+
     zz_info info;
 
     if (zz_setup(&info) || (info.limb_bytes != 4 && info.limb_bytes != 8)) {
@@ -252,16 +571,27 @@ int main(void)
     }
     check_cmp_sl();
     check_cmp();
+    check_cmp_bulk();
     check_add_sl();
     check_lsbpos();
     check_export();
     check_to_str();
+    check_from_str();
     check_mul();
     check_div();
+    check_div_sl();
+    check_sl_div();
     check_quo_2exp();
     check_pow();
     check_sqrtrem();
     check_powm();
+    check_bin();
+    check_bytes();
+    check_isodd_bulk();
+    check_gcdext();
+    check_to_double();
+    check_shifts();
+    check_sizeinbase();
     zz_finish();
     return 0;
 }

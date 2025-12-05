@@ -18,7 +18,7 @@
 #include <sys/resource.h>
 #include <time.h>
 
-#include "zz.h"
+#include "tests/tests.h"
 
 void check_square_outofmem(void)
 {
