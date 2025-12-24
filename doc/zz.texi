@@ -343,10 +343,6 @@ the square root of @var{u}}.  If @var{w} is not @code{NULL}, set it to the
 remainder @m{@var{u}-@var{v}^2, @var{u} - @var{v}*@var{v}}.
 @end deftypefun
 
-@deftypefun zz_err zz_gcd (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
-Set @var{w} to the greatest common divisor of @var{u} and @var{v}.
-@end deftypefun
-
 @deftypefun zz_err zz_gcdext (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{g}, zz_t *@var{s}, zz_t *@var{t})
 Set @var{g} to the greatest common divisor of @var{u} and @var{v}, and in
 addition set @var{s} and @var{t} to coefficients satisfying

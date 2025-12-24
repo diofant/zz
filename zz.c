@@ -1790,7 +1790,7 @@ zz_pow(const zz_t *u, zz_limb_t v, zz_t *w)
     return ZZ_OK;
 }
 
-zz_err
+static zz_err
 zz_gcd(const zz_t *u, const zz_t *v, zz_t *w)
 {
     if (!u->size) {
@@ -1856,6 +1856,9 @@ free:
 zz_err
 zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
 {
+    if (!s && !t) {
+        return zz_gcd(u, v, g);
+    }
     if (u->size < v->size) {
         SWAP(const zz_t *, u, v);
         SWAP(zz_t *, s, t);

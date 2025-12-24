@@ -120,7 +120,6 @@ zz_err zz_mul_2exp(const zz_t *u, zz_limb_t v, zz_t *w);
 zz_err zz_quo_2exp(const zz_t *u, zz_limb_t v, zz_t *w);
 
 zz_err zz_sqrtrem(const zz_t *u, zz_t *v, zz_t *w);
-zz_err zz_gcd(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t);
 zz_err zz_lcm(const zz_t *u, const zz_t *v, zz_t *w);
 
