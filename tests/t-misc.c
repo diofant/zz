@@ -151,33 +151,6 @@ check_div()
 }
 
 void
-check_rem_ul()
-{
-    zz_t u;
-
-    if (zz_init(&u) || zz_from_sl(123, &u)) {
-        abort();
-    }
-    if (zz_rem_ul(&u, 0, ZZ_RNDD, NULL) != ZZ_VAL) {
-        abort();
-    }
-
-    uint64_t val;
-
-    if (zz_from_sl(111, &u) || zz_rem_ul(&u, 12, ZZ_RNDD, &val)
-        || val != 3)
-    {
-        abort();
-    }
-    if (zz_from_sl(-111, &u) || zz_rem_ul(&u, 12, ZZ_RNDD, &val)
-        || val != 9)
-    {
-        abort();
-    }
-    zz_clear(&u);
-}
-
-void
 check_quo_2exp()
 {
     zz_t u, v;
@@ -288,7 +261,6 @@ int main(void)
     check_to_str();
     check_mul();
     check_div();
-    check_rem_ul();
     check_quo_2exp();
     check_pow();
     check_sqrtrem();

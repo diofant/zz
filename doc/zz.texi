@@ -257,8 +257,7 @@ the quotient @var{q} and the remainder @var{r}.  Either @var{q} or @var{r} can
 be set to @code{NULL}, if their value is not required.
 @end deftypefun
 
-@deftypefun zz_err zz_rem_ul (const zz_t* @var{u}, zz_limb_t @var{v}, zz_rnd @var{rnd}, zz_limb_t *@var{w})
-@deftypefunx zz_err zz_rem_sl (const zz_t* @var{u}, zz_slimb_t @var{v}, zz_rnd @var{rnd}, zz_limb_t *@var{w})
+@deftypefun zz_err zz_rem_sl (const zz_t* @var{u}, zz_slimb_t @var{v}, zz_rnd @var{rnd}, zz_limb_t *@var{w})
 @deftypefunx zz_err zz_sl_rem (zz_slimb_t @var{u}, const zz_t *@var{v}, zz_rnd @var{rnd}, zz_t *@var{w})
 Divide @var{u} by @var{v}, using the specified rounding mode @var{rnd} and set
 the remainder @var{w}.

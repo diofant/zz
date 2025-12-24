@@ -1116,43 +1116,6 @@ err:
     /* LCOV_EXCL_STOP */
 }
 
-zz_err
-zz_rem_ul(const zz_t* u, zz_limb_t v, zz_rnd rnd, zz_limb_t *w)
-{
-    if (!v) {
-        return ZZ_VAL;
-    }
-    if (!u->size) {
-        *w = 0;
-        goto sub;
-    }
-#if GMP_NUMB_BITS < 64
-    if (v > GMP_NUMB_MAX) {
-        if (u->size == 1) {
-            *w = u->digits[0];
-            goto sub;
-        }
-
-        mp_limb_t vd[2], rd[2];
-        zz_t t = {false, 0, 0, vd}, r = {false, 2, 2, rd};
-
-        vd[0] = v & GMP_NUMB_MASK;
-        vd[1] = v >> GMP_NUMB_BITS;
-        if (zz_div(u, &t, ZZ_RNDD, NULL, &r)) {
-            return ZZ_MEM; /* LCOV_EXCL_LINE */
-        }
-        *w = rd[0] + (rd[1] << GMP_NUMB_BITS);
-        return ZZ_OK;
-    }
-#endif
-    *w = mpn_mod_1(u->digits, u->size, v);
-sub:
-    if (*w && u->negative) {
-        *w = v - *w;
-    }
-    return ZZ_OK;
-}
-
 static zz_slimb_t
 fdiv_r(zz_slimb_t a, zz_slimb_t b)
 {
