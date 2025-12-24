@@ -13,8 +13,6 @@ jobs:
       matrix:
         os: [ubuntu-24.04]
     runs-on: ${{ matrix.os }}
-    env:
-      CFLAGS: -Wall -Wpedantic -Werror -std=c17 -Wconversion
     steps:
       - uses: actions/checkout@v5
       - run: sudo apt-get update
@@ -31,15 +29,18 @@ jobs:
       - run: ./configure -q --enable-gcov
         env:
           PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
-      - run: make -s
-      - run: make -s check
+      - run: |
+          make -s
+          make -s check
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
+          CFLAGS: -Wall -Wpedantic -Werror -std=c17 -Wconversion
       - run: lcov --capture --directory . --output-file coverage.info
       - run: genhtml coverage.info --output-directory coverage
       - run: make -s distcheck
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
+          CFLAGS: -Wall -Wpedantic -Werror -std=c17 -Wconversion
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
