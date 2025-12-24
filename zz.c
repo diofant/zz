@@ -970,7 +970,7 @@ zz_mul_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
 }
 
 zz_err
-zz_div(const zz_t *u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r)
+zz_div(const zz_t *u, const zz_t *v, zz_t *q, zz_t *r)
 {
     if (!v->size) {
         return ZZ_VAL;
@@ -986,7 +986,7 @@ zz_div(const zz_t *u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r)
                 return ZZ_MEM; /* LCOV_EXCL_LINE */
             }
 
-            zz_err ret = zz_div(u, v, rnd, &tmp, r);
+            zz_err ret = zz_div(u, v, &tmp, r);
 
             zz_clear(&tmp);
             return ret;
@@ -998,7 +998,7 @@ zz_div(const zz_t *u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r)
                 return ZZ_MEM; /* LCOV_EXCL_LINE */
             }
 
-            zz_err ret = zz_div(u, v, rnd, q, &tmp);
+            zz_err ret = zz_div(u, v, q, &tmp);
 
             zz_clear(&tmp);
             return ret;
@@ -1032,7 +1032,7 @@ zz_div(const zz_t *u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r)
                 /* LCOV_EXCL_STOP */
             }
 
-            zz_err ret = zz_div(&tmp, v, rnd, q, r);
+            zz_err ret = zz_div(&tmp, v, q, r);
 
             zz_clear(&tmp);
             return ret;
@@ -1047,7 +1047,7 @@ zz_div(const zz_t *u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r)
                 /* LCOV_EXCL_STOP */
             }
 
-            zz_err ret = zz_div(u, &tmp, rnd, q, r);
+            zz_err ret = zz_div(u, &tmp, q, r);
 
             zz_clear(&tmp);
             return ret;
@@ -1077,18 +1077,67 @@ zz_div(const zz_t *u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r)
         zz_normalize(q);
         zz_normalize(r);
     }
-    switch (rnd) {
-        case ZZ_RNDD:
-            return ZZ_OK;
-        default:
-            return ZZ_VAL;
-    }
+    return ZZ_OK;
     /* LCOV_EXCL_START */
 err:
     zz_clear(q);
     zz_clear(r);
     return ZZ_MEM;
     /* LCOV_EXCL_STOP */
+}
+
+zz_err
+zz_div_sl (const zz_t *u, zz_slimb_t v, zz_t *q, zz_t *r)
+{
+    if (!v) {
+        return ZZ_VAL;
+    }
+
+    zz_limb_t rl, uv = v < 0 ? -((zz_limb_t)(v + 1) - 1) : (zz_limb_t)v;
+    bool same_signs = u->negative == (v < 0);
+
+    if (q) {
+        if (u->size) {
+            if (_zz_resize(u->size, q)) {
+                return ZZ_MEM; /* LCOV_EXCL_LINE */
+            }
+            rl = mpn_divrem_1(q->digits, 0, u->digits, u->size, uv);
+            if (rl && !same_signs) {
+                mpn_add_1(q->digits, q->digits, q->size, 1);
+            }
+            q->size -= q->digits[q->size - 1] == 0;
+            if (q->size) {
+                q->negative = !same_signs;
+            }
+        }
+        else {
+            q->size = 0;
+        }
+    }
+    if (r) {
+        if (!u->size) {
+            r->size = 0;
+            r->negative = false;
+            return ZZ_OK;
+        }
+        if (_zz_resize(1, r)) {
+            return ZZ_MEM; /* LCOV_EXCL_LINE */
+        }
+        rl = mpn_mod_1(u->digits, u->size, uv);
+        if (!rl) {
+            r->size = 0;
+            r->negative = false;
+        }
+        else {
+            if (!same_signs) {
+                rl = uv - rl;
+            }
+            r->digits[0] = rl;
+            r->negative = v < 0;
+        }
+        return ZZ_OK;
+    }
+    return q ? ZZ_OK : ZZ_VAL;
 }
 
 static zz_slimb_t
@@ -1098,7 +1147,7 @@ fdiv_r(zz_slimb_t a, zz_slimb_t b)
 }
 
 zz_err
-zz_sl_quo(zz_slimb_t u, const zz_t *v, zz_rnd rnd, zz_t *w)
+zz_sl_div (zz_slimb_t u, const zz_t *v, zz_t *q, zz_t *r)
 {
     if (!v->size) {
         return ZZ_VAL;
@@ -1106,123 +1155,29 @@ zz_sl_quo(zz_slimb_t u, const zz_t *v, zz_rnd rnd, zz_t *w)
 
     zz_slimb_t sv;
 
-    if (zz_to_sl(v, &sv)) {
-        return zz_from_sl((u < 0) == v->negative || !u ? 0 : -1, w);
-    }
-    return zz_from_sl(fdiv_r(u, sv), w);
-}
-
-zz_err
-zz_quo_sl(const zz_t *u, zz_slimb_t v, zz_rnd rnd, zz_t *w)
-{
-    if (!v) {
-        return ZZ_VAL;
-    }
-    if (!u->size) {
-        w->size = 0;
-        return ZZ_OK;
-    }
-    if (_zz_resize(u->size, w)) {
-        return ZZ_MEM; /* LCOV_EXCL_LINE */
-    }
-
-    zz_limb_t uv = v < 0 ? -((zz_limb_t)(v + 1) - 1) : (zz_limb_t)v;
-    mp_limb_t rl = mpn_divrem_1(w->digits, 0, u->digits, u->size, uv);
-    bool negative = u->negative != (v < 0);
-
-    if (rl && negative) {
-        mpn_add_1(w->digits, w->digits, w->size, 1);
-    }
-    w->size -= w->digits[w->size - 1] == 0;
-    if (w->size) {
-        w->negative = negative;
-    }
-    return ZZ_OK;
-}
-
-zz_err
-zz_sl_rem(zz_slimb_t u, const zz_t *v, zz_rnd rnd, zz_t *w)
-{
-    if (!v->size) {
-        return ZZ_VAL;
-    }
-
-    zz_slimb_t sv;
-
-    if (zz_to_sl(v, &sv)) {
-        if ((u < 0) == v->negative || !u) {
-            return zz_from_sl(u, w);
-        }
-        return zz_add_sl(v, u, w);
-    }
-    return zz_from_sl(u - fdiv_r(u, sv)*sv, w);
-}
-
-zz_err
-zz_rem_sl(const zz_t* u, zz_slimb_t v, zz_rnd rnd, zz_t *w)
-{
-    if (!v) {
-        return ZZ_VAL;
-    }
-    if (!u->size) {
-        w->size = 0;
-        w->negative = false;
-        return ZZ_OK;
-    }
-    if (_zz_resize(1, w)) {
-        return ZZ_MEM; /* LCOV_EXCL_LINE */
-    }
-
-    bool negative = (v < 0);
-    zz_limb_t uv = negative ? -((zz_limb_t)(v + 1) - 1) : (zz_limb_t)v;
-    zz_limb_t rl = mpn_mod_1(u->digits, u->size, uv);
-
-    if (!rl) {
-        w->size = 0;
-        w->negative = false;
-    }
-    else {
-        if (u->negative != negative) {
-            rl = uv - rl;
-        }
-        w->digits[0] = rl;
-        w->negative = negative;
-    }
-    return ZZ_OK;
-}
-
-zz_err
-zz_div_sl (const zz_t *u, zz_slimb_t v, zz_rnd rnd, zz_t *q, zz_t *r)
-{
-    zz_err ret = ZZ_OK;
-
     if (q) {
-        ret = zz_quo_sl(u, v, rnd, q);
-    }
-    if (ret) {
-        return ret;
+        zz_err ret = ZZ_OK;
+
+        if (zz_to_sl(v, &sv)) {
+            ret = zz_from_sl((u < 0) == v->negative || !u ? 0 : -1, q);
+        }
+        else {
+            ret = zz_from_sl(fdiv_r(u, sv), q);
+        }
+        if (ret || !r) {
+            return ret; /* LCOV_EXCL_LINE */
+        }
     }
     if (r) {
-        ret = zz_rem_sl(u, v, rnd, r);
+        if (zz_to_sl(v, &sv)) {
+            if ((u < 0) == v->negative || !u) {
+                return zz_from_sl(u, r);
+            }
+            return zz_add_sl(v, u, r);
+        }
+        return zz_from_sl(u - fdiv_r(u, sv)*sv, r);
     }
-    return ret;
-}
-
-zz_err
-zz_sl_div (zz_slimb_t u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r)
-{
-    zz_err ret = ZZ_OK;
-
-    if (q) {
-        ret = zz_sl_quo(u, v, rnd, q);
-    }
-    if (ret) {
-        return ret;
-    }
-    if (r) {
-        ret = zz_sl_rem(u, v, rnd, r);
-    }
-    return ret;
+    return q ? ZZ_OK : ZZ_VAL;
 }
 
 zz_err
@@ -1888,7 +1843,7 @@ zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
     o1 = o2 = NULL;
     if (t) {
         if (zz_mul(u, tmp_s, t) || zz_sub(tmp_g, t, t)
-            || zz_div(t, v, ZZ_RNDD, t, NULL))
+            || zz_div(t, v, t, NULL))
         {
             goto clear; /* LCOV_EXCL_LINE */
         }
@@ -1948,7 +1903,7 @@ err:
         return ZZ_MEM;
         /* LCOV_EXCL_STOP */
     }
-    if (zz_div(u, &g, ZZ_RNDD, w, NULL) || zz_mul(w, v, w)) {
+    if (zz_div(u, &g, w, NULL) || zz_mul(w, v, w)) {
         goto err; /* LCOV_EXCL_LINE */
     }
     zz_clear(&g);

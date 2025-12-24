@@ -137,13 +137,10 @@ check_div()
     if (zz_init(&v) || zz_from_sl(2, &v)) {
         abort();
     }
-    if (zz_div(&u, &v, ZZ_RNDD, &v, NULL) || zz_cmp_sl(&v, 2) != ZZ_EQ) {
+    if (zz_div(&u, &v, &v, NULL) || zz_cmp_sl(&v, 2) != ZZ_EQ) {
         abort();
     }
-    if (zz_div(&u, &v, 123, &u, NULL) != ZZ_VAL) {
-        abort();
-    }
-    if (zz_div(&u, &v, ZZ_RNDD, NULL, NULL) != ZZ_VAL) {
+    if (zz_div(&u, &v, NULL, NULL) != ZZ_VAL) {
         abort();
     }
     zz_clear(&u);

@@ -30,17 +30,15 @@ jobs:
         env:
           PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
       - run: |
-          make -s
-          make -s check
+          make -s CFLAGS="-Wall -Wpedantic -Werror -std=c17 -Wconversion"
+          make -s check CFLAGS="-Wall -Wpedantic -Werror -std=c17 -Wconversion"
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
-          CFLAGS: -Wall -Wpedantic -Werror -std=c17 -Wconversion
       - run: lcov --capture --directory . --output-file coverage.info
       - run: genhtml coverage.info --output-directory coverage
       - run: make -s distcheck
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
-          CFLAGS: -Wall -Wpedantic -Werror -std=c17 -Wconversion
       - uses: actions/upload-artifact@v4
         with:
           name: coverage
