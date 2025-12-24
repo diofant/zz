@@ -578,83 +578,38 @@ err:
     return ZZ_VAL;
 }
 
+static bool
+zz_tstbit(const zz_t *u, zz_bitcnt_t idx)
+{
+    TMP_MPZ(z, u);
+    if (u->negative) {
+        mpz_neg(z, z);
+    }
+    return mpz_tstbit(z, idx);
+}
+
 static zz_err
 _zz_to_double(const zz_t *u, zz_size_t shift, double *d)
 {
-    mp_limb_t high = 1ULL << DBL_MANT_DIG;
-    mp_limb_t man = 0, carry, left;
-    zz_size_t us = u->size, i, bits = 0, e = 0;
+    zz_bitcnt_t bits = zz_bitlen(u);
+    TMP_MPZ(z, u);
+    *d = mpz_get_d(z); /* round towards zero */
+    if (bits <= DBL_MAX_EXP) {
+        bits -= DBL_MANT_DIG + 1;
+        if (bits >= 0 && zz_tstbit(u, bits) == 1) {
+            zz_bitcnt_t tz = zz_lsbpos(u);
 
-    if (!us) {
-        man = 0;
-        goto done;
-    }
-    man = u->digits[us - 1];
-    if (man >= high) {
-        while ((man >> bits) >= high) {
-            bits++;
-        }
-        left = 1ULL << (bits - 1);
-        carry = man & (2*left - 1);
-        man >>= bits;
-        i = us - 1;
-        e = (us - 1)*GMP_NUMB_BITS + DBL_MANT_DIG + bits;
-    }
-    else {
-        while (!((man << 1) & high)) {
-            man <<= 1;
-            bits++;
-        }
-        i = us - 1;
-        e = (us - 1)*GMP_NUMB_BITS + DBL_MANT_DIG - bits;
-        assert(bits < GMP_NUMB_BITS);
-        if (i == 0) {
-            goto done;
-        }
-        if (bits) {
-            bits = GMP_NUMB_BITS - bits;
-            left = 1ULL << (bits - 1);
-            man += u->digits[i - 1] >> bits;
-            carry = u->digits[i - 1] & (2*left - 1);
-            i--;
-        }
-        else {
-            left = 1ULL << (GMP_NUMB_BITS - 1);
-            carry = u->digits[i - 1];
-            i--;
-        }
-    }
-    if (carry > left) {
-        man++;
-    }
-    else if (carry == left) {
-        if (man%2 == 1) {
-            man++;
-        }
-        else {
-            mp_size_t j;
-
-            for (j = 0; j < i; j++) {
-                if (u->digits[j]) {
-                    break;
-                }
-            }
-            if (i != j) {
-                man++;
+            if (tz < bits || (tz == bits && zz_tstbit(u, bits + 1) == 1)) {
+                *d = nextafter(*d, 2 * (*d)); /* round away from zero */
             }
         }
     }
-done:
-    *d = ldexp((double)man, -DBL_MANT_DIG);
-    if (u->negative) {
-        *d = -*d;
-    }
-    *d = ldexp(*d, e - shift);
+    *d = ldexp(*d, -shift);
 #if defined(__MINGW32__) && defined(__GNUC__)
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wfloat-conversion"
 #endif
-    if (e > DBL_MAX_EXP || isinf(*d)) {
+    if (isinf(*d)) {
         return ZZ_BUF;
     }
 #if defined(__MINGW32__) && defined(__GNUC__)

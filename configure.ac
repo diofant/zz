@@ -60,6 +60,7 @@ AC_ARG_WITH([gmp],
             ])
 
 # Checks for libraries...
+AC_SEARCH_LIBS([nextafter], [m])
 AC_CHECK_LIB(gmp,__gmpz_init,,AC_MSG_ERROR([GNU GMP library is required.]))
 
 AC_CHECK_LIB([pthread], [pthread_create], [HAVE_PTHREAD=yes], [HAVE_PTHREAD=no])
