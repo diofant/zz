@@ -1349,97 +1349,85 @@ zz_truediv(const zz_t *u, const zz_t *v, double *res)
         return ZZ_OK;
     }
 
-    size_t su = zz_bitlen(u);
-    size_t sv = zz_bitlen(v);
-    size_t shift0 = sv > su ? sv - su : su - sv;
+    zz_bitcnt_t ubits = zz_bitlen(u);
+    zz_bitcnt_t vbits = zz_bitlen(v);
 
-    if (shift0 > 10*DBL_MAX_EXP) {
-        return ZZ_BUF; /* LCOV_EXCL_LINE */
+    if (ubits > vbits && ubits - vbits > DBL_MAX_EXP) {
+        return ZZ_BUF;
+    }
+    if (ubits < vbits && vbits - ubits > -DBL_MIN_EXP + DBL_MANT_DIG + 1) {
+        *res = u->negative != v->negative ? -0.0 : 0.0;
+        return ZZ_OK;
     }
 
-    zz_size_t shift = (zz_size_t)(sv - su), n = shift;
-    zz_t *a = (zz_t *)u, *b = (zz_t *)v;
+    zz_size_t shift = (zz_size_t)(vbits - ubits);
+    zz_size_t n = shift, whole = n / GMP_NUMB_BITS;
+    zz_t a, b;
 
+    if (zz_init(&a) || zz_init(&b) || zz_abs(u, &a) || zz_abs(v, &b)) {
+        /* LCOV_EXCL_START */
+tmp_clear:
+        zz_clear(&a);
+        zz_clear(&b);
+        return ZZ_MEM;
+        /* LCOV_EXCL_STOP */
+    }
     if (shift < 0) {
-        SWAP(zz_t *, a, b);
+        SWAP(const zz_t *, u, v);
         n = -n;
+        whole = -whole;
     }
-
-    zz_size_t whole = n / GMP_NUMB_BITS;
-
+    /*                       -shift - 1             -shift
+      find shift satisfying 2           <= |a/b| < 2       */
     n %= GMP_NUMB_BITS;
-    for (zz_size_t i = b->size; i--;) {
-        zz_limb_t da, db = b->digits[i];
+    for (zz_size_t i = v->size; i--;) {
+        zz_limb_t du, dv = v->digits[i];
 
         if (i >= whole) {
-            if (i - whole < a->size) {
-                da = a->digits[i - whole] << n;
+            if (i - whole < u->size) {
+                du = u->digits[i - whole] << n;
             }
             else {
-                da = 0;
+                du = 0;
             }
             if (n && i > whole) {
-                da |= a->digits[i - whole - 1] >> (GMP_NUMB_BITS - n);
+                du |= u->digits[i - whole - 1] >> (GMP_NUMB_BITS - n);
             }
         }
         else {
-            da = 0;
+            du = 0;
         }
-        if (da < db) {
-            if (shift >= 0) {
-                shift++;
-            }
-            break;
-        }
-        if (da > db) {
+        if (du < dv) {
             if (shift < 0) {
-                shift++;
+                shift--;
+            }
+            break;
+        }
+        if (du > dv) {
+            if (shift >= 0) {
+                shift--;
             }
             break;
         }
     }
-    shift += DBL_MANT_DIG - 1;
-
-    zz_t tmp1, tmp2;
-
-    if (zz_init(&tmp1) || zz_init(&tmp2)) {
+    shift += DBL_MANT_DIG;
+    if (shift > 0 && zz_mul_2exp(&a, (uint64_t)shift, &a)) {
+        goto tmp_clear; /* LCOV_EXCL_LINE */
+    }
+    if (shift < 0 && zz_mul_2exp(&b, (uint64_t)-shift, &b)) {
+        goto tmp_clear; /* LCOV_EXCL_LINE */
+    }
+    if (zz_div(&a, &b, ZZ_RNDN, &b, NULL)) {
         /* LCOV_EXCL_START */
-tmp_clear:
-        zz_clear(&tmp1);
-        zz_clear(&tmp2);
+        zz_clear(&a);
+        zz_clear(&b);
         return ZZ_MEM;
         /* LCOV_EXCL_STOP */
     }
-    if (zz_abs(u, &tmp1)) {
-        goto tmp_clear; /* LCOV_EXCL_LINE */
-    }
-    if (shift > 0 && zz_mul_2exp(&tmp1, (uint64_t)shift, &tmp1)) {
-        goto tmp_clear; /* LCOV_EXCL_LINE */
-    }
-    a = &tmp1;
-    if (zz_abs(v, &tmp2)) {
-        goto tmp_clear; /* LCOV_EXCL_LINE */
-    }
-    if (shift < 0 && zz_mul_2exp(&tmp2, (uint64_t)-shift, &tmp2)) {
-        goto tmp_clear; /* LCOV_EXCL_LINE */
-    }
-    b = &tmp2;
-
-    zz_t c;
-
-    if (zz_init(&c) || zz_div(a, b, ZZ_RNDN, &c, NULL)) {
-        /* LCOV_EXCL_START */
-        zz_clear(a);
-        zz_clear(b);
-        zz_clear(&c);
-        return ZZ_MEM;
-        /* LCOV_EXCL_STOP */
-    }
-    zz_clear(a);
-    zz_clear(b);
-    (void)zz_to_double(&c, res);
+    zz_clear(&a);
+    (void)zz_to_double(&b, res);
+    zz_clear(&b);
     *res = ldexp(*res, -shift);
-    zz_clear(&c);
     if (u->negative != v->negative) {
         *res = -*res;
     }
