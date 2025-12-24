@@ -275,11 +275,6 @@ Set @var{w} to quotent of @var{u} and @m{2^{@var{v}}, 2 raised to @var{v}},
 with @code{ZZ_RNDD} rounding (right shift by @var{v} bits).
 @end deftypefun
 
-@deftypefun zz_err zz_truediv (const zz_t *@var{u}, const zz_t *@var{v}, double *@var{w})
-Divide @var{u} by @var{v} and return the floating-point approximation in
-@var{w} with the @code{ZZ_RNDN} rounding mode.
-@end deftypefun
-
 @node Exponentiation, Comparison Functions, Division, Functions
 @section Exponentiation
 @cindex Integer exponentiation functions
