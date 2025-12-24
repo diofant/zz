@@ -1080,31 +1080,6 @@ zz_div(const zz_t *u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r)
     switch (rnd) {
         case ZZ_RNDD:
             return ZZ_OK;
-        case ZZ_RNDN:
-        {
-            zz_ord unexpect = v->negative ? ZZ_LT : ZZ_GT;
-            zz_t halfQ;
-
-            if (zz_init(&halfQ) || zz_quo_2exp(v, 1, &halfQ)) {
-                /* LCOV_EXCL_START */
-                zz_clear(&halfQ);
-                goto err;
-                /* LCOV_EXCL_STOP */
-            }
-
-            zz_ord cmp = zz_cmp(r, &halfQ);
-
-            zz_clear(&halfQ);
-            if (cmp == ZZ_EQ && v->digits[0]%2 == 0 && q->size
-                && q->digits[0]%2 != 0)
-            {
-                cmp = unexpect;
-            }
-            if (cmp == unexpect && (zz_add_sl(q, 1, q) || zz_sub(r, v, r))) {
-                goto err; /* LCOV_EXCL_LINE */
-            }
-            return ZZ_OK;
-        }
         default:
             return ZZ_VAL;
     }
