@@ -36,6 +36,10 @@
 #  pragma GCC diagnostic pop
 #endif
 
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  define isinf __builtin_isinf
+#endif
+
 #include "zz.h"
 #include "impl/zz.h"
 
@@ -588,8 +592,8 @@ zz_tstbit(const zz_t *u, zz_bitcnt_t idx)
     return mpz_tstbit(z, idx);
 }
 
-static zz_err
-_zz_to_double(const zz_t *u, zz_size_t shift, double *d)
+zz_err
+zz_to_double(const zz_t *u, double *d)
 {
     zz_bitcnt_t bits = zz_bitlen(u);
     TMP_MPZ(z, u);
@@ -604,24 +608,10 @@ _zz_to_double(const zz_t *u, zz_size_t shift, double *d)
             }
         }
     }
-    *d = ldexp(*d, -shift);
-#if defined(__MINGW32__) && defined(__GNUC__)
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wfloat-conversion"
-#endif
     if (isinf(*d)) {
         return ZZ_BUF;
     }
-#if defined(__MINGW32__) && defined(__GNUC__)
-#  pragma GCC diagnostic pop
-#endif
     return ZZ_OK;
-}
-
-zz_err
-zz_to_double(const zz_t *u, double *d)
-{
-    return _zz_to_double(u, 0, d);
 }
 
 zz_err
@@ -1447,14 +1437,16 @@ tmp_clear:
     }
     zz_clear(a);
     zz_clear(b);
-
-    zz_err ret = _zz_to_double(&c, shift, res);
-
+    (void)zz_to_double(&c, res);
+    *res = ldexp(*res, -shift);
     zz_clear(&c);
     if (u->negative != v->negative) {
         *res = -*res;
     }
-    return ret;
+    if (isinf(*res)) {
+        return ZZ_BUF;
+    }
+    return ZZ_OK;
 }
 
 zz_err
