@@ -1217,6 +1217,40 @@ zz_rem_sl(const zz_t* u, zz_slimb_t v, zz_rnd rnd, zz_t *w)
 }
 
 zz_err
+zz_div_sl (const zz_t *u, zz_slimb_t v, zz_rnd rnd, zz_t *q, zz_t *r)
+{
+    zz_err ret = ZZ_OK;
+
+    if (q) {
+        ret = zz_quo_sl(u, v, rnd, q);
+    }
+    if (ret) {
+        return ret;
+    }
+    if (r) {
+        ret = zz_rem_sl(u, v, rnd, r);
+    }
+    return ret;
+}
+
+zz_err
+zz_sl_div (zz_slimb_t u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r)
+{
+    zz_err ret = ZZ_OK;
+
+    if (q) {
+        ret = zz_sl_quo(u, v, rnd, q);
+    }
+    if (ret) {
+        return ret;
+    }
+    if (r) {
+        ret = zz_sl_rem(u, v, rnd, r);
+    }
+    return ret;
+}
+
+zz_err
 zz_quo_2exp(const zz_t *u, zz_limb_t shift, zz_t *v)
 {
     if (!u->size) {

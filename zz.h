@@ -91,6 +91,9 @@ zz_err zz_neg(const zz_t *u, zz_t *v);
 zz_err zz_mul(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_mul_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
 zz_err zz_div(const zz_t *u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r);
+zz_err zz_div_sl (const zz_t *u, zz_slimb_t v, zz_rnd rnd, zz_t *q, zz_t *r);
+zz_err zz_sl_div (zz_slimb_t u, const zz_t *v, zz_rnd rnd, zz_t *q, zz_t *r);
+
 zz_err zz_rem_sl(const zz_t* u, zz_slimb_t v, zz_rnd rnd, zz_t *w);
 zz_err zz_sl_rem(zz_slimb_t u, const zz_t* v, zz_rnd rnd, zz_t *w);
 zz_err zz_sl_quo(zz_slimb_t u, const zz_t *v, zz_rnd rnd, zz_t *w);
