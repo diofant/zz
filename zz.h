@@ -106,11 +106,8 @@ zz_ord zz_cmp_sl(const zz_t *u, zz_slimb_t v);
 
 zz_err zz_invert(const zz_t *u, zz_t *v);
 zz_err zz_and(const zz_t *u, const zz_t *v, zz_t *w);
-zz_err zz_and_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
 zz_err zz_or(const zz_t *u, const zz_t *v, zz_t *w);
-zz_err zz_or_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
 zz_err zz_xor(const zz_t *u, const zz_t *v, zz_t *w);
-zz_err zz_xor_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
 zz_err zz_mul_2exp(const zz_t *u, zz_bitcnt_t v, zz_t *w);
 zz_err zz_quo_2exp(const zz_t *u, zz_bitcnt_t v, zz_t *w);
 

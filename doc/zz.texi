@@ -294,7 +294,6 @@ Set @var{v} to the ones complement of @var{u}.
 @end deftypefun
 
 @deftypefun zz_err zz_and (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
-@deftypefunx zz_err zz_and_sl (const zz_t *@var{u}, zz_slimb_t @var{v}, zz_t *@var{w})
 Set @var{w} to @var{u} bitwise-and @var{v}.
 @end deftypefun
 

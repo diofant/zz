@@ -1369,34 +1369,20 @@ err:
         SWAP(const zz_t *, u, v);
         SWAP(zz_size_t, u_size, v_size);
     }
-    if (zz_resize(v_size, w)) {
-        return ZZ_MEM; /* LCOV_EXCL_LINE */
-    }
     w->negative = false;
-    mpn_and_n(w->digits, u->digits, v->digits, v_size);
-    zz_normalize(w);
-    return ZZ_OK;
-}
-
-zz_err
-zz_and_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
-{
-    if (!u->size || !v) {
-        return zz_from_sl(0, w);
-    }
-    if (u->negative || v < 0) { /* TODO */
-        zz_t tmp;
-        zz_err ret = ZZ_OK;
-
-        if (zz_init(&tmp) || zz_from_sl(v, &tmp)
-            || (ret = zz_and(u, &tmp, w)))
-        {
-            return ret; /* LCOV_EXCL_LINE */
+    for (zz_size_t i = v_size; --i >= 0;) {
+        if (u->digits[i] & v->digits[i]) {
+            v_size = i + 1;
+            if (zz_resize(v_size, w)) {
+                return ZZ_MEM; /* LCOV_EXCL_LINE */
+            }
+            mpn_and_n(w->digits, u->digits, v->digits, v_size);
+            zz_normalize(w);
+            return ZZ_OK;
         }
-        zz_clear(&tmp);
-        return ZZ_OK;
     }
-    return zz_from_sl((zz_slimb_t)(u->digits[0] & (zz_limb_t)v), w);
+    w->size = 0;
+    return ZZ_OK;
 }
 
 zz_err
@@ -1504,20 +1490,6 @@ err:
     if (u_size != v_size) {
         mpn_copyi(&w->digits[v_size], &u->digits[v_size], u_size - v_size);
     }
-    return ZZ_OK;
-}
-
-/* TODO */
-zz_err
-zz_or_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
-{
-    zz_t tmp;
-    zz_err ret = ZZ_MEM;
-
-    if (zz_init(&tmp) || zz_from_sl(v, &tmp) || (ret = zz_or(u, &tmp, w))) {
-        return ret; /* LCOV_EXCL_LINE */
-    }
-    zz_clear(&tmp);
     return ZZ_OK;
 }
 
@@ -1629,20 +1601,6 @@ err:
     else {
         zz_normalize(w);
     }
-    return ZZ_OK;
-}
-
-/* TODO */
-zz_err
-zz_xor_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
-{
-    zz_t tmp;
-    zz_err ret = ZZ_MEM;
-
-    if (zz_init(&tmp) || zz_from_sl(v, &tmp) || (ret = zz_xor(u, &tmp, w))) {
-        return ret; /* LCOV_EXCL_LINE */
-    }
-    zz_clear(&tmp);
     return ZZ_OK;
 }
 
