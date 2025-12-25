@@ -230,7 +230,7 @@ Set @var{v} to @math{-@var{u}}.
 Set @var{w} to @m{@var{u} \times @var{v}, @var{u} × @var{v}}.
 @end deftypefun
 
-@deftypefun zz_err zz_mul_2exp (const zz_t *@var{u}, zz_limb_t @var{v}, zz_t *@var{w})
+@deftypefun zz_err zz_mul_2exp (const zz_t *@var{u}, zz_bitcnt_t @var{v}, zz_t *@var{w})
 Set @var{w} to @m{@var{u} \times 2^{@var{v}}, @var{u} × 2 raised to @var{v}}
 (left shift by @var{v} bits).
 @end deftypefun
@@ -243,7 +243,7 @@ Divide @var{u} by @var{v} and set the quotient @var{q} and the remainder
 is not required.
 @end deftypefun
 
-@deftypefun zz_err zz_quo_2exp (const zz_t *@var{u}, zz_limb_t @var{v}, zz_t *@var{w})
+@deftypefun zz_err zz_quo_2exp (const zz_t *@var{u}, zz_bitcnt_t @var{v}, zz_t *@var{w})
 Set @var{w} to quotent of @var{u} and @m{2^{@var{v}}, 2 raised to @var{v}}
 (right shift by @var{v} bits).
 @end deftypefun

@@ -1157,14 +1157,21 @@ zz_sl_div (zz_slimb_t u, const zz_t *v, zz_t *q, zz_t *r)
 }
 
 zz_err
-zz_quo_2exp(const zz_t *u, zz_limb_t shift, zz_t *v)
+zz_quo_2exp(const zz_t *u, zz_bitcnt_t shift, zz_t *v)
 {
     if (!u->size) {
         v->size = 0;
         return ZZ_OK;
     }
+    if (shift > ZZ_MAX_BITS) {
+        if (u->negative) {
+            return zz_from_sl(-1, v);
+        }
+        v->size = 0;
+        return ZZ_OK;
+    }
 
-    mp_size_t whole = (mp_size_t)(shift / ZZ_LIMB_T_BITS);
+    zz_size_t whole = (zz_size_t)(shift / ZZ_LIMB_T_BITS);
     zz_size_t size = u->size;
 
     shift %= ZZ_LIMB_T_BITS;
@@ -1214,15 +1221,18 @@ zz_quo_2exp(const zz_t *u, zz_limb_t shift, zz_t *v)
 }
 
 zz_err
-zz_mul_2exp(const zz_t *u, zz_limb_t shift, zz_t *v)
+zz_mul_2exp(const zz_t *u, zz_bitcnt_t shift, zz_t *v)
 {
     if (!u->size) {
         v->size = 0;
         return ZZ_OK;
     }
+    if (shift > ZZ_MAX_BITS) {
+        return ZZ_MEM;
+    }
 
-    mp_size_t whole = (mp_size_t)(shift / ZZ_LIMB_T_BITS);
-    mp_size_t u_size = u->size, v_size = u_size + whole;
+    zz_size_t whole = (zz_size_t)(shift / ZZ_LIMB_T_BITS);
+    zz_size_t u_size = u->size, v_size = u_size + whole;
 
     shift %= ZZ_LIMB_T_BITS;
     if (zz_resize((int64_t)v_size + (bool)shift, v)) {

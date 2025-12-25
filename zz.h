@@ -39,6 +39,8 @@ typedef uint64_t zz_bitcnt_t;
 #define ZZ_SIZE_T_MIN INT32_MIN
 #define ZZ_SIZE_T_BITS 32
 
+#define ZZ_MAX_BITS INT32_MAX*(uint64_t)ZZ_LIMB_T_BITS
+
 typedef struct {
     bool negative;
     zz_size_t alloc;
@@ -109,8 +111,8 @@ zz_err zz_or(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_or_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
 zz_err zz_xor(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_xor_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
-zz_err zz_mul_2exp(const zz_t *u, zz_limb_t v, zz_t *w);
-zz_err zz_quo_2exp(const zz_t *u, zz_limb_t v, zz_t *w);
+zz_err zz_mul_2exp(const zz_t *u, zz_bitcnt_t v, zz_t *w);
+zz_err zz_quo_2exp(const zz_t *u, zz_bitcnt_t v, zz_t *w);
 
 zz_err zz_sqrtrem(const zz_t *u, zz_t *v, zz_t *w);
 zz_err zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t);
