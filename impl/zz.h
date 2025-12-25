@@ -34,4 +34,13 @@ zz_err zz_resize(int64_t size, zz_t *u);
     z->_mp_size = (u->negative ? -1 : 1) * u->size; \
     z->_mp_alloc = u->alloc;
 
+#define SWAP(T, a, b) \
+    do {              \
+        T _tmp = a;   \
+        a = b;        \
+        b = _tmp;     \
+    } while (0);
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 #endif /* IMPL_ZZ_H */

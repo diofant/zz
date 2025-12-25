@@ -704,12 +704,11 @@ zz_bitcnt(const zz_t *u)
     return u->size ? mpn_popcount(u->digits, u->size) : 0;
 }
 
-#define BITS_TO_LIMBS(n) (((n) + (ZZ_LIMB_T_BITS - 1))/ZZ_LIMB_T_BITS)
-
 zz_err
 zz_import(size_t len, const void *digits, zz_layout layout, zz_t *u)
 {
-    size_t size = BITS_TO_LIMBS(len * layout.bits_per_limb);
+    size_t size = (len*layout.bits_per_limb
+                   + (ZZ_LIMB_T_BITS - 1))/ZZ_LIMB_T_BITS;
 
     if (len > SIZE_MAX / layout.bits_per_limb
         || zz_resize((int64_t)size, u))
@@ -744,13 +743,6 @@ zz_export(const zz_t *u, zz_layout layout, size_t len, void *digits)
                z);
     return ZZ_OK;
 }
-
-#define SWAP(T, a, b) \
-    do {              \
-        T _tmp = a;   \
-        a = b;        \
-        b = _tmp;     \
-    } while (0);
 
 static zz_err
 zz_addsub(const zz_t *u, const zz_t *v, bool subtract, zz_t *w)
@@ -1643,8 +1635,6 @@ zz_xor_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
     zz_clear(&tmp);
     return ZZ_OK;
 }
-
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 zz_err
 zz_pow(const zz_t *u, zz_limb_t v, zz_t *w)
