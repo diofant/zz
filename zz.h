@@ -28,12 +28,16 @@ typedef long zz_slimb_t;
 typedef uint64_t zz_bitcnt_t;
 
 #define ZZ_LIMB_T_MAX UINT64_MAX
+#define ZZ_LIMB_T_BITS 64
+#define ZZ_LIMB_T_MASK UINT64_MAX
 
 #define ZZ_SLIMB_T_MAX INT64_MAX
 #define ZZ_SLIMB_T_MIN INT64_MIN
+#define ZZ_SLIMB_T_BITS 64
 
 #define ZZ_SIZE_T_MAX INT32_MAX
 #define ZZ_SIZE_T_MIN INT32_MIN
+#define ZZ_SIZE_T_BITS 32
 
 typedef struct {
     bool negative;

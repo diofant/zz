@@ -46,12 +46,12 @@
 #if GMP_NAIL_BITS != 0
 #  error "GMP_NAIL_BITS expected to be 0"
 #endif
-#if GMP_NUMB_BITS != 64
-#  error "GMP_NUMB_BITS expected to be 64"
+#if GMP_LIMB_BITS != 64
+#  error "GMP_LIMB_BITS expected to be 64"
 #endif
 
-#if GMP_NUMB_BITS < DBL_MANT_DIG
-#  error GMP_NUMB_BITS expected to be more than GMP_NUMB_BITS
+#if ZZ_LIMB_T_BITS < DBL_MANT_DIG
+#  error ZZ_LIMB_T_BITS expected to be more than ZZ_LIMB_T_BITS
 #endif
 
 #if defined(_MSC_VER)
@@ -178,7 +178,7 @@ zz_setup(zz_info *info)
         info->version[0] = __GNU_MP_VERSION;
         info->version[1] = __GNU_MP_VERSION_MINOR;
         info->version[2] = __GNU_MP_VERSION_PATCHLEVEL;
-        info->bits_per_limb = GMP_LIMB_BITS;
+        info->bits_per_limb = ZZ_LIMB_T_BITS;
         info->limb_bytes = sizeof(mp_limb_t);
         info->limbcnt_bytes = sizeof(mp_size_t);
         info->bitcnt_bytes = sizeof(mp_bitcnt_t);
@@ -313,22 +313,12 @@ zz_from_sl(zz_slimb_t u, zz_t *v)
 
     bool negative = u < 0;
     zz_limb_t uv = (negative ? -((zz_limb_t)(u + 1) - 1) : (zz_limb_t)(u));
-#if GMP_NUMB_BITS < 64
-    zz_size_t size = 1 + (uv > GMP_NUMB_MAX);
-#else
-    zz_size_t size = 1;
-#endif
 
-    if (_zz_resize(size, v)) {
+    if (_zz_resize(1, v)) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
     v->negative = negative;
-    v->digits[0] = uv & GMP_NUMB_MASK;
-#if GMP_NUMB_BITS < 64
-    if (size == 2) {
-        v->digits[1] = uv >> GMP_NUMB_BITS;
-    }
-#endif
+    v->digits[0] = uv;
     return ZZ_OK;
 }
 
@@ -347,15 +337,9 @@ zz_to_sl(const zz_t *u, zz_slimb_t *v)
 
     zz_limb_t uv = u->digits[0];
 
-#if GMP_NUMB_BITS < 64
-    if (n == 2) {
-        uv += u->digits[1] << GMP_NUMB_BITS;
-    }
-#else
     if (n > 1) {
         return ZZ_VAL;
     }
-#endif
     if (u->negative) {
         if (uv <= ZZ_SLIMB_T_MAX + (zz_limb_t)1) {
             *v = -1 - (zz_slimb_t)((uv - 1) & ZZ_SLIMB_T_MAX);
@@ -627,7 +611,7 @@ zz_to_bytes(const zz_t *u, size_t length, bool is_signed, uint8_t **buffer)
         if (!is_signed) {
             return ZZ_BUF;
         }
-        if (_zz_resize(8*(int64_t)length/GMP_NUMB_BITS + 1, &tmp)) {
+        if (_zz_resize(8*(int64_t)length/ZZ_LIMB_T_BITS + 1, &tmp)) {
             return ZZ_MEM; /* LCOV_EXCL_LINE */
         }
         if (tmp.size < u->size) {
@@ -636,7 +620,7 @@ zz_to_bytes(const zz_t *u, size_t length, bool is_signed, uint8_t **buffer)
         mpn_zero(tmp.digits, tmp.size);
         tmp.digits[tmp.size - 1] = 1;
         tmp.digits[tmp.size - 1] <<= ((8*length)
-                                      % (GMP_NUMB_BITS*(size_t)tmp.size));
+                                      % (ZZ_LIMB_T_BITS*(size_t)tmp.size));
         mpn_sub(tmp.digits, tmp.digits, tmp.size, u->digits, u->size);
         zz_normalize(&tmp);
         u = &tmp;
@@ -653,7 +637,7 @@ overflow:
         return ZZ_BUF;
     }
 
-    size_t gap = length - (nbits + GMP_NUMB_BITS/8 - 1)/(GMP_NUMB_BITS/8);
+    size_t gap = length - (nbits + ZZ_LIMB_T_BITS/8 - 1)/(ZZ_LIMB_T_BITS/8);
 
     /* We use undocumented feature of mpn_get_str(): u->size >= 0 */
     mpn_get_str(*buffer + gap, 256, u->digits, u->size);
@@ -688,10 +672,10 @@ zz_from_bytes(const uint8_t *buffer, size_t length, bool is_signed, zz_t *u)
             u->digits[u->size - 1] -= 1;
         }
         u->digits[u->size - 1] = ~u->digits[u->size - 1];
-        assert(GMP_NUMB_BITS*u->size >= 8*length);
-        assert(GMP_NUMB_BITS*u->size < 8*length + GMP_NUMB_BITS);
+        assert(ZZ_LIMB_T_BITS*u->size >= 8*length);
+        assert(ZZ_LIMB_T_BITS*u->size < 8*length + ZZ_LIMB_T_BITS);
 
-        mp_size_t shift = (mp_size_t)(GMP_NUMB_BITS*(size_t)u->size
+        mp_size_t shift = (mp_size_t)(ZZ_LIMB_T_BITS*(size_t)u->size
                                       - 8*length);
 
         u->digits[u->size - 1] <<= shift;
@@ -720,7 +704,7 @@ zz_bitcnt(const zz_t *u)
     return u->size ? mpn_popcount(u->digits, u->size) : 0;
 }
 
-#define BITS_TO_LIMBS(n) (((n) + (GMP_NUMB_BITS - 1))/GMP_NUMB_BITS)
+#define BITS_TO_LIMBS(n) (((n) + (ZZ_LIMB_T_BITS - 1))/ZZ_LIMB_T_BITS)
 
 zz_err
 zz_import(size_t len, const void *digits, zz_layout layout, zz_t *u)
@@ -1188,10 +1172,10 @@ zz_quo_2exp(const zz_t *u, zz_limb_t shift, zz_t *v)
         return ZZ_OK;
     }
 
-    mp_size_t whole = (mp_size_t)(shift / GMP_NUMB_BITS);
+    mp_size_t whole = (mp_size_t)(shift / ZZ_LIMB_T_BITS);
     zz_size_t size = u->size;
 
-    shift %= GMP_NUMB_BITS;
+    shift %= ZZ_LIMB_T_BITS;
     if (whole >= size) {
         return zz_from_sl(u->negative ? -1 : 0, v);
     }
@@ -1206,7 +1190,7 @@ zz_quo_2exp(const zz_t *u, zz_limb_t shift, zz_t *v)
         }
     }
     for (mp_size_t i = whole; i < u->size; i++) {
-        if (u->digits[i] != GMP_NUMB_MAX) {
+        if (u->digits[i] != ZZ_LIMB_T_MAX) {
             extra = 0;
             break;
         }
@@ -1245,10 +1229,10 @@ zz_mul_2exp(const zz_t *u, zz_limb_t shift, zz_t *v)
         return ZZ_OK;
     }
 
-    mp_size_t whole = (mp_size_t)(shift / GMP_NUMB_BITS);
+    mp_size_t whole = (mp_size_t)(shift / ZZ_LIMB_T_BITS);
     mp_size_t u_size = u->size, v_size = u_size + whole;
 
-    shift %= GMP_NUMB_BITS;
+    shift %= ZZ_LIMB_T_BITS;
     if (_zz_resize((int64_t)v_size + (bool)shift, v)) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
@@ -1660,7 +1644,6 @@ zz_xor_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
     return ZZ_OK;
 }
 
-#define GMP_LIMB_MAX ((mp_limb_t) ~(mp_limb_t)0)
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 zz_err
@@ -1690,7 +1673,7 @@ zz_pow(const zz_t *u, zz_limb_t v, zz_t *w)
     if (zz_cmp_sl(u, 1) == ZZ_EQ) {
         return zz_from_sl(1, w);
     }
-    if (v > MIN(GMP_LIMB_MAX, ZZ_SIZE_T_MAX / (uint64_t)u->size)) {
+    if (v > MIN(ZZ_LIMB_T_MAX, ZZ_SIZE_T_MAX / (uint64_t)u->size)) {
         return ZZ_BUF;
     }
 
@@ -2061,7 +2044,7 @@ zz_sqrtrem(const zz_t *u, zz_t *v, zz_t *w)
     return ZZ_OK;
 }
 
-#define MK_ZZ_FUNC_UL(name, mpz_suff)                \
+#define ZZ_FUNC_UL(name, mpz_suff)                   \
     zz_err                                           \
     zz_##name(zz_limb_t u, zz_t *v)                  \
     {                                                \
@@ -2087,9 +2070,9 @@ zz_sqrtrem(const zz_t *u, zz_t *v, zz_t *w)
         return ZZ_OK;                                \
     }
 
-MK_ZZ_FUNC_UL(fac, fac_ui)
-MK_ZZ_FUNC_UL(fac2, 2fac_ui)
-MK_ZZ_FUNC_UL(fib, fib_ui)
+ZZ_FUNC_UL(fac, fac_ui)
+ZZ_FUNC_UL(fac2, 2fac_ui)
+ZZ_FUNC_UL(fib, fib_ui)
 
 zz_err
 zz_bin(zz_limb_t n, zz_limb_t k, zz_t *v)
