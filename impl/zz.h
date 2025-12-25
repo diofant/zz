@@ -25,7 +25,7 @@ extern _Thread_local jmp_buf zz_env;
    might be changed - please add a workaround. */
 #define TMP_OVERFLOW (setjmp(zz_env) == 1)
 
-zz_err _zz_resize(int64_t size, zz_t *u);
+zz_err zz_resize(int64_t size, zz_t *u);
 
 #define TMP_MPZ(z, u)                               \
     mpz_t z;                                        \
