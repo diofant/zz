@@ -568,11 +568,12 @@ err:
 static bool
 zz_tstbit(const zz_t *u, zz_bitcnt_t idx)
 {
-    TMP_MPZ(z, u);
-    if (u->negative) {
-        mpz_neg(z, z);
+    zz_size_t limb_idx = (zz_size_t)(idx / ZZ_LIMB_T_BITS);
+
+    if (limb_idx >= u->size) {
+        return false;
     }
-    return mpz_tstbit(z, idx);
+    return (u->digits[limb_idx] >> (idx%ZZ_LIMB_T_BITS)) & 1;
 }
 
 zz_err
@@ -581,12 +582,12 @@ zz_to_double(const zz_t *u, double *d)
     zz_bitcnt_t bits = zz_bitlen(u);
     TMP_MPZ(z, u);
     *d = mpz_get_d(z); /* round towards zero */
-    if (bits <= DBL_MAX_EXP) {
+    if (DBL_MANT_DIG < bits && bits <= DBL_MAX_EXP) {
         bits -= DBL_MANT_DIG + 1;
-        if (bits >= 0 && zz_tstbit(u, bits) == 1) {
+        if (zz_tstbit(u, bits)) {
             zz_bitcnt_t tz = zz_lsbpos(u);
 
-            if (tz < bits || (tz == bits && zz_tstbit(u, bits + 1) == 1)) {
+            if (tz < bits || (tz == bits && zz_tstbit(u, bits + 1))) {
                 *d = nextafter(*d, 2 * (*d)); /* round away from zero */
             }
         }
