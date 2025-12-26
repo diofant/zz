@@ -17,7 +17,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef int32_t zz_size_t;
 #ifndef __APPLE__
 typedef uint64_t zz_limb_t;
 typedef int64_t zz_slimb_t;
@@ -25,21 +24,31 @@ typedef int64_t zz_slimb_t;
 typedef unsigned long zz_limb_t;
 typedef long zz_slimb_t;
 #endif
-typedef uint64_t zz_bitcnt_t;
 
 #define ZZ_LIMB_T_MAX UINT64_MAX
 #define ZZ_LIMB_T_BITS 64
+#define ZZ_LIMB_T_BYTES 8
 #define ZZ_LIMB_T_MASK UINT64_MAX
 
 #define ZZ_SLIMB_T_MAX INT64_MAX
 #define ZZ_SLIMB_T_MIN INT64_MIN
 #define ZZ_SLIMB_T_BITS 64
 
-#define ZZ_SIZE_T_MAX INT32_MAX
-#define ZZ_SIZE_T_MIN INT32_MIN
-#define ZZ_SIZE_T_BITS 32
+typedef uint64_t zz_bitcnt_t;
 
-#define ZZ_MAX_BITS INT32_MAX*(uint64_t)ZZ_LIMB_T_BITS
+#ifndef _WIN32
+typedef int64_t zz_size_t;
+#  define ZZ_SIZE_T_MAX INT64_MAX
+#  define ZZ_SIZE_T_MIN INT64_MIN
+#  define ZZ_SIZE_T_BITS 64
+#define ZZ_MAX_BITS UINT64_MAX
+#else
+typedef int32_t zz_size_t;
+#  define ZZ_SIZE_T_MAX INT32_MAX
+#  define ZZ_SIZE_T_MIN INT32_MIN
+#  define ZZ_SIZE_T_BITS 32
+#define ZZ_MAX_BITS ZZ_SIZE_T_MAX*(uint64_t)ZZ_LIMB_T_BITS
+#endif
 
 typedef struct {
     bool negative;

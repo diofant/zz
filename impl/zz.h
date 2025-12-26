@@ -25,14 +25,16 @@ extern _Thread_local jmp_buf zz_env;
    might be changed - please add a workaround. */
 #define TMP_OVERFLOW (setjmp(zz_env) == 1)
 
-zz_err zz_resize(int64_t size, zz_t *u);
-
-#define TMP_MPZ(z, u)                               \
-    mpz_t z;                                        \
-                                                    \
-    z->_mp_d = u->digits;                           \
-    z->_mp_size = (u->negative ? -1 : 1) * u->size; \
-    z->_mp_alloc = u->alloc;
+#define TMP_MPZ(z, u)                                    \
+    mpz_t z;                                             \
+                                                         \
+    if (u->alloc > INT_MAX) {                            \
+        return ZZ_MEM;                                   \
+    }                                                    \
+    assert(u->size <= u->alloc);                         \
+    z->_mp_d = u->digits;                                \
+    z->_mp_size = (u->negative ? -1 : 1) * (int)u->size; \
+    z->_mp_alloc = (int)u->alloc;
 
 #define SWAP(T, a, b) \
     do {              \
