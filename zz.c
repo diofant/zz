@@ -40,8 +40,7 @@
 #  define isinf __builtin_isinf
 #endif
 
-#include "zz.h"
-#include "impl/zz.h"
+#include "zz-impl.h"
 
 #if GMP_NAIL_BITS != 0
 #  error "GMP_NAIL_BITS expected to be 0"
@@ -579,6 +578,11 @@ zz_tstbit(const zz_t *u, zz_bitcnt_t idx)
 zz_err
 zz_to_double(const zz_t *u, double *d)
 {
+    if (u->size > INT_MAX) {
+        *d = u->negative ? -INFINITY : INFINITY;
+        return ZZ_BUF;
+    }
+
     zz_bitcnt_t bits = zz_bitlen(u);
     TMP_MPZ(z, u);
     *d = mpz_get_d(z); /* round towards zero */
@@ -711,6 +715,7 @@ zz_import(size_t len, const void *digits, zz_layout layout, zz_t *u)
                    + (ZZ_LIMB_T_BITS - 1))/ZZ_LIMB_T_BITS;
 
     if (len > SIZE_MAX / layout.bits_per_limb
+        || size > INT_MAX
         || zz_resize((uint64_t)size, u))
     {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
@@ -733,6 +738,9 @@ zz_export(const zz_t *u, zz_layout layout, size_t len, void *digits)
                - 1)/layout.bits_per_limb)
     {
         return ZZ_VAL;
+    }
+    if (u->size > INT_MAX) {
+        return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
 
     TMP_MPZ(z, u);
@@ -1927,6 +1935,9 @@ mem:
         }
         u = &o2;
         v = &o1;
+    }
+    if (u->size > INT_MAX || v->size > INT_MAX || w->size > INT_MAX) {
+        return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
 
     mpz_t z;

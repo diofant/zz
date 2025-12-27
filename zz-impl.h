@@ -13,7 +13,10 @@
 #ifndef IMPL_ZZ_H
 #define IMPL_ZZ_H
 
+#include <assert.h>
 #include <setjmp.h>
+
+#include "zz.h"
 
 extern _Thread_local jmp_buf zz_env;
 /* Function should include if(TMP_OVERFLOW){...} workaround in
@@ -28,10 +31,7 @@ extern _Thread_local jmp_buf zz_env;
 #define TMP_MPZ(z, u)                                    \
     mpz_t z;                                             \
                                                          \
-    if (u->alloc > INT_MAX) {                            \
-        return ZZ_MEM;                                   \
-    }                                                    \
-    assert(u->size <= u->alloc);                         \
+    assert(u->size <= INT_MAX);                          \
     z->_mp_d = u->digits;                                \
     z->_mp_size = (u->negative ? -1 : 1) * (int)u->size; \
     z->_mp_alloc = (int)u->alloc;

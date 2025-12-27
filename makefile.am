@@ -6,7 +6,7 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = doc tests
 
 lib_LTLIBRARIES = libzz.la
-libzz_la_SOURCES = impl/zz.h zz.c
+libzz_la_SOURCES = zz-impl.h zz.c
 
 pkginclude_HEADERS = zz.h
 
