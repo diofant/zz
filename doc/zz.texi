@@ -9,8 +9,8 @@
 @end direntry
 
 @set UPDATED 27 Dec 2025
-@set EDITION 0.7.0
-@set VERSION 0.7.0
+@set EDITION 0.8.0a0
+@set VERSION 0.8.0a0
 
 @iftex
 @copying

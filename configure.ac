@@ -28,7 +28,7 @@ AH_TOP(ZZ_COPYRIGHT_C)
 
 AC_PREREQ(2.62)
 
-AC_INIT([zz],[0.7.0],[skirpichev@gmail.com])
+AC_INIT([zz],[0.8.0a0],[skirpichev@gmail.com])
 #AC_CONFIG_SRCDIR(zz.h)
 AC_CONFIG_MACRO_DIRS([m4])
 
