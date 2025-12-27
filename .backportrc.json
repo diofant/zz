@@ -1,0 +1,16 @@
+// .backportrc.json -- for https://github.com/sorenlouv/backport
+{
+  // Required
+  "repoOwner": "diofant",
+  "repoName": "zz",
+  // the branches available to backport to
+  "targetBranchChoices": ["zz-0.7.x"],
+  // Automatically detect which branches a pull request should be
+  // backported to based on the pull request labels.
+  "branchLabelMapping": {
+    "^backport-to-(.+)$": "zz-$1"
+  },
+  "targetPRLabels": ["backport"],
+  "sourcePRLabels": ["backport-pr-created"],
+  "commitConflicts": true
+}
