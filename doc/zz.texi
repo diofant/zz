@@ -8,9 +8,9 @@
 * zz: (zz).                   ZZ, wrapper for the GNU GMP
 @end direntry
 
-@set UPDATED 26 Dec 2025
-@set EDITION 0.7.0a3
-@set VERSION 0.7.0a3
+@set UPDATED 27 Dec 2025
+@set EDITION 0.7.0
+@set VERSION 0.7.0
 
 @iftex
 @copying
