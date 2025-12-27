@@ -368,7 +368,7 @@ by the type @code{zz_layout} with following fields:
 @end itemize
 
 @deftypefun zz_err zz_import (size_t @var{len}, const void *@var{data}, zz_layout @var{layout}, zz_t *@var{u})
-Set @var{u} from @var{data} array in specified @var{layout}.
+Set magnitude of @var{u} from @var{data} array in specified @var{layout}.
 @end deftypefun
 
 @deftypefun zz_err zz_export (const zz_t *@var{u}, zz_layout @var{layout}, size_t @var{len}, void *@var{data})
