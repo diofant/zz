@@ -173,8 +173,9 @@ letters represent values in range 10 to 35.
 @end deftypefun
 
 @deftypefun zz_err zz_from_bytes (const uint8_t *@var{buf}, size_t @var{len}, bool @var{negative}, zz_t *@var{u})
-Set @var{u} from bytes array in @var{buf} of size @var{len}, interpreted as an
-integer in twos complement representation, being negative if @var{negative} is
+Set @var{u} from bytes array in @var{buf} (big endian) of size @var{len},
+interpreted as an integer in twos complement representation, being negative if
+@var{negative} is
 @code{true}.
 @end deftypefun
 
@@ -200,9 +201,9 @@ may vary from 2 to 36, and return the number of characters in @var{len}.  The
 @end deftypefun
 
 @deftypefun zz_err zz_to_bytes (const zz_t *@var{u}, size_t @var{len}, bool @var{is_signed}, uint8_t **@var{buf})
-Convert @var{u} to array of bytes @var{buf} of size @var{len}, using twos
-complement representation if @var{is_signed} is @code{true}.  The @var{buf} has
-to have enough space.
+Convert @var{u} to array of bytes @var{buf} (big endian) of size @var{len},
+using twos complement representation if @var{is_signed} is @code{true}.  The
+@var{buf} has to have enough space.
 @end deftypefun
 
 @node Arithmetics on Integers, Exponentiation, Converting Integers, Functions
