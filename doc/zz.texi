@@ -184,8 +184,12 @@ integer in twos complement representation, being negative if @var{negative} is
 @cindex Conversion functions
 
 @deftypefun zz_err zz_to_sl (const zz_t *@var{u}, zz_slimb_t *@var{v})
-@deftypefunx zz_err zz_to_double (const zz_t *@var{u}, double *@var{v})
 Convert @var{u} to @var{v}.
+@end deftypefun
+
+@deftypefun zz_err zz_to_double (const zz_t *@var{u}, double *@var{v})
+Convert @var{u} to @var{v}, rounding to nearest, with the half to even
+tie-breaking rounding rule (roundTiesToEven in IEEE 754, the default).
 @end deftypefun
 
 @deftypefun zz_err zz_to_str (const zz_t *@var{u}, int8_t @var{base}, int8_t *@var{str}, size_t *@var{len})
