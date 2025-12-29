@@ -1,0 +1,90 @@
+/*
+    Copyright (C) 2024, 2025 Sergey B Kirpichev
+
+    This file is part of the ZZ Library.
+
+    The ZZ Library is free software: you can redistribute it and/or modify it
+    under the terms of the GNU Lesser General Public License (LGPL) as
+    published by the Free Software Foundation; either version 3 of the License,
+    or (at your option) any later version.  See
+    <https://www.gnu.org/licenses/>.
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#include "tests/tests.h"
+
+zz_err
+zz_ref_powm(const zz_t *u, const zz_t *v, const zz_t *w, zz_t *r)
+{
+    mpz_t z;
+    TMP_MPZ(mu, u);
+    TMP_MPZ(mv, v);
+    TMP_MPZ(mw, w);
+    if (TMP_OVERFLOW) {
+        return ZZ_MEM;
+    }
+    mpz_init(z);
+    mpz_powm(z, mu, mv, mw);
+
+    zz_t tmp = {z->_mp_size < 0, ABS(z->_mp_size),
+                ABS(z->_mp_size),
+                z->_mp_d};
+    if (zz_copy(&tmp, r)) {
+        mpz_clear(z);
+        return ZZ_MEM;
+    }
+    mpz_clear(z);
+    return ZZ_OK;
+}
+
+void
+check_powm_bulk(void)
+{
+    zz_bitcnt_t bs = 512;
+    size_t nex = 1000000;
+
+    for (size_t i = 0; i < nex; i++) {
+        zz_t u, v, w, z;
+
+        if (zz_init(&u) || zz_random(bs, true, &u)) {
+            abort();
+        }
+        if (zz_init(&v) || zz_random(32, true, &v)) {
+            abort();
+        }
+        if (zz_init(&w) || zz_random(bs, false, &w)) {
+            abort();
+        }
+        if (zz_init(&z)) {
+            abort();
+        }
+        if (zz_powm(&u, &v, &w, &z) == ZZ_OK) {
+            zz_t r;
+
+            if (zz_init(&r) || zz_ref_powm(&u, &v, &w, &r)
+                || zz_cmp(&z, &r) != ZZ_EQ)
+            {
+                abort();
+            }
+            zz_clear(&r);
+        }
+        zz_clear(&u);
+        zz_clear(&v);
+        zz_clear(&w);
+        zz_clear(&z);
+    }
+}
+
+int main(void)
+{
+    srand((unsigned int)time(NULL));
+    zz_testinit();
+    zz_setup(NULL);
+    check_powm_bulk();
+    zz_finish();
+    return 0;
+}

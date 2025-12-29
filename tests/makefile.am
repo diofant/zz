@@ -1,5 +1,10 @@
 TESTS = $(check_PROGRAMS)
 
-check_PROGRAMS = t-fac t-misc t-mul
-LDADD = $(top_builddir)/libzz.la
+check_LTLIBRARIES = libtests.la
+
+libtests_la_SOURCES = tests.h utils.c
+libtests_la_LIBADD = $(libtests_la_DEPENDENCIES) $(top_builddir)/libzz.la
+
+check_PROGRAMS = t-binop t-bytes t-fac t-misc t-mul t-powm t-shifts t-str t-unop
+LDADD = libtests.la $(top_builddir)/libzz.la
 AM_CFLAGS = -I$(top_srcdir)
