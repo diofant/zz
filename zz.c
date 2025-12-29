@@ -183,7 +183,7 @@ zz_init(zz_t *u)
     return ZZ_OK;
 }
 
-zz_err
+static zz_err
 zz_resize(uint64_t size, zz_t *u)
 {
     if (u->alloc >= size) {
@@ -194,7 +194,7 @@ zz_resize(uint64_t size, zz_t *u)
         return ZZ_OK;
     }
     if (size > ZZ_SIZE_T_MAX/ZZ_LIMB_T_BYTES) {
-        return ZZ_MEM;
+        return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
 
     zz_size_t alloc = (zz_size_t)size;
