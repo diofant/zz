@@ -549,9 +549,7 @@ zz_tstbit(const zz_t *u, zz_bitcnt_t idx)
 {
     zz_size_t limb_idx = (zz_size_t)(idx / ZZ_LIMB_T_BITS);
 
-    if (limb_idx >= u->size) {
-        return false;
-    }
+    assert(u->size > limb_idx);
     return (u->digits[limb_idx] >> (idx%ZZ_LIMB_T_BITS)) & 1;
 }
 
