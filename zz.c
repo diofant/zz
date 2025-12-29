@@ -1852,7 +1852,7 @@ err:
         return ZZ_MEM;
         /* LCOV_EXCL_STOP */
     }
-    if (zz_div(u, &g, w, NULL) || zz_mul(w, v, w)) {
+    if (zz_div(u, &g, &g, NULL) || zz_mul(&g, v, w)) {
         goto err; /* LCOV_EXCL_LINE */
     }
     zz_clear(&g);
