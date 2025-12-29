@@ -578,7 +578,7 @@ zz_tstbit(const zz_t *u, zz_bitcnt_t idx)
 zz_err
 zz_to_double(const zz_t *u, double *d)
 {
-    if (u->size > INT_MAX) {
+    if (u->size > DBL_MAX_EXP/ZZ_LIMB_T_BITS + 1) {
         *d = u->negative ? -INFINITY : INFINITY;
         return ZZ_BUF;
     }
