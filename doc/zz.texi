@@ -338,14 +338,6 @@ Set @var{w} to the least common multiple of @var{u} and @var{v}.
 Set @var{v} to @math{@var{u}!}.
 @end deftypefun
 
-@deftypefun zz_err zz_fac2 (zz_limb_t @var{u}, zz_t *@var{v})
-Set @var{v} to @math{@var{u}!!}.
-@end deftypefun
-
-@deftypefun zz_err zz_fib (zz_limb_t @var{u}, zz_t *@var{v})
-Set @var{v} to the @var{v}-th Fibonacci number.
-@end deftypefun
-
 @deftypefun zz_err zz_bin (zz_limb_t @var{n}, zz_limb_t @var{k}, zz_t *@var{v})
 Set @var{v} to the binomial coefficient @m{\left({n}\atop{k}\right),@var{n}
 over @var{k}}.

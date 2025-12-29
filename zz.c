@@ -2013,42 +2013,41 @@ zz_sqrtrem(const zz_t *u, zz_t *v, zz_t *w)
     return ZZ_OK;
 }
 
-#define ZZ_FUNC_UL(name, mpz_suff)                           \
-    zz_err                                                   \
-    zz_##name(zz_limb_t u, zz_t *v)                          \
-    {                                                        \
-        if (u > ULONG_MAX) {                                 \
-            return ZZ_BUF;                                   \
-        }                                                    \
-        if (TMP_OVERFLOW) {                                  \
-            return ZZ_MEM; /* LCOV_EXCL_LINE */              \
-        }                                                    \
-                                                             \
-        mpz_t z;                                             \
-                                                             \
-        mpz_init(z);                                         \
-        mpz_##mpz_suff(z, (unsigned long)u);                 \
-        if (zz_resize((uint64_t)z->_mp_size, v) == ZZ_MEM) { \
-            /* LCOV_EXCL_START */                            \
-            mpz_clear(z);                                    \
-            return ZZ_MEM;                                   \
-            /* LCOV_EXCL_STOP */                             \
-        }                                                    \
-        mpn_copyi(v->digits, z->_mp_d, z->_mp_size);         \
-        mpz_clear(z);                                        \
-        return ZZ_OK;                                        \
+zz_err
+zz_fac(zz_limb_t u, zz_t *v)
+{
+#if ULONG_MAX < ZZ_LIMB_T_MAX
+    if (n > ULONG_MAX || k > ULONG_MAX) {
+        return ZZ_BUF;
+    }
+#endif
+    if (TMP_OVERFLOW) {
+        return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
 
-ZZ_FUNC_UL(fac, fac_ui)
-ZZ_FUNC_UL(fac2, 2fac_ui)
-ZZ_FUNC_UL(fib, fib_ui)
+    mpz_t z;
+
+    mpz_init(z);
+    mpz_fac_ui(z, (unsigned long)u);
+    if (zz_resize((uint64_t)z->_mp_size, v) == ZZ_MEM) {
+        /* LCOV_EXCL_START */
+        mpz_clear(z);
+        return ZZ_MEM;
+        /* LCOV_EXCL_STOP */
+    }
+    mpn_copyi(v->digits, z->_mp_d, z->_mp_size);
+    mpz_clear(z);
+    return ZZ_OK;
+}
 
 zz_err
 zz_bin(zz_limb_t n, zz_limb_t k, zz_t *v)
 {
+#if ULONG_MAX < ZZ_LIMB_T_MAX
     if (n > ULONG_MAX || k > ULONG_MAX) {
         return ZZ_BUF;
     }
+#endif
     if (TMP_OVERFLOW) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }

@@ -125,8 +125,6 @@ zz_err zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t);
 zz_err zz_lcm(const zz_t *u, const zz_t *v, zz_t *w);
 
 zz_err zz_fac(zz_limb_t u, zz_t *v);
-zz_err zz_fac2(zz_limb_t u, zz_t *v);
-zz_err zz_fib(zz_limb_t u, zz_t *v);
 zz_err zz_bin(zz_limb_t n, zz_limb_t k, zz_t *v);
 
 typedef struct {
