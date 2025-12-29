@@ -16,6 +16,26 @@
 #include <assert.h>
 #include <setjmp.h>
 
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wconversion"
+#endif
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+#include <gmp.h>
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
+
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  define isinf __builtin_isinf
+#endif
+
 #include "zz.h"
 
 extern _Thread_local jmp_buf zz_env;
