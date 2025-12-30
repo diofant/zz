@@ -20,6 +20,30 @@
 
 #include "tests/tests.h"
 
+void check_fac_outofmem(void)
+{
+    for (size_t i = 0; i < 7; i++) {
+        uint64_t x = 12811 + (uint64_t)(rand() % 12173);
+        zz_t mx;
+
+        if (zz_init(&mx)) {
+            abort();
+        }
+        while (1) {
+            zz_err r = zz_fac(x, &mx);
+
+            if (r != ZZ_OK) {
+                if (r == ZZ_MEM) {
+                    break;
+                }
+                abort();
+            }
+            x *= 2;
+        }
+        zz_clear(&mx);
+    }
+}
+
 void check_square_outofmem(void)
 {
     for (size_t i = 0; i < 7; i++) {
@@ -116,6 +140,23 @@ int main(void)
 #if HAVE_PTHREAD_H
     check_square_outofmem_pthread();
 #endif
+    new.rlim_cur = 32*1000*1000;
+    if (setrlimit(RLIMIT_AS, &new)) {
+        perror("setrlimit");
+        return 1;
+    }
+    /* to trigger crash for GMP builds with alloca() enabled */
+    if (getrlimit(RLIMIT_STACK, &old)) {
+        perror("getrlimit");
+        return 1;
+    }
+    new.rlim_max = old.rlim_max;
+    new.rlim_cur = 128*1000;
+    if (setrlimit(RLIMIT_STACK, &new)) {
+        perror("setrlimit");
+        return 1;
+    }
+    check_fac_outofmem();
     zz_finish();
     return 0;
 }
