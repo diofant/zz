@@ -539,7 +539,7 @@ check_shifts(void)
         abort();
     }
     if (zz_from_sl(1, &u) ||
-        zz_mul_2exp(&u, ZZ_MAX_BITS, &u) != ZZ_MEM)
+        zz_mul_2exp(&u, ZZ_BITS_MAX, &u) != ZZ_MEM)
     {
         abort();
     }

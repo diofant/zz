@@ -193,7 +193,7 @@ zz_resize(uint64_t size, zz_t *u)
         }
         return ZZ_OK;
     }
-    if (size > ZZ_SIZE_T_MAX/ZZ_LIMB_T_BYTES) {
+    if (size > ZZ_LIMBS_MAX) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
 
@@ -1149,25 +1149,15 @@ zz_quo_2exp(const zz_t *u, zz_bitcnt_t shift, zz_t *v)
         v->size = 0;
         return ZZ_OK;
     }
-    if (shift > ZZ_MAX_BITS) {
-        if (u->negative) {
-            return zz_from_sl(-1, v);
-        }
-        v->size = 0;
-        return ZZ_OK;
+    if (shift >= (zz_bitcnt_t)u->size*ZZ_LIMB_T_BITS) {
+        return zz_from_sl(u->negative ? -1 : 0, v);
     }
 
     zz_size_t whole = (zz_size_t)(shift / ZZ_LIMB_T_BITS);
-    zz_size_t size = u->size;
-
-    shift %= ZZ_LIMB_T_BITS;
-    if (whole >= size) {
-        return zz_from_sl(u->negative ? -1 : 0, v);
-    }
-    size -= (zz_size_t)whole;
-
+    zz_size_t size = u->size - whole;
     bool carry = false, extra = true;
 
+    shift %= ZZ_LIMB_T_BITS;
     for (mp_size_t i = 0; i < whole; i++) {
         if (u->digits[i]) {
             carry = u->negative;
@@ -1213,7 +1203,7 @@ zz_mul_2exp(const zz_t *u, zz_bitcnt_t shift, zz_t *v)
         v->size = 0;
         return ZZ_OK;
     }
-    if (shift > ZZ_MAX_BITS - zz_bitcnt(u)) {
+    if (shift > ZZ_BITS_MAX - zz_bitcnt(u)) {
         return ZZ_MEM;
     }
 
@@ -1617,7 +1607,7 @@ zz_pow(const zz_t *u, zz_limb_t v, zz_t *w)
     if (zz_cmp_sl(u, 1) == ZZ_EQ) {
         return zz_from_sl(1, w);
     }
-    if (v > MIN(ZZ_LIMB_T_MAX, ZZ_SIZE_T_MAX / (uint64_t)u->size)) {
+    if (v > ZZ_LIMBS_MAX / u->size) {
         return ZZ_BUF;
     }
 
