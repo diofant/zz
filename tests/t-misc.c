@@ -73,25 +73,6 @@ check_cmp_bulk(void)
 }
 
 void
-check_add_sl()
-{
-    zz_t u;
-
-    if (zz_init(&u) || zz_from_sl(0, &u)) {
-        abort();
-    }
-    if (zz_add_sl(&u, 2, &u) || zz_cmp_sl(&u, 2) != ZZ_EQ) {
-        abort();
-    }
-    if (zz_from_sl(0, &u) || zz_add_sl(&u, 0, &u)
-        || zz_cmp_sl(&u, 0) != ZZ_EQ)
-    {
-        abort();
-    }
-    zz_clear(&u);
-}
-
-void
 check_lsbpos()
 {
     zz_t u;
@@ -162,27 +143,6 @@ check_from_str()
 }
 
 void
-check_mul()
-{
-    zz_t u, v;
-
-    if (zz_init(&u) || zz_from_sl(2, &u)) {
-        abort();
-    }
-    if (zz_init(&v) || zz_from_sl(3, &v)) {
-        abort();
-    }
-    if (zz_mul(&u, &v, &u) || zz_cmp_sl(&u, 6) != ZZ_EQ) {
-        abort();
-    }
-    if (zz_mul(&u, &v, &v) || zz_cmp_sl(&v, 18) != ZZ_EQ) {
-        abort();
-    }
-    zz_clear(&u);
-    zz_clear(&v);
-}
-
-void
 check_div(void)
 {
     zz_t u, v;
@@ -191,9 +151,6 @@ check_div(void)
         abort();
     }
     if (zz_init(&v) || zz_from_sl(2, &v)) {
-        abort();
-    }
-    if (zz_div(&u, &v, &v, NULL) || zz_cmp_sl(&v, 2) != ZZ_EQ) {
         abort();
     }
     if (zz_div(&u, &v, NULL, NULL) != ZZ_VAL) {
@@ -572,12 +529,10 @@ int main(void)
     check_cmp_sl();
     check_cmp();
     check_cmp_bulk();
-    check_add_sl();
     check_lsbpos();
     check_export();
     check_to_str();
     check_from_str();
-    check_mul();
     check_div();
     check_div_sl();
     check_sl_div();

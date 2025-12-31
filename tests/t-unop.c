@@ -18,6 +18,84 @@
 
 #include "tests/tests.h"
 
+#define ZZ_UNOP_REF(op)                                \
+    zz_err                                             \
+    zz_ref_##op(const zz_t *u, zz_t *v)                \
+    {                                                  \
+        mpz_t z;                                       \
+        TMP_MPZ(mu, u);                                \
+        if (TMP_OVERFLOW) {                            \
+            return ZZ_MEM;                             \
+        }                                              \
+        mpz_init(z);                                   \
+        mpz_##op(z, mu);                               \
+                                                       \
+        zz_t tmp = {z->_mp_size < 0, ABS(z->_mp_size), \
+                    ABS(z->_mp_size),                  \
+                    z->_mp_d};                         \
+        if (zz_copy(&tmp, v)) {                        \
+            mpz_clear(z);                              \
+            return ZZ_MEM;                             \
+        }                                              \
+        mpz_clear(z);                                  \
+        return ZZ_OK;                                  \
+    }
+
+#define TEST_UNOP_EXAMPLE(op, arg)                        \
+    do {                                                  \
+        zz_t u, v, r;                                     \
+                                                          \
+        if (zz_init(&u) || zz_init(&v)) {                 \
+            abort();                                      \
+        }                                                 \
+        if (zz_copy(arg, &u)) {                           \
+            abort();                                      \
+        }                                                 \
+        if (zz_init(&r) || zz_ref_##op(&u, &r)) {         \
+            abort();                                      \
+        }                                                 \
+        if (zz_##op(&u, &v) || zz_cmp(&v, &r) != ZZ_EQ) { \
+            abort();                                      \
+        }                                                 \
+        if (zz_copy(&u, &v) || zz_##op(&v, &v)            \
+            || zz_cmp(&v, &r) != ZZ_EQ) {                 \
+            abort();                                      \
+        }                                                 \
+        zz_clear(&u);                                     \
+        zz_clear(&v);                                     \
+        zz_clear(&r);                                     \
+    } while (0);
+
+typedef struct {
+    char *u;
+} zz_un_ex;
+
+#define TEST_UNOP(op, ex, bs, neg, nex)                        \
+    void                                                       \
+    check_##op##_bulk(void)                                    \
+    {                                                          \
+        size_t ex_len = sizeof(ex)/sizeof(zz_un_ex);           \
+                                                               \
+        for (size_t i = 0; i < ex_len; i++) {                  \
+            zz_t arg;                                          \
+                                                               \
+            if (zz_init(&arg) || zz_from_dec(ex[i].u, &arg)) { \
+                abort();                                       \
+            }                                                  \
+            TEST_UNOP_EXAMPLE(op, &arg);                       \
+            zz_clear(&arg);                                    \
+        }                                                      \
+        for (size_t i = 0; i < nex; i++) {                     \
+            zz_t arg;                                          \
+                                                               \
+            if (zz_init(&arg) || zz_random(bs, neg, &arg)) {   \
+                abort();                                       \
+            }                                                  \
+            TEST_UNOP_EXAMPLE(op, &arg);                       \
+            zz_clear(&arg);                                    \
+        }                                                      \
+    }
+
 ZZ_UNOP_REF(neg)
 ZZ_UNOP_REF(abs)
 
