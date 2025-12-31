@@ -1636,11 +1636,8 @@ zz_pow(const zz_t *u, zz_limb_t v, zz_t *w)
 static zz_err
 zz_gcd(const zz_t *u, const zz_t *v, zz_t *w)
 {
-    if (!u->size) {
-        if (zz_abs(v, w) == ZZ_MEM) {
-            return ZZ_MEM; /* LCOV_EXCL_LINE */
-        }
-        return ZZ_OK;
+    if (u->size < v->size) {
+        SWAP(const zz_t *, u, v);
     }
     if (!v->size) {
         if (zz_abs(u, w) == ZZ_MEM) {
@@ -1649,17 +1646,14 @@ zz_gcd(const zz_t *u, const zz_t *v, zz_t *w)
         return ZZ_OK;
     }
 
-    mp_limb_t shift = MIN(mpn_scan1(u->digits, 0), mpn_scan1(v->digits, 0));
+    zz_bitcnt_t shift = MIN(zz_lsbpos(u), zz_lsbpos(v));
     zz_t *volatile o1 = malloc(sizeof(zz_t));
     zz_t *volatile o2 = malloc(sizeof(zz_t));
 
     if (!o1 || !o2) {
         goto free; /* LCOV_EXCL_LINE */
     }
-    if (zz_init(o1) || zz_init(o2)) {
-        goto clear; /* LCOV_EXCL_LINE */
-    }
-    if (zz_abs(u, o1) || zz_abs(v, o2)) {
+    if (zz_init(o1) || zz_init(o2) || zz_abs(u, o1) || zz_abs(v, o2)) {
         goto clear; /* LCOV_EXCL_LINE */
     }
     if (shift && (zz_quo_2exp(o1, shift, o1) || zz_quo_2exp(o2, shift, o2))) {
@@ -1667,15 +1661,17 @@ zz_gcd(const zz_t *u, const zz_t *v, zz_t *w)
     }
     u = o1;
     v = o2;
-    if (u->size < v->size) {
-        SWAP(const zz_t *, u, v);
-    }
+    assert(v->size);
     if (zz_resize((uint64_t)v->size, w) == ZZ_MEM || TMP_OVERFLOW) {
         goto clear; /* LCOV_EXCL_LINE */
     }
-    assert(v->size);
-    w->size = (zz_size_t)mpn_gcd(w->digits, u->digits, u->size, v->digits,
-                                 v->size);
+    if (v->size == 1) {
+        w->digits[0] = mpn_gcd_1(u->digits, u->size, v->digits[0]);
+    }
+    else {
+        w->size = (zz_size_t)mpn_gcd(w->digits, u->digits, u->size, v->digits,
+                                     v->size);
+    }
     w->negative = false;
     zz_clear(o1);
     zz_clear(o2);
