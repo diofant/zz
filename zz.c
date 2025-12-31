@@ -597,7 +597,8 @@ zz_to_bytes(const zz_t *u, size_t length, bool is_signed, uint8_t **buffer)
             return ZZ_MEM; /* LCOV_EXCL_LINE */
         }
         if (tmp.size < u->size) {
-            goto overflow;
+            zz_clear(&tmp);
+            return ZZ_BUF;
         }
         mpn_zero(tmp.digits, tmp.size);
         tmp.digits[tmp.size - 1] = 1;
@@ -614,7 +615,6 @@ zz_to_bytes(const zz_t *u, size_t length, bool is_signed, uint8_t **buffer)
         || (is_signed && ((!nbits && is_negative)
             || (nbits && (nbits == 8 * length ? !is_negative : is_negative)))))
     {
-overflow:
         zz_clear(&tmp);
         return ZZ_BUF;
     }
