@@ -1820,6 +1820,10 @@ err:
         return ZZ_MEM;
         /* LCOV_EXCL_STOP */
     }
+    if (zz_iszero(&g)) {
+        zz_clear(&g);
+        return zz_from_sl(0, w);
+    }
     if (zz_div(u, &g, &g, NULL) || zz_mul(&g, v, w)) {
         goto err; /* LCOV_EXCL_LINE */
     }
