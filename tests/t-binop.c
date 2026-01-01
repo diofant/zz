@@ -18,11 +18,6 @@
 
 #include "tests/tests.h"
 
-typedef struct {
-    char *u;
-    char *v;
-} zz_bin_ex;
-
 #define ZZ_BINOP_REF(op)                                \
     zz_err                                              \
     zz_ref_##op(const zz_t *u, const zz_t *v, zz_t *w)  \
@@ -182,25 +177,10 @@ typedef struct {
         zz_clear(&r);                                         \
     } while (0);
 
-#define TEST_BINOP(op, ex, bs, neg, nex)                       \
+#define TEST_BINOP(op, bs, neg, nex)                           \
     void                                                       \
     check_##op##_bulk(void)                                    \
     {                                                          \
-        size_t ex_len = sizeof(ex)/sizeof(zz_bin_ex);          \
-                                                               \
-        for (size_t i = 0; i < ex_len; i++) {                  \
-            zz_t lhs, rhs;                                     \
-                                                               \
-            if (zz_init(&lhs) || zz_from_dec(ex[i].u, &lhs)) { \
-                abort();                                       \
-            }                                                  \
-            if (zz_init(&rhs) || zz_from_dec(ex[i].v, &rhs)) { \
-                abort();                                       \
-            }                                                  \
-            TEST_BINOP_EXAMPLE(op, &lhs, &rhs);                \
-            zz_clear(&lhs);                                    \
-            zz_clear(&rhs);                                    \
-        }                                                      \
         for (size_t i = 0; i < nex; i++) {                     \
             zz_t lhs, rhs;                                     \
                                                                \
@@ -216,25 +196,10 @@ typedef struct {
         }                                                      \
     }
 
-#define TEST_MIXBINOP(op, ex, bs, neg, nex)                    \
+#define TEST_MIXBINOP(op, bs, neg, nex)                        \
     void                                                       \
     check_##op##_bulk(void)                                    \
     {                                                          \
-        size_t ex_len = sizeof(ex)/sizeof(zz_bin_ex);          \
-                                                               \
-        for (size_t i = 0; i < ex_len; i++) {                  \
-            zz_t lhs, rhs;                                     \
-                                                               \
-            if (zz_init(&lhs) || zz_from_dec(ex[i].u, &lhs)) { \
-                abort();                                       \
-            }                                                  \
-            if (zz_init(&rhs) || zz_from_dec(ex[i].v, &rhs)) { \
-                abort();                                       \
-            }                                                  \
-            TEST_MIXBINOP_EXAMPLE(op, &lhs, &rhs);             \
-            zz_clear(&lhs);                                    \
-            zz_clear(&rhs);                                    \
-        }                                                      \
         for (size_t i = 0; i < nex; i++) {                     \
             zz_t lhs, rhs;                                     \
                                                                \
@@ -310,30 +275,122 @@ zz_gcd(const zz_t *u, const zz_t *v, zz_t *w)
 ZZ_BINOP_REF(gcd)
 ZZ_BINOP_REF(lcm)
 
-zz_bin_ex examples [] = {{"1", "147573952589676412928"},
-                         {"1", "-147573952589676412928"},
-                         {"-2", "-1"},
-                         {"-1", "-1"},
-                         {"0", "-1"},
-                         {"-1", "2"},
-                         {"2", "0"},
-                         {"0", "0"}};
+TEST_MIXBINOP(add, 512, true, 1000000)
+TEST_MIXBINOP(sub, 512, true, 1000000)
+TEST_MIXBINOP(mul, 512, true, 1000000)
 
-TEST_MIXBINOP(add, examples, 512, true, 1000000)
-TEST_MIXBINOP(sub, examples, 512, true, 1000000)
-TEST_MIXBINOP(mul, examples, 512, true, 1000000)
+TEST_MIXBINOP(fdiv_q, 512, true, 1000000)
+TEST_MIXBINOP(fdiv_r, 512, true, 1000000)
 
-TEST_MIXBINOP(fdiv_q, examples, 512, true, 1000000)
-TEST_MIXBINOP(fdiv_r, examples, 512, true, 1000000)
+TEST_BINOP(and, 512, true, 1000000)
+TEST_BINOP(ior, 512, true, 1000000)
+TEST_BINOP(xor, 512, true, 1000000)
 
-TEST_BINOP(and, examples, 512, true, 1000000)
-TEST_BINOP(ior, examples, 512, true, 1000000)
-TEST_BINOP(xor, examples, 512, true, 1000000)
+TEST_BINOP(gcd, 512, true, 1000000)
+TEST_BINOP(lcm, 512, true, 1000000)
 
-TEST_BINOP(gcd, examples, 512, true, 1000000)
-TEST_BINOP(lcm, examples, 512, true, 1000000)
+void
+check_binop_examples(void)
+{
+    zz_t u, v;
 
-int main(void)
+    if (zz_init(&u) || zz_init(&v)) {
+        abort();
+    }
+    if (zz_from_sl(0, &u) || zz_from_sl(0, &v) || zz_add(&u, &v, &u)
+        || zz_cmp_sl(&u, 0) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(1, &v) || zz_add(&u, &v, &u) || zz_cmp_sl(&u, 1) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_from_sl(0, &u) || zz_add_sl(&u, 0, &u)
+        || zz_cmp_sl(&u, 0) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(0, &u) || zz_add_sl(&u, 1, &u)
+        || zz_cmp_sl(&u, 1) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(0, &v) || zz_mul(&u, &v, &u) || zz_cmp_sl(&u, 0) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_from_sl(1, &u) || zz_mul_sl(&u, 0, &u)
+        || zz_cmp_sl(&u, 0) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_div_sl(&u, 1, &u, NULL) || zz_cmp_sl(&u, 0) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_div_sl(&u, 1, NULL, &u) || zz_cmp_sl(&u, 0) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_from_sl(2, &u) || zz_div_sl(&u, 2, NULL, &u)
+        || zz_cmp_sl(&u, 0) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(2, &v) || zz_and(&u, &v, &u) || zz_cmp_sl(&u, 0) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_from_sl(-1, &u) || zz_from_sl(-1, &v) || zz_and(&u, &v, &u)
+        || zz_cmp_sl(&u, -1) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(1, &u) || zz_from_sl(2, &v) || zz_and(&u, &v, &u)
+        || zz_cmp_sl(&u, 0) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(2, &v) || zz_or(&u, &v, &u) || zz_cmp_sl(&u, 2) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_from_sl(0, &u) || zz_from_sl(2, &v) || zz_or(&v, &u, &u)
+        || zz_cmp_sl(&u, 2) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(-1, &u) || zz_from_sl(-1, &v) || zz_or(&u, &v, &u)
+        || zz_cmp_sl(&u, -1) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(12, &u) || zz_from_sl(-1, &v) || zz_or(&u, &v, &u)
+        || zz_cmp_sl(&u, -1) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(0, &u) || zz_from_sl(2, &v) || zz_xor(&v, &u, &u)
+        || zz_cmp_sl(&u, 2) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(0, &u) || zz_from_sl(2, &v) || zz_xor(&u, &v, &u)
+        || zz_cmp_sl(&u, 2) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(-1, &u) || zz_from_sl(-1, &v) || zz_xor(&u, &v, &u)
+        || zz_cmp_sl(&u, 0) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(0, &u) || zz_from_sl(0, &v) || zz_lcm(&u, &v, &u)
+        || zz_cmp_sl(&u, 0) != ZZ_EQ)
+    {
+        abort();
+    }
+    zz_clear(&u);
+    zz_clear(&v);
+}
+
+int
+main(void)
 {
     srand((unsigned int)time(NULL));
     zz_testinit();
@@ -348,6 +405,7 @@ int main(void)
     check_xor_bulk();
     check_gcd_bulk();
     check_lcm_bulk();
+    check_binop_examples();
     zz_finish();
     return 0;
 }

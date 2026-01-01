@@ -73,7 +73,7 @@ check_cmp_bulk(void)
 }
 
 void
-check_lsbpos()
+check_lsbpos(void)
 {
     zz_t u;
 
@@ -89,7 +89,7 @@ check_lsbpos()
 static zz_layout int_layout = {30, 4, -1, -1};
 
 void
-check_export()
+check_export(void)
 {
     zz_t u;
 
@@ -103,7 +103,7 @@ check_export()
 }
 
 void
-check_to_str()
+check_to_str(void)
 {
     zz_t u;
 
@@ -117,7 +117,7 @@ check_to_str()
 }
 
 void
-check_from_str()
+check_from_str(void)
 {
     zz_t u;
 
@@ -164,7 +164,7 @@ check_div(void)
 }
 
 void
-check_div_sl()
+check_div_sl(void)
 {
     zz_t u;
 
@@ -178,7 +178,7 @@ check_div_sl()
 }
 
 void
-check_sl_div()
+check_sl_div(void)
 {
     zz_t v;
 
@@ -195,7 +195,7 @@ check_sl_div()
 }
 
 void
-check_quo_2exp()
+check_quo_2exp(void)
 {
     zz_t u, v;
 
@@ -232,7 +232,7 @@ check_quo_2exp()
 }
 
 void
-check_pow()
+check_pow(void)
 {
     zz_t u;
 
@@ -256,7 +256,7 @@ check_pow()
 }
 
 void
-check_sqrtrem()
+check_sqrtrem(void)
 {
     zz_t u, v;
 
@@ -282,7 +282,7 @@ check_sqrtrem()
 }
 
 void
-check_powm()
+check_powm(void)
 {
     zz_t u, v, w;
 
@@ -517,6 +517,23 @@ check_sizeinbase(void)
     zz_clear(&u);
 }
 
+void
+check_to_sl(void)
+{
+    zz_t u;
+
+    if (zz_init(&u) || zz_from_sl(0, &u)) {
+        abort();
+    }
+
+    zz_slimb_t limb;
+
+    if (zz_to_sl(&u, &limb) || limb) {
+        abort();
+    }
+    zz_clear(&u);
+}
+
 int main(void)
 {
     zz_testinit();
@@ -547,6 +564,7 @@ int main(void)
     check_to_double();
     check_shifts();
     check_sizeinbase();
+    check_to_sl();
     zz_finish();
     return 0;
 }
