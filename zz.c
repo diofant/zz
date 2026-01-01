@@ -524,7 +524,7 @@ zz_from_str(const char *str, size_t len, int base, zz_t *u)
         }
     }
     len = new_len;
-    if (zz_resize(1 + (uint64_t)len/2, u) || TMP_OVERFLOW) {
+    if (zz_resize(1 + len/2, u) || TMP_OVERFLOW) {
         /* LCOV_EXCL_START */
         free(buf);
         return ZZ_MEM;
@@ -593,7 +593,7 @@ zz_to_bytes(const zz_t *u, size_t length, bool is_signed,
         if (!is_signed) {
             return ZZ_BUF;
         }
-        if (zz_resize(8*(uint64_t)length/ZZ_LIMB_T_BITS + 1, &tmp)) {
+        if (zz_resize(8*length/ZZ_LIMB_T_BITS + 1, &tmp)) {
             return ZZ_MEM; /* LCOV_EXCL_LINE */
         }
         if (tmp.size < u->size) {
@@ -635,7 +635,7 @@ zz_from_bytes(const unsigned char *buffer, size_t length, bool is_signed,
     if (!length) {
         return zz_from_sl(0, u);
     }
-    if (zz_resize(1 + (uint64_t)length/2, u)) {
+    if (zz_resize(1 + length/2, u)) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
     u->size = (zz_size_t)mpn_set_str(u->digits, buffer, length, 256);
@@ -695,7 +695,7 @@ zz_import(size_t len, const void *digits, zz_layout layout, zz_t *u)
 
     if (len > SIZE_MAX / layout.bits_per_limb
         || size > INT_MAX
-        || zz_resize((uint64_t)size, u))
+        || zz_resize(size, u))
     {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
