@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2024, 2025 Sergey B Kirpichev
+    Copyright (C) 2024-2026 Sergey B Kirpichev
 
     This file is part of the ZZ Library.
 

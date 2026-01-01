@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
 define(ZZ_COPYRIGHT,[[
-Copyright (C) 2024, 2025 Sergey B Kirpichev
+Copyright (C) 2024-2026 Sergey B Kirpichev
 
 This file is part of the ZZ Library.
 
@@ -12,7 +12,7 @@ any later version.  See <https://www.gnu.org/licenses/>.
 
 ]])
 define(ZZ_COPYRIGHT_C,[[/*
-    Copyright (C) 2024, 2025 Sergey B Kirpichev
+    Copyright (C) 2024-2026 Sergey B Kirpichev
 
     This file is part of the ZZ Library.
 
