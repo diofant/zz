@@ -65,13 +65,15 @@ void zz_clear(zz_t *u);
 
 zz_err zz_copy(const zz_t *u, zz_t *v);
 zz_err zz_from_sl(zz_slimb_t u, zz_t *v);
-zz_err zz_from_str(const int8_t *str, size_t len, int8_t base, zz_t *u);
-zz_err zz_from_bytes(const uint8_t *buf, size_t length, bool negative, zz_t *u);
+zz_err zz_from_str(const char *str, size_t len, int base, zz_t *u);
+zz_err zz_from_bytes(const unsigned char *buf, size_t length, bool negative,
+                     zz_t *u);
 
 zz_err zz_to_sl(const zz_t *u, zz_slimb_t *v);
 zz_err zz_to_double(const zz_t *u, double *d);
-zz_err zz_to_str(const zz_t *u, int8_t base, int8_t *str, size_t *len);
-zz_err zz_to_bytes(const zz_t *u, size_t length, bool is_signed, uint8_t **buf);
+zz_err zz_to_str(const zz_t *u, int base, char *str, size_t *len);
+zz_err zz_to_bytes(const zz_t *u, size_t length, bool is_signed,
+                   unsigned char **buf);
 
 zz_err zz_add(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_add_sl(const zz_t *u, zz_slimb_t v, zz_t *w);
@@ -122,7 +124,7 @@ typedef struct {
 zz_err zz_import(size_t len, const void *data, zz_layout layout, zz_t *u);
 zz_err zz_export(const zz_t *u, zz_layout layout, size_t len, void *data);
 
-zz_err zz_sizeinbase(const zz_t *u, int8_t base, size_t *size);
+zz_err zz_sizeinbase(const zz_t *u, int base, size_t *size);
 zz_bitcnt_t zz_bitlen(const zz_t *u);
 zz_bitcnt_t zz_lsbpos(const zz_t *u);
 zz_bitcnt_t zz_bitcnt(const zz_t *u);

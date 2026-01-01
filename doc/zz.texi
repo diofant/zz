@@ -166,13 +166,13 @@ Free the space occupied by @var{u} and set its value to 0.
 Set @var{u} from @var{v}.
 @end deftypefun
 
-@deftypefun zz_err zz_from_str (const int8_t *@var{str}, size_t @var{len}, int8_t @var{base}, zz_t *@var{u})
+@deftypefun zz_err zz_from_str (const char *@var{str}, size_t @var{len}, int @var{base}, zz_t *@var{u})
 Set @var{u} from string @var{str} of size @var{len} digits in the given
 @var{base}, which may vary from 2 to 36.  Case of characters is ignored.  Ascii
 letters represent values in range 10 to 35.
 @end deftypefun
 
-@deftypefun zz_err zz_from_bytes (const uint8_t *@var{buf}, size_t @var{len}, bool @var{negative}, zz_t *@var{u})
+@deftypefun zz_err zz_from_bytes (const unsigned char *@var{buf}, size_t @var{len}, bool @var{negative}, zz_t *@var{u})
 Set @var{u} from bytes array in @var{buf} (big endian) of size @var{len},
 interpreted as an integer in twos complement representation, being negative if
 @var{negative} is
@@ -193,14 +193,14 @@ Convert @var{u} to @var{v}, rounding to nearest, with the half to even
 tie-breaking rounding rule (roundTiesToEven in IEEE 754, the default).
 @end deftypefun
 
-@deftypefun zz_err zz_to_str (const zz_t *@var{u}, int8_t @var{base}, int8_t *@var{str}, size_t *@var{len})
+@deftypefun zz_err zz_to_str (const zz_t *@var{u}, int @var{base}, char *@var{str}, size_t *@var{len})
 Convert @var{u} to string @var{str} of digits in the given @var{base}, which
 may vary from 2 to 36, and return the number of characters in @var{len}.  The
 @var{str} has to have enough space, which can be estimated by
 @code{zz_sizeinbase(@var{u}, base)}.
 @end deftypefun
 
-@deftypefun zz_err zz_to_bytes (const zz_t *@var{u}, size_t @var{len}, bool @var{is_signed}, uint8_t **@var{buf})
+@deftypefun zz_err zz_to_bytes (const zz_t *@var{u}, size_t @var{len}, bool @var{is_signed}, unsigned char **@var{buf})
 Convert @var{u} to array of bytes @var{buf} (big endian) of size @var{len},
 using twos complement representation if @var{is_signed} is @code{true}.  The
 @var{buf} has to have enough space.
@@ -372,7 +372,7 @@ Export magnitude of @var{u} as pre-allocated @var{data} array in specified
 @section Miscellaneous
 @cindex Miscellaneous functions
 
-@deftypefun zz_err zz_sizeinbase (const zz_t *@var{u}, int8_t @var{base}, size_t *@var{size})
+@deftypefun zz_err zz_sizeinbase (const zz_t *@var{u}, int @var{base}, size_t *@var{size})
 Return the @var{size} of @var{u} magnitude, measured in number of digits in the
 given @var{base}.  The absolute value of @var{base} might vary from 2 to 36.
 The @var{size} will be either exact or 1 too big.  If @var{base} is a power of

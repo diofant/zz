@@ -15,7 +15,7 @@
 
 #include "zz-impl.h"
 
-#define zz_from_dec(s, u) zz_from_str((int8_t *)s, strlen(s), 10, u)
+#define zz_from_dec(s, u) zz_from_str(s, strlen(s), 10, u)
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 
 void zz_testinit(void);

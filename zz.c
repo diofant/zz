@@ -390,7 +390,7 @@ zz_neg(const zz_t *u, zz_t *v)
 }
 
 zz_err
-zz_sizeinbase(const zz_t *u, int8_t base, size_t *len)
+zz_sizeinbase(const zz_t *u, int base, size_t *len)
 {
     const int abase = abs(base);
 
@@ -402,7 +402,7 @@ zz_sizeinbase(const zz_t *u, int8_t base, size_t *len)
 }
 
 zz_err
-zz_to_str(const zz_t *u, int8_t base, int8_t *str, size_t *len)
+zz_to_str(const zz_t *u, int base, char *str, size_t *len)
 {
     /* Maps 1-byte integer to digit character for bases up to 36. */
     const char *NUM_TO_TEXT = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -415,7 +415,7 @@ zz_to_str(const zz_t *u, int8_t base, int8_t *str, size_t *len)
         return ZZ_VAL;
     }
 
-    uint8_t *p = (uint8_t *)str;
+    unsigned char *p = (unsigned char *)str;
 
     if (u->negative) {
         *(p++) = '-';
@@ -438,7 +438,7 @@ zz_to_str(const zz_t *u, int8_t base, int8_t *str, size_t *len)
         free(tmp);
     }
     for (size_t i = 0; i < *len; i++) {
-        *p = (uint8_t)NUM_TO_TEXT[*p];
+        *p = (unsigned char)NUM_TO_TEXT[*p];
         p++;
     }
     if (u->negative) {
@@ -450,7 +450,7 @@ zz_to_str(const zz_t *u, int8_t base, int8_t *str, size_t *len)
 /* Table of digit values for 8-bit string->mpz conversion.
    Note that when converting a base B string, a char c is a legitimate
    base B digit iff DIGIT_VALUE_TAB[c] < B. */
-const int8_t DIGIT_VALUE_TAB[] =
+const char DIGIT_VALUE_TAB[] =
 {
   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -484,13 +484,13 @@ const int8_t DIGIT_VALUE_TAB[] =
 };
 
 zz_err
-zz_from_str(const int8_t *str, size_t len, int8_t base, zz_t *u)
+zz_from_str(const char *str, size_t len, int base, zz_t *u)
 {
     if (base < 2 || base > 36) {
         return ZZ_VAL;
     }
 
-    uint8_t *volatile buf = malloc(len), *p = buf;
+    unsigned char *volatile buf = malloc(len), *p = (unsigned char *)buf;
 
     if (!buf) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
@@ -508,7 +508,6 @@ zz_from_str(const int8_t *str, size_t len, int8_t base, zz_t *u)
         goto err;
     }
 
-    const int8_t *digit_value = DIGIT_VALUE_TAB;
     size_t new_len = len;
 
     for (size_t i = 0; i < len; i++) {
@@ -519,7 +518,7 @@ zz_from_str(const int8_t *str, size_t len, int8_t base, zz_t *u)
             new_len--;
             memmove(p + i, p + i + 1, len - i - 1);
         }
-        p[i] = (uint8_t)digit_value[p[i]];
+        p[i] = (unsigned char)DIGIT_VALUE_TAB[p[i]];
         if (p[i] >= base) {
             goto err;
         }
@@ -581,7 +580,8 @@ zz_to_double(const zz_t *u, double *d)
 }
 
 zz_err
-zz_to_bytes(const zz_t *u, size_t length, bool is_signed, uint8_t **buffer)
+zz_to_bytes(const zz_t *u, size_t length, bool is_signed,
+            unsigned char **buffer)
 {
     zz_t tmp;
     bool is_negative = u->negative;
@@ -629,7 +629,8 @@ zz_to_bytes(const zz_t *u, size_t length, bool is_signed, uint8_t **buffer)
 }
 
 zz_err
-zz_from_bytes(const uint8_t *buffer, size_t length, bool is_signed, zz_t *u)
+zz_from_bytes(const unsigned char *buffer, size_t length, bool is_signed,
+              zz_t *u)
 {
     if (!length) {
         return zz_from_sl(0, u);

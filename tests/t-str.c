@@ -29,12 +29,12 @@ check_str_roundtrip(void)
             abort();
         }
 
-        int8_t base = 2 + (int8_t)(rand() % 35);
+        char base = 2 + (char)(rand() % 35);
         size_t len;
 
         (void)zz_sizeinbase(&u, base, &len);
 
-        int8_t *buf = malloc(len + 2);
+        char *buf = malloc(len + 2);
 
         if (rand() % 2) {
             base = -base;
@@ -45,7 +45,7 @@ check_str_roundtrip(void)
 
         zz_t v;
 
-        if (zz_init(&v) || zz_from_str(buf, len, (int8_t)ABS(base), &v)
+        if (zz_init(&v) || zz_from_str(buf, len, ABS(base), &v)
             || zz_cmp(&u, &v) != ZZ_EQ)
         {
             abort();

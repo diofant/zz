@@ -30,7 +30,7 @@ check_bytes_roundtrip(void)
         }
 
         size_t len = (zz_bitlen(&u) + 7)/8 + 1;
-        uint8_t *buf = malloc(len);
+        unsigned char *buf = malloc(len);
 
         if (!buf || zz_to_bytes(&u, len, zz_isneg(&u), &buf)) {
             abort();
@@ -64,7 +64,7 @@ check_exportimport_roundtrip(void)
         }
 
         size_t len = (zz_bitlen(&u) + 7)/8;
-        uint8_t *buf = malloc(len);
+        void *buf = malloc(len);
         zz_layout layout = {8, 1, -1, (*(signed char *)&endian_test)};
 
         if (!buf || zz_export(&u, layout, len, buf)) {

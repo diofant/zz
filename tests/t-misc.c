@@ -121,22 +121,22 @@ check_from_str(void)
 {
     zz_t u;
 
-    if (zz_init(&u) || zz_from_str((int8_t *)" ", 1, 2, &u) != ZZ_VAL) {
+    if (zz_init(&u) || zz_from_str(" ", 1, 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_init(&u) || zz_from_str((int8_t *)"-", 1, 2, &u) != ZZ_VAL) {
+    if (zz_init(&u) || zz_from_str("-", 1, 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_from_str((int8_t *)"_", 1, 2, &u) != ZZ_VAL) {
+    if (zz_from_str("_", 1, 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_from_str((int8_t *)"1__", 3, 2, &u) != ZZ_VAL) {
+    if (zz_from_str("1__", 3, 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_from_str((int8_t *)"1_3", 3, 2, &u) != ZZ_VAL) {
+    if (zz_from_str("1_3", 3, 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_from_str((int8_t *)" ", 1, 42, &u) != ZZ_VAL) {
+    if (zz_from_str(" ", 1, 42, &u) != ZZ_VAL) {
         abort();
     }
     zz_clear(&u);
@@ -338,7 +338,7 @@ check_bytes(void)
         abort();
     }
 
-    uint8_t *buf = malloc(1);
+    unsigned char *buf = malloc(1);
 
     if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u) || zz_neg(&u, &u)
         || zz_to_bytes(&u, 1, true, &buf) != ZZ_BUF)
