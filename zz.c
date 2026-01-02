@@ -1986,7 +1986,7 @@ zz_err
 zz_fac(zz_limb_t u, zz_t *v)
 {
 #if ULONG_MAX < ZZ_LIMB_T_MAX
-    if (n > ULONG_MAX || k > ULONG_MAX) {
+    if (u > ULONG_MAX) {
         return ZZ_BUF;
     }
 #endif

@@ -32,10 +32,6 @@
 #  pragma GCC diagnostic pop
 #endif
 
-#if defined(__MINGW32__) && defined(__GNUC__)
-#  define isinf __builtin_isinf
-#endif
-
 #include "zz.h"
 
 #define ZZ_LIMB_T_MAX UINT64_MAX
