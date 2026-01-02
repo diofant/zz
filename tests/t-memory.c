@@ -10,6 +10,7 @@
     <https://www.gnu.org/licenses/>.
 */
 
+#include "config.h"
 #if HAVE_PTHREAD_H
 #  include <pthread.h>
 #endif
@@ -100,7 +101,7 @@ void check_square_outofmem_pthread(void)
     pthread_t *tid = malloc(nthreads * sizeof(pthread_t));
     data_t *d = malloc(nthreads * sizeof(data_t));
     for (size_t i = 0; i < nthreads; i++) {
-        if (zz_init(&d[i].z) || zz_from_sl(10 + 201*i, &d[i].z)) {
+        if (zz_init(&d[i].z) || zz_from_sl(10 + 201*(int)i, &d[i].z)) {
             abort();
         }
         if (pthread_create(&tid[i], NULL, worker, (void *)(d + i))) {
@@ -131,6 +132,12 @@ int main(void)
         return 1;
     }
     new.rlim_max = old.rlim_max;
+    new.rlim_cur = 128*1000*1000;
+    if (setrlimit(RLIMIT_AS, &new)) {
+        perror("setrlimit");
+        return 1;
+    }
+    check_square_outofmem();
     new.rlim_cur = 64*1000*1000;
     if (setrlimit(RLIMIT_AS, &new)) {
         perror("setrlimit");
