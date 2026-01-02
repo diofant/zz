@@ -151,6 +151,11 @@
             {                                                 \
                 abort();                                      \
             }                                                 \
+            if (zz_copy(&u, &w) || zz_##op##_sl(&w, limb, &w) \
+                || zz_cmp(&w, &r) != ZZ_EQ)                   \
+            {                                                 \
+                abort();                                      \
+            }                                                 \
         }                                                     \
         if (zz_to_sl(&u, &limb) == ZZ_OK) {                   \
             zz_err ret = zz_sl_##op(limb, &v, &w);            \
@@ -166,6 +171,11 @@
                 abort();                                      \
             }                                                 \
             if (zz_ref_sl_##op(limb, &v, &r)                  \
+                || zz_cmp(&w, &r) != ZZ_EQ)                   \
+            {                                                 \
+                abort();                                      \
+            }                                                 \
+            if (zz_copy(&v, &w) || zz_sl_##op(limb, &w, &w)   \
                 || zz_cmp(&w, &r) != ZZ_EQ)                   \
             {                                                 \
                 abort();                                      \

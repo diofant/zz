@@ -921,11 +921,14 @@ zz_mul_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
     if (!u->size || !v) {
         return zz_from_sl(0, w);
     }
-    if (zz_resize((uint64_t)u->size + 1, w) || TMP_OVERFLOW) {
+
+    zz_size_t u_size = u->size;
+
+    if (zz_resize((uint64_t)u_size + 1, w) || TMP_OVERFLOW) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
     w->negative = u->negative != (v < 0);
-    w->digits[w->size - 1] = mpn_mul_1(w->digits, u->digits, u->size,
+    w->digits[w->size - 1] = mpn_mul_1(w->digits, u->digits, u_size,
                                        (zz_limb_t)imaxabs(v));
     w->size -= w->digits[w->size - 1] == 0;
     assert(w->size >= 1);
@@ -1060,6 +1063,7 @@ zz_div_sl (const zz_t *u, zz_slimb_t v, zz_t *q, zz_t *r)
     bool same_signs = u->negative == (v < 0);
 
     if (q) {
+        q->negative = false;
         if (u->size) {
             if (zz_resize((uint64_t)u->size, q)) {
                 return ZZ_MEM; /* LCOV_EXCL_LINE */
@@ -1083,10 +1087,13 @@ zz_div_sl (const zz_t *u, zz_slimb_t v, zz_t *q, zz_t *r)
             r->negative = false;
             return ZZ_OK;
         }
+
+        zz_size_t u_size = u->size;
+
         if (zz_resize(1, r)) {
             return ZZ_MEM; /* LCOV_EXCL_LINE */
         }
-        rl = mpn_mod_1(u->digits, u->size, uv);
+        rl = mpn_mod_1(u->digits, u_size, uv);
         if (!rl) {
             r->size = 0;
             r->negative = false;
