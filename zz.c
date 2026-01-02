@@ -77,12 +77,13 @@ zz_reallocate_function(void *ptr, size_t old_size, size_t new_size)
         void *ret = malloc(new_size);
 
         if (!ret) {
-            goto err; /* LCOV_EXCL_LINE */
+            goto err;
         }
         zz_tracker.ptrs[zz_tracker.size] = ret;
         zz_tracker.size++;
         return ret;
     }
+
     size_t i = zz_tracker.size - 1;
 
     for (;; i--) {
@@ -99,15 +100,17 @@ zz_reallocate_function(void *ptr, size_t old_size, size_t new_size)
     zz_tracker.ptrs[i] = ret;
     return ret;
 err:
-    /* LCOV_EXCL_START */
-    for (size_t i = 0; i < zz_tracker.size; i++) {
+    i = zz_tracker.size - 1;
+    while (zz_tracker.size > 0) {
         free(zz_tracker.ptrs[i]);
         zz_tracker.ptrs[i] = NULL;
+        zz_tracker.size--;
+        i--;
     }
-    zz_tracker.size = 0;
     zz_tracker.alloc = 0;
+    free(zz_tracker.ptrs);
+    zz_tracker.ptrs = NULL;
     longjmp(zz_env, 1);
-    /* LCOV_EXCL_STOP */
 }
 
 static void *
@@ -131,11 +134,14 @@ zz_free_function(void *ptr, size_t size)
 
     while (zz_tracker.size > 0) {
         if (zz_tracker.ptrs[i]) {
-            break;
+            return;
         }
         zz_tracker.size--;
         i--;
     }
+    zz_tracker.alloc = 0;
+    free(zz_tracker.ptrs);
+    zz_tracker.ptrs = NULL;
 }
 
 static struct {
@@ -892,7 +898,7 @@ zz_mul(const zz_t *u, const zz_t *v, zz_t *w)
         return ret;
     }
     if (zz_resize((uint64_t)u->size + (uint64_t)v->size, w) || TMP_OVERFLOW) {
-        return ZZ_MEM; /* LCOV_EXCL_LINE */
+        return ZZ_MEM;
     }
     w->negative = u->negative != v->negative;
     if (v->size == 1) {
@@ -1998,7 +2004,7 @@ zz_fac(zz_limb_t u, zz_t *v)
     }
 #endif
     if (TMP_OVERFLOW) {
-        return ZZ_MEM; /* LCOV_EXCL_LINE */
+        return ZZ_MEM;
     }
 
     mpz_t z;
