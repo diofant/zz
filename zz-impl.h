@@ -13,7 +13,11 @@
 #ifndef IMPL_ZZ_H
 #define IMPL_ZZ_H
 
+#include "config.h"
+
 #include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 #include <setjmp.h>
 
 #if defined(__MINGW32__) && defined(__GNUC__)

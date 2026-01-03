@@ -10,10 +10,6 @@
     <https://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
 #include "tests/tests.h"
 
 void
@@ -29,7 +25,7 @@ check_str_roundtrip(void)
             abort();
         }
 
-        char base = 2 + (char)(rand() % 35);
+        int base = 2 + (char)(rand() % 35);
         size_t len;
 
         (void)zz_sizeinbase(&u, base, &len);
@@ -45,7 +41,7 @@ check_str_roundtrip(void)
 
         zz_t v;
 
-        if (zz_init(&v) || zz_from_str(buf, len, ABS(base), &v)
+        if (zz_init(&v) || zz_from_str(buf, len, abs(base), &v)
             || zz_cmp(&u, &v) != ZZ_EQ)
         {
             abort();

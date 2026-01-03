@@ -15,8 +15,12 @@
 
 #include "zz-impl.h"
 
-#define zz_from_dec(s, u) zz_from_str(s, strlen(s), 10, u)
-#define ABS(x) ((x) >= 0 ? (x) : -(x))
+#if HAVE_PTHREAD_H
+#  include <pthread.h>
+#endif
+#include <stdio.h>
+#include <sys/resource.h>
+#include <time.h>
 
 void zz_testinit(void);
 zz_err zz_random(zz_bitcnt_t bc, bool s, zz_t *u);

@@ -43,7 +43,7 @@ zz_random(zz_bitcnt_t bc, bool s, zz_t *u)
         mpz_urandomb(z, rnd_state, bc/8);
     }
 
-    zz_t tmp = {false, ABS(z->_mp_size), ABS(z->_mp_size), z->_mp_d};
+    zz_t tmp = {false, abs(z->_mp_size), abs(z->_mp_size), z->_mp_d};
 
     if (zz_copy(&tmp, u)) {
         mpz_clear(z);

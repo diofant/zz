@@ -10,10 +10,6 @@
     <https://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
 #include "tests/tests.h"
 
 void

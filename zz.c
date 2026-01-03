@@ -10,15 +10,10 @@
     <https://www.gnu.org/licenses/>.
 */
 
-#include <assert.h>
 #include <ctype.h>
 #include <float.h>
 #include <inttypes.h>
 #include <math.h>
-#include <setjmp.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "zz-impl.h"
 

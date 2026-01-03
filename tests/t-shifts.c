@@ -10,11 +10,6 @@
     <https://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
 #include "tests/tests.h"
 
 zz_err
@@ -28,8 +23,8 @@ zz_ref_mul_2exp(const zz_t *u, zz_bitcnt_t v, zz_t *w)
     mpz_init(z);
     mpz_mul_2exp(z, mu, v);
 
-    zz_t tmp = {z->_mp_size < 0, ABS(z->_mp_size),
-                ABS(z->_mp_size),
+    zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size),
+                abs(z->_mp_size),
                 z->_mp_d};
     if (zz_copy(&tmp, w)) {
         mpz_clear(z);
@@ -50,8 +45,8 @@ zz_ref_quo_2exp(const zz_t *u, zz_bitcnt_t v, zz_t *w)
     mpz_init(z);
     mpz_fdiv_q_2exp(z, mu, v);
 
-    zz_t tmp = {z->_mp_size < 0, ABS(z->_mp_size),
-                ABS(z->_mp_size),
+    zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size),
+                abs(z->_mp_size),
                 z->_mp_d};
     if (zz_copy(&tmp, w)) {
         mpz_clear(z);

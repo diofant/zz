@@ -10,9 +10,6 @@
     <https://www.gnu.org/licenses/>.
 */
 
-#include <stdlib.h>
-#include <string.h>
-
 #include "tests/tests.h"
 
 void
@@ -450,6 +447,8 @@ check_to_double(void)
     }
     zz_clear(&u);
 }
+
+#define zz_from_dec(s, u) zz_from_str(s, strlen(s), 10, u)
 
 void
 check_shifts(void)

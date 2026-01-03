@@ -10,11 +10,6 @@
     <https://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-
 #include "tests/tests.h"
 
 zz_err
@@ -30,8 +25,8 @@ zz_ref_powm(const zz_t *u, const zz_t *v, const zz_t *w, zz_t *r)
     mpz_init(z);
     mpz_powm(z, mu, mv, mw);
 
-    zz_t tmp = {z->_mp_size < 0, ABS(z->_mp_size),
-                ABS(z->_mp_size),
+    zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size),
+                abs(z->_mp_size),
                 z->_mp_d};
     if (zz_copy(&tmp, r)) {
         mpz_clear(z);

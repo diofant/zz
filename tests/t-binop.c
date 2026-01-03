@@ -10,12 +10,6 @@
     <https://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/resource.h>
-#include <time.h>
-
 #include "tests/tests.h"
 
 #define ZZ_BINOP_REF(op)                                \
@@ -31,8 +25,8 @@
         mpz_init(z);                                    \
         mpz_##op(z, mu, mv);                            \
                                                         \
-        zz_t tmp = {z->_mp_size < 0, ABS(z->_mp_size),  \
-                    ABS(z->_mp_size),                   \
+        zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size),  \
+                    abs(z->_mp_size),                   \
                     z->_mp_d};                          \
         if (zz_copy(&tmp, w)) {                         \
             mpz_clear(z);                               \

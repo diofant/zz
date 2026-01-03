@@ -10,15 +10,6 @@
     <https://www.gnu.org/licenses/>.
 */
 
-#include "config.h"
-#if HAVE_PTHREAD_H
-#  include <pthread.h>
-#endif
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/resource.h>
-#include <time.h>
-
 #include "tests/tests.h"
 
 void check_fac_outofmem(void)
