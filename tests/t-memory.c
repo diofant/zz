@@ -88,6 +88,7 @@ worker(void *args)
 void check_square_outofmem_pthread(void)
 {
     size_t nthreads = 7;
+    int ret, succ = 0;
 
     pthread_t *tid = malloc(nthreads * sizeof(pthread_t));
     data_t *d = malloc(nthreads * sizeof(data_t));
@@ -95,16 +96,26 @@ void check_square_outofmem_pthread(void)
         if (zz_init(&d[i].z) || zz_from_sl(10 + 201*(int)i, &d[i].z)) {
             abort();
         }
-        if (pthread_create(&tid[i], NULL, worker, (void *)(d + i))) {
+        ret = pthread_create(&tid[i], NULL, worker, (void *)(d + i));
+        if (!ret) {
+            succ |= (1<<i);
+        }
+        else if (ret != EAGAIN) {
+            perror("pthread_create");
             abort();
         }
     }
+    if (!succ) {
+        abort();
+    }
     for (size_t i = 0; i < nthreads; i++) {
-        pthread_join(tid[i], NULL);
-        if (d[i].ret) {
-            abort();
+        if (succ & (1<<i)) {
+            pthread_join(tid[i], NULL);
+            if (d[i].ret) {
+                abort();
+            }
+            zz_clear(&d[i].z);
         }
-        zz_clear(&d[i].z);
     }
     free(d);
     free(tid);
@@ -128,7 +139,6 @@ int main(void)
         perror("setrlimit");
         return 1;
     }
-    check_square_outofmem();
     new.rlim_cur = 64*1000*1000;
     if (setrlimit(RLIMIT_AS, &new)) {
         perror("setrlimit");

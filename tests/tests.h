@@ -15,6 +15,7 @@
 
 #include "zz-impl.h"
 
+#include <errno.h>
 #if HAVE_PTHREAD_H
 #  include <pthread.h>
 #endif
