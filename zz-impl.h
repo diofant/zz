@@ -75,4 +75,9 @@ extern _Thread_local jmp_buf zz_env;
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
+void
+zz_set_memory_funcs(void *(*malloc) (size_t),
+                    void *(*realloc) (void *, size_t, size_t),
+                    void (*free) (void *, size_t));
+
 #endif /* IMPL_ZZ_H */

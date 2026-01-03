@@ -34,12 +34,39 @@
 
 _Thread_local jmp_buf zz_env;
 
+static struct {
+    void *(*default_allocate_func)(size_t);
+    void *(*default_reallocate_func)(void *, size_t, size_t);
+    void (*default_free_func)(void *, size_t);
+    void *(*malloc)(size_t);
+    void *(*realloc)(void *, size_t, size_t);
+    void (*free)(void *, size_t);
+} zz_state;
+
 #define TRACKER_SIZE_INCR 64
 _Thread_local struct {
     size_t size;
     size_t alloc;
     void **ptrs;
 } zz_tracker;
+
+static void *
+zz_malloc(size_t new_size)
+{
+    return malloc(new_size);
+}
+
+static void *
+zz_realloc(void *ptr, size_t old_size, size_t new_size)
+{
+    return realloc(ptr, new_size);
+}
+
+static void
+zz_free(void *ptr, size_t size)
+{
+    free(ptr);
+}
 
 static void *
 zz_reallocate_function(void *ptr, size_t old_size, size_t new_size)
@@ -69,7 +96,7 @@ zz_reallocate_function(void *ptr, size_t old_size, size_t new_size)
         /* LCOV_EXCL_STOP */
     }
     if (!ptr) {
-        void *ret = malloc(new_size);
+        void *ret = zz_state.malloc(new_size);
 
         if (!ret) {
             goto err;
@@ -87,7 +114,7 @@ zz_reallocate_function(void *ptr, size_t old_size, size_t new_size)
         }
     }
 
-    void *ret = realloc(ptr, new_size);
+    void *ret = zz_state.realloc(ptr, old_size, new_size);
 
     if (!ret) {
         goto err; /* LCOV_EXCL_LINE */
@@ -97,7 +124,7 @@ zz_reallocate_function(void *ptr, size_t old_size, size_t new_size)
 err:
     i = zz_tracker.size - 1;
     while (zz_tracker.size > 0) {
-        free(zz_tracker.ptrs[i]);
+        zz_state.free(zz_tracker.ptrs[i], 0);
         zz_tracker.ptrs[i] = NULL;
         zz_tracker.size--;
         i--;
@@ -123,7 +150,7 @@ zz_free_function(void *ptr, size_t size)
             break;
         }
     }
-    free(ptr);
+    zz_state.free(ptr, size);
 
     size_t i = zz_tracker.size - 1;
 
@@ -139,12 +166,6 @@ zz_free_function(void *ptr, size_t size)
     zz_tracker.ptrs = NULL;
 }
 
-static struct {
-    void *(*default_allocate_func)(size_t);
-    void *(*default_reallocate_func)(void *, size_t, size_t);
-    void (*default_free_func)(void *, size_t);
-} zz_state;
-
 zz_err
 zz_setup(zz_info *info)
 {
@@ -154,6 +175,9 @@ zz_setup(zz_info *info)
     mp_set_memory_functions(zz_allocate_function,
                             zz_reallocate_function,
                             zz_free_function);
+    zz_state.malloc = &zz_malloc;
+    zz_state.realloc = &zz_realloc;
+    zz_state.free = &zz_free;
     if (info) {
         info->version[0] = __GNU_MP_VERSION;
         info->version[1] = __GNU_MP_VERSION_MINOR;
@@ -167,11 +191,33 @@ zz_setup(zz_info *info)
 }
 
 void
+zz_set_memory_funcs(void *(*malloc) (size_t),
+                    void *(*realloc) (void *, size_t, size_t),
+                    void (*free) (void *, size_t))
+{
+    if (!malloc) {
+        malloc = zz_malloc;
+    }
+    if (!realloc) {
+        realloc = zz_realloc;
+    }
+    if (!free) {
+        free = zz_free;
+    }
+    zz_state.malloc = malloc;
+    zz_state.realloc = realloc;
+    zz_state.free = free;
+}
+
+void
 zz_finish(void)
 {
     mp_set_memory_functions(zz_state.default_allocate_func,
                             zz_state.default_reallocate_func,
                             zz_state.default_free_func);
+    zz_state.malloc = &zz_malloc;
+    zz_state.realloc = &zz_realloc;
+    zz_state.free = &zz_free;
 }
 
 zz_err

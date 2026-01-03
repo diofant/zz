@@ -19,6 +19,7 @@
 #if HAVE_PTHREAD_H
 #  include <pthread.h>
 #endif
+#include <stdatomic.h>
 #include <stdio.h>
 #include <sys/resource.h>
 #include <time.h>
