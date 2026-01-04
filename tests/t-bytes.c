@@ -48,7 +48,7 @@ check_bytes_examples(void)
     zz_t u;
 
     if (zz_init(&u) || zz_from_bytes(NULL, 0, false, &u)
-        || zz_cmp_i64(&u, 0) != ZZ_EQ)
+        || zz_cmp(&u, 0) != ZZ_EQ)
     {
         abort();
     }

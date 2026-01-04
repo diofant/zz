@@ -102,7 +102,7 @@ check_unary_examples(void)
     if (zz_init(&u) || zz_from_i64(0, &u)) {
         abort();
     }
-    if (zz_invert(&u, &u) || zz_cmp_i64(&u, -1) != ZZ_EQ) {
+    if (zz_invert(&u, &u) || zz_cmp(&u, -1) != ZZ_EQ) {
         abort();
     }
     zz_clear(&u);

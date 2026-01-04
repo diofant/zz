@@ -17,6 +17,12 @@
 
 #include "zz-impl.h"
 
+#undef zz_cmp
+#undef zz_add
+#undef zz_sub
+#undef zz_mul
+#undef zz_div
+
 #if GMP_NAIL_BITS != 0
 #  error "GMP_NAIL_BITS expected to be 0"
 #endif

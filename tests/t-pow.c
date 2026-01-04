@@ -87,16 +87,16 @@ check_powm_examples(void)
     if (zz_init(&w) || zz_from_i64(7, &w)) {
         abort();
     }
-    if (zz_powm(&u, &v, &w, &u) || zz_cmp_i64(&u, 2) != ZZ_EQ) {
+    if (zz_powm(&u, &v, &w, &u) || zz_cmp(&u, 2) != ZZ_EQ) {
         abort();
     }
     if (zz_from_i64(12, &u) || zz_powm(&u, &v, &w, &v)
-        || zz_cmp_i64(&v, 2) != ZZ_EQ)
+        || zz_cmp(&v, 2) != ZZ_EQ)
     {
         abort();
     }
     if (zz_from_i64(4, &v) || zz_powm(&u, &v, &w, &w)
-        || zz_cmp_i64(&w, 2) != ZZ_EQ)
+        || zz_cmp(&w, 2) != ZZ_EQ)
     {
         abort();
     }
@@ -116,16 +116,16 @@ check_pow_examples(void)
     if (zz_init(&u) || zz_from_i64(2, &u)) {
         abort();
     }
-    if (zz_pow(&u, 2, &u) || zz_cmp_i64(&u, 4) != ZZ_EQ) {
+    if (zz_pow(&u, 2, &u) || zz_cmp(&u, 4) != ZZ_EQ) {
         abort();
     }
-    if (zz_pow(&u, 0, &u) || zz_cmp_i64(&u, 1) != ZZ_EQ) {
+    if (zz_pow(&u, 0, &u) || zz_cmp(&u, 1) != ZZ_EQ) {
         abort();
     }
-    if (zz_pow(&u, 123, &u) || zz_cmp_i64(&u, 1) != ZZ_EQ) {
+    if (zz_pow(&u, 123, &u) || zz_cmp(&u, 1) != ZZ_EQ) {
         abort();
     }
-    if (zz_from_i64(0, &u) || zz_pow(&u, 123, &u) || zz_cmp_i64(&u, 0) != ZZ_EQ)
+    if (zz_from_i64(0, &u) || zz_pow(&u, 123, &u) || zz_cmp(&u, 0) != ZZ_EQ)
     {
         abort();
     }

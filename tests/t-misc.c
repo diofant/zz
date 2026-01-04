@@ -13,23 +13,6 @@
 #include "tests/tests.h"
 
 void
-check_cmp_i64(void)
-{
-    zz_t u;
-
-    if (zz_init(&u) || zz_from_i64(13, &u)) {
-        abort();
-    }
-    if (zz_cmp_i64(&u, 1) != ZZ_GT || zz_cmp_i64(&u, 100) != ZZ_LT) {
-        abort();
-    }
-    if (zz_cmp_i64(&u, -100) != ZZ_GT) {
-        abort();
-    }
-    zz_clear(&u);
-}
-
-void
 check_cmp(void)
 {
     zz_t u;
@@ -37,7 +20,13 @@ check_cmp(void)
     if (zz_init(&u) || zz_from_i64(13, &u)) {
         abort();
     }
-    if (zz_cmp(&u, &u) != ZZ_EQ) {
+    if (zz_cmp(&u, 1) != ZZ_GT || zz_cmp(&u, 100) != ZZ_LT) {
+        abort();
+    }
+    if (zz_cmp(&u, -100) != ZZ_GT) {
+        abort();
+    }
+    if (zz_from_i64(13, &u) || zz_cmp(&u, &u) != ZZ_EQ) {
         abort();
     }
     zz_clear(&u);
@@ -93,12 +82,12 @@ check_sqrtrem(void)
     if (zz_init(&v) || zz_from_i64(0, &v)) {
         abort();
     }
-    if (zz_sqrtrem(&u, &u, &v) || zz_cmp_i64(&u, 2) != ZZ_EQ
-        || zz_cmp_i64(&v, 0) != ZZ_EQ)
+    if (zz_sqrtrem(&u, &u, &v) || zz_cmp(&u, 2) != ZZ_EQ
+        || zz_cmp(&v, 0) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_sqrtrem(&v, &v, &u) || zz_cmp_i64(&u, 0) != ZZ_EQ) {
+    if (zz_sqrtrem(&v, &v, &u) || zz_cmp(&u, 0) != ZZ_EQ) {
         abort();
     }
     if (zz_from_i64(-1, &u) || zz_sqrtrem(&u, &v, NULL) != ZZ_VAL) {
@@ -113,7 +102,7 @@ check_bin(void)
 {
     zz_t u;
 
-    if (zz_init(&u) || zz_bin(13, 5, &u) || zz_cmp_i64(&u, 1287) != ZZ_EQ) {
+    if (zz_init(&u) || zz_bin(13, 5, &u) || zz_cmp(&u, 1287) != ZZ_EQ) {
         abort();
     }
     zz_clear(&u);
@@ -150,29 +139,29 @@ check_gcdext(void)
         abort();
     }
     if (zz_init(&a) || zz_gcdext(&u, &v, &a, NULL, NULL)
-        || zz_cmp_i64(&a, 2) != ZZ_EQ)
+        || zz_cmp(&a, 2) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_gcdext(&u, &v, NULL, &a, NULL) || zz_cmp_i64(&a, -1) != ZZ_EQ) {
+    if (zz_gcdext(&u, &v, NULL, &a, NULL) || zz_cmp(&a, -1) != ZZ_EQ) {
         abort();
     }
-    if (zz_gcdext(&u, &v, NULL, NULL, &a) || zz_cmp_i64(&a, 0) != ZZ_EQ) {
+    if (zz_gcdext(&u, &v, NULL, NULL, &a) || zz_cmp(&a, 0) != ZZ_EQ) {
         abort();
     }
     if (zz_from_i64(0, &u) || zz_gcdext(&u, &v, &a, NULL, NULL)
-        || zz_cmp_i64(&a, 6) != ZZ_EQ)
+        || zz_cmp(&a, 6) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_gcdext(&u, &v, NULL, &a, NULL) || zz_cmp_i64(&a, 0) != ZZ_EQ) {
+    if (zz_gcdext(&u, &v, NULL, &a, NULL) || zz_cmp(&a, 0) != ZZ_EQ) {
         abort();
     }
-    if (zz_gcdext(&u, &v, NULL, NULL, &a) || zz_cmp_i64(&a, 1) != ZZ_EQ) {
+    if (zz_gcdext(&u, &v, NULL, NULL, &a) || zz_cmp(&a, 1) != ZZ_EQ) {
         abort();
     }
     if (zz_init(&b) || zz_gcdext(&u, &v, &a, &b, NULL)
-        || zz_cmp_i64(&b, 0) != ZZ_EQ)
+        || zz_cmp(&b, 0) != ZZ_EQ)
     {
         abort();
     }
@@ -280,7 +269,6 @@ int main(void)
     if (zz_setup(&info) || (info.limb_bytes != 4 && info.limb_bytes != 8)) {
         abort();
     }
-    check_cmp_i64();
     check_cmp();
     check_cmp_bulk();
     check_lsbpos();
