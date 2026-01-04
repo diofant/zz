@@ -99,10 +99,10 @@ check_unary_examples(void)
 {
     zz_t u;
 
-    if (zz_init(&u) || zz_from_sl(0, &u)) {
+    if (zz_init(&u) || zz_from_i64(0, &u)) {
         abort();
     }
-    if (zz_invert(&u, &u) || zz_cmp_sl(&u, -1) != ZZ_EQ) {
+    if (zz_invert(&u, &u) || zz_cmp_i64(&u, -1) != ZZ_EQ) {
         abort();
     }
     zz_clear(&u);

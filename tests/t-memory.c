@@ -44,7 +44,7 @@ check_square_outofmem(void)
         int64_t x = 49846727467293 + rand();
         zz_t mx;
 
-        if (zz_init(&mx) || zz_from_sl(x, &mx)) {
+        if (zz_init(&mx) || zz_from_i64(x, &mx)) {
             abort();
         }
         while (1) {
@@ -96,7 +96,7 @@ check_square_outofmem_pthread(void)
     pthread_t *tid = malloc(nthreads * sizeof(pthread_t));
     data_t *d = malloc(nthreads * sizeof(data_t));
     for (size_t i = 0; i < nthreads; i++) {
-        if (zz_init(&d[i].z) || zz_from_sl(10 + 201*(int)i, &d[i].z)) {
+        if (zz_init(&d[i].z) || zz_from_i64(10 + 201*(int)i, &d[i].z)) {
             abort();
         }
         ret = pthread_create(&tid[i], NULL, worker, (void *)(d + i));

@@ -48,14 +48,14 @@ check_bytes_examples(void)
     zz_t u;
 
     if (zz_init(&u) || zz_from_bytes(NULL, 0, false, &u)
-        || zz_cmp_sl(&u, 0) != ZZ_EQ)
+        || zz_cmp_i64(&u, 0) != ZZ_EQ)
     {
         abort();
     }
 
     unsigned char *buf = malloc(1);
 
-    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u) || zz_neg(&u, &u)
+    if (zz_from_i64(1, &u) || zz_mul_2exp(&u, 64, &u) || zz_neg(&u, &u)
         || zz_to_bytes(&u, 1, true, &buf) != ZZ_BUF)
     {
         abort();
@@ -63,7 +63,7 @@ check_bytes_examples(void)
     if (zz_to_bytes(&u, 1, false, &buf) != ZZ_BUF) {
         abort();
     }
-    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u)
+    if (zz_from_i64(1, &u) || zz_mul_2exp(&u, 64, &u)
         || zz_to_bytes(&u, 1, true, &buf) != ZZ_BUF)
     {
         abort();
@@ -72,8 +72,7 @@ check_bytes_examples(void)
     zz_clear(&u);
 }
 
-static const zz_limb_t endian_test = ((zz_limb_t)(1)
-                                      << (ZZ_LIMB_T_BITS-7)) - 1;
+static const uint64_t endian_test = ((uint64_t)(1) << 57) - 1;
 
 void
 check_exportimport_roundtrip(void)
@@ -112,7 +111,7 @@ check_exportimport_examples(void)
     zz_t u;
     const zz_layout pyint_layout = {30, 4, -1, (*(signed char *)&endian_test)};
 
-    if (zz_init(&u) || zz_from_sl(123, &u)) {
+    if (zz_init(&u) || zz_from_i64(123, &u)) {
         abort();
     }
     if (zz_export(&u, pyint_layout, 0, 0) != ZZ_VAL) {

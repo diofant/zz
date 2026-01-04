@@ -56,7 +56,7 @@ check_str_examples(void)
 {
     zz_t u;
 
-    if (zz_init(&u) || zz_from_sl(123, &u)) {
+    if (zz_init(&u) || zz_from_i64(123, &u)) {
         abort();
     }
     if (zz_to_str(&u, 38, NULL, NULL) != ZZ_VAL) {

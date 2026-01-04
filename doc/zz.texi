@@ -162,7 +162,7 @@ Free the space occupied by @var{u} and set its value to 0.
 @cindex Assignment functions
 
 @deftypefun zz_err zz_copy (const zz_t *@var{u}, zz_t *@var{v})
-@deftypefunx zz_err zz_from_sl (zz_slimb_t @var{u}, zz_t *@var{v})
+@deftypefunx zz_err zz_from_i64 (int64_t @var{u}, zz_t *@var{v})
 Set @var{u} from @var{v}.
 @end deftypefun
 
@@ -184,7 +184,7 @@ interpreted as an integer in twos complement representation, being negative if
 @cindex Integer conversion functions
 @cindex Conversion functions
 
-@deftypefun zz_err zz_to_sl (const zz_t *@var{u}, zz_slimb_t *@var{v})
+@deftypefun zz_err zz_to_i64 (const zz_t *@var{u}, int64_t *@var{v})
 Convert @var{u} to @var{v}.
 @end deftypefun
 
@@ -212,13 +212,13 @@ using twos complement representation if @var{is_signed} is @code{true}.  The
 @cindex Arithmetics
 
 @deftypefun zz_err zz_add (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
-@deftypefunx zz_err zz_add_sl (const zz_t *@var{u}, zz_slimb_t @var{v}, zz_t *@var{w})
+@deftypefunx zz_err zz_add_i64 (const zz_t *@var{u}, int64_t @var{v}, zz_t *@var{w})
 Set @var{w} to @math{@var{u} + @var{v}}.
 @end deftypefun
 
 @deftypefun zz_err zz_sub (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
-@deftypefunx zz_err zz_sub_sl (const zz_t *@var{u}, zz_slimb_t @var{v}, zz_t *@var{w})
-@deftypefunx zz_err zz_sl_sub (zz_slimb_t @var{u}, const zz_t *@var{v}, zz_t *@var{w})
+@deftypefunx zz_err zz_sub_i64 (const zz_t *@var{u}, int64_t @var{v}, zz_t *@var{w})
+@deftypefunx zz_err zz_i64_sub (int64_t @var{u}, const zz_t *@var{v}, zz_t *@var{w})
 Set @var{w} to @math{@var{u} - @var{v}}.
 @end deftypefun
 
@@ -231,7 +231,7 @@ Set @var{v} to @math{-@var{u}}.
 @end deftypefun
 
 @deftypefun zz_err zz_mul (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
-@deftypefunx zz_err zz_mul_sl (const zz_t *@var{u}, zz_slimb_t @var{v}, zz_t *@var{w})
+@deftypefunx zz_err zz_mul_i64 (const zz_t *@var{u}, int64_t @var{v}, zz_t *@var{w})
 Set @var{w} to @m{@var{u} \times @var{v}, @var{u} × @var{v}}.
 @end deftypefun
 
@@ -241,8 +241,8 @@ Set @var{w} to @m{@var{u} \times 2^{@var{v}}, @var{u} × 2 raised to @var{v}}
 @end deftypefun
 
 @deftypefun zz_err zz_div (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{q}, zz_t *@var{r})
-@deftypefunx zz_err zz_div_sl (const zz_t *@var{u}, zz_slimb_t @var{v}, zz_t *@var{q}, zz_t *@var{r})
-@deftypefunx zz_err zz_sl_div (zz_slimb_t @var{u}, const zz_t *@var{v}, zz_t *@var{q}, zz_t *@var{r})
+@deftypefunx zz_err zz_div_i64 (const zz_t *@var{u}, int64_t @var{v}, zz_t *@var{q}, zz_t *@var{r})
+@deftypefunx zz_err zz_i64_div (int64_t @var{u}, const zz_t *@var{v}, zz_t *@var{q}, zz_t *@var{r})
 Divide @var{u} by @var{v} and set the quotient @var{q} and the remainder
 @var{r}.  Either @var{q} or @var{r} can be set to @code{NULL}, if their value
 is not required.
@@ -258,7 +258,7 @@ Set @var{w} to quotent of @var{u} and @m{2^{@var{v}}, 2 raised to @var{v}}
 @cindex Integer exponentiation functions
 @cindex Exponentiation functions
 
-@deftypefun zz_err zz_pow (const zz_t *@var{u}, zz_limb_t @var{v}, zz_t *@var{w})
+@deftypefun zz_err zz_pow (const zz_t *@var{u}, uint64_t @var{v}, zz_t *@var{w})
 Set @var{w} to @m{@var{u}^{@var{v}},@var{u} raised to @var{v}}.
 @end deftypefun
 
@@ -283,7 +283,7 @@ values for the data type @code{zz_ord}:
 @end itemize
 
 @deftypefun zz_ord zz_cmp (const zz_t *@var{u}, const zz_t *@var{v})
-@deftypefunx zz_ord zz_cmp_sl (const zz_t *@var{u}, zz_slimb_t @var{v})
+@deftypefunx zz_ord zz_cmp_i64 (const zz_t *@var{u}, int64_t @var{v})
 Compare @var{u} and @var{v}.
 @end deftypefun
 
@@ -334,11 +334,11 @@ Set @var{w} to the least common multiple of @var{u} and @var{v}.
 @node Combinatorics, Import and Export, Number Theoretic Functions, Functions
 @section Combinatorics
 
-@deftypefun zz_err zz_fac (zz_limb_t @var{u}, zz_t *@var{v})
+@deftypefun zz_err zz_fac (uint64_t @var{u}, zz_t *@var{v})
 Set @var{v} to @math{@var{u}!}.
 @end deftypefun
 
-@deftypefun zz_err zz_bin (zz_limb_t @var{n}, zz_limb_t @var{k}, zz_t *@var{v})
+@deftypefun zz_err zz_bin (uint64_t @var{n}, uint64_t @var{k}, zz_t *@var{v})
 Set @var{v} to the binomial coefficient @m{\left({n}\atop{k}\right),@var{n}
 over @var{k}}.
 @end deftypefun

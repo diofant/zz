@@ -302,7 +302,7 @@ zz_cmp(const zz_t *u, const zz_t *v)
 }
 
 zz_ord
-zz_cmp_sl(const zz_t *u, zz_slimb_t v)
+zz_cmp_i64(const zz_t *u, int64_t v)
 {
     zz_ord sign = u->negative ? ZZ_LT : ZZ_GT;
     bool v_negative = v < 0;
@@ -328,7 +328,7 @@ zz_cmp_sl(const zz_t *u, zz_slimb_t v)
 
 
 zz_err
-zz_from_sl(zz_slimb_t u, zz_t *v)
+zz_from_i64(int64_t u, zz_t *v)
 {
     if (!u) {
         v->size = 0;
@@ -348,7 +348,7 @@ zz_from_sl(zz_slimb_t u, zz_t *v)
 }
 
 zz_err
-zz_to_sl(const zz_t *u, zz_slimb_t *v)
+zz_to_i64(const zz_t *u, int64_t *v)
 {
     zz_size_t n = u->size;
 
@@ -366,14 +366,14 @@ zz_to_sl(const zz_t *u, zz_slimb_t *v)
         return ZZ_VAL;
     }
     if (u->negative) {
-        if (uv <= ZZ_SLIMB_T_MAX + (zz_limb_t)1) {
-            *v = -1 - (zz_slimb_t)((uv - 1) & ZZ_SLIMB_T_MAX);
+        if (uv <= INT64_MAX + (zz_limb_t)1) {
+            *v = -1 - (int64_t)((uv - 1) & INT64_MAX);
             return ZZ_OK;
         }
     }
     else {
-        if (uv <= ZZ_SLIMB_T_MAX) {
-            *v = (zz_slimb_t)uv;
+        if (uv <= INT64_MAX) {
+            *v = (int64_t)uv;
             return ZZ_OK;
         }
     }
@@ -403,7 +403,7 @@ zz_copy(const zz_t *u, zz_t *v)
 {
     if (u != v) {
         if (!u->size) {
-            return zz_from_sl(0, v);
+            return zz_from_i64(0, v);
         }
         if (zz_resize((uint64_t)u->size, v)) {
             return ZZ_MEM; /* LCOV_EXCL_LINE */
@@ -680,7 +680,7 @@ zz_from_bytes(const unsigned char *buffer, size_t length, bool is_signed,
               zz_t *u)
 {
     if (!length) {
-        return zz_from_sl(0, u);
+        return zz_from_i64(0, u);
     }
     if (zz_resize(1 + length/2, u)) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
@@ -822,7 +822,7 @@ zz_addsub(const zz_t *u, const zz_t *v, bool subtract, zz_t *w)
 }
 
 static zz_err
-zz_addsub_sl(const zz_t *u, zz_slimb_t v, bool subtract, zz_t *w)
+zz_addsub_i64(const zz_t *u, int64_t v, bool subtract, zz_t *w)
 {
     bool negu = u->negative, negv = subtract ? v >= 0 : v < 0;
     bool same_sign = negu == negv;
@@ -879,24 +879,24 @@ zz_sub(const zz_t *u, const zz_t *v, zz_t *w)
 }
 
 zz_err
-zz_add_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
+zz_add_i64(const zz_t *u, int64_t v, zz_t *w)
 {
-    return zz_addsub_sl(u, v, false, w);
+    return zz_addsub_i64(u, v, false, w);
 }
 
 zz_err
-zz_sub_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
+zz_sub_i64(const zz_t *u, int64_t v, zz_t *w)
 {
-    return zz_addsub_sl(u, v, true, w);
+    return zz_addsub_i64(u, v, true, w);
 }
 
 zz_err
-zz_sl_sub(zz_slimb_t u, const zz_t *v, zz_t *w)
+zz_i64_sub(int64_t u, const zz_t *v, zz_t *w)
 {
     if (zz_neg(v, w)) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
-    return zz_addsub_sl(w, u, false, w);
+    return zz_addsub_i64(w, u, false, w);
 }
 
 zz_err
@@ -906,7 +906,7 @@ zz_mul(const zz_t *u, const zz_t *v, zz_t *w)
         SWAP(const zz_t *, u, v);
     }
     if (!v->size) {
-        return zz_from_sl(0, w);
+        return zz_from_i64(0, w);
     }
     if (u == w) {
         zz_t tmp;
@@ -963,10 +963,10 @@ zz_mul(const zz_t *u, const zz_t *v, zz_t *w)
 }
 
 zz_err
-zz_mul_sl(const zz_t *u, zz_slimb_t v, zz_t *w)
+zz_mul_i64(const zz_t *u, int64_t v, zz_t *w)
 {
     if (!u->size || !v) {
-        return zz_from_sl(0, w);
+        return zz_from_i64(0, w);
     }
 
     zz_size_t u_size = u->size;
@@ -1018,18 +1018,18 @@ zz_div(const zz_t *u, const zz_t *v, zz_t *q, zz_t *r)
         }
     }
     if (!u->size) {
-        if (zz_from_sl(0, q) || zz_from_sl(0, r)) {
+        if (zz_from_i64(0, q) || zz_from_i64(0, r)) {
             goto err; /* LCOV_EXCL_LINE */
         }
     }
     else if (u->size < v->size) {
         if (u->negative != v->negative) {
-            if (zz_from_sl(-1, q) || zz_add(u, v, r)) {
+            if (zz_from_i64(-1, q) || zz_add(u, v, r)) {
                 goto err; /* LCOV_EXCL_LINE */
             }
         }
         else {
-            if (zz_from_sl(0, q) || zz_copy(u, r)) {
+            if (zz_from_i64(0, q) || zz_copy(u, r)) {
                 goto err; /* LCOV_EXCL_LINE */
             }
         }
@@ -1100,7 +1100,7 @@ err:
 }
 
 zz_err
-zz_div_sl (const zz_t *u, zz_slimb_t v, zz_t *q, zz_t *r)
+zz_div_i64(const zz_t *u, int64_t v, zz_t *q, zz_t *r)
 {
     if (!v) {
         return ZZ_VAL;
@@ -1157,42 +1157,42 @@ zz_div_sl (const zz_t *u, zz_slimb_t v, zz_t *q, zz_t *r)
     return q ? ZZ_OK : ZZ_VAL;
 }
 
-static zz_slimb_t
-fdiv_r(zz_slimb_t a, zz_slimb_t b)
+static int64_t
+fdiv_r(int64_t a, int64_t b)
 {
     return a/b - (a%b != 0 && (a^b) < 0);
 }
 
 zz_err
-zz_sl_div (zz_slimb_t u, const zz_t *v, zz_t *q, zz_t *r)
+zz_i64_div(int64_t u, const zz_t *v, zz_t *q, zz_t *r)
 {
     if (!v->size) {
         return ZZ_VAL;
     }
 
-    zz_slimb_t sv;
+    int64_t sv;
 
     if (q) {
         zz_err ret = ZZ_OK;
 
-        if (zz_to_sl(v, &sv)) {
-            ret = zz_from_sl((u < 0) == v->negative || !u ? 0 : -1, q);
+        if (zz_to_i64(v, &sv)) {
+            ret = zz_from_i64((u < 0) == v->negative || !u ? 0 : -1, q);
         }
         else {
-            ret = zz_from_sl(fdiv_r(u, sv), q);
+            ret = zz_from_i64(fdiv_r(u, sv), q);
         }
         if (ret || !r) {
             return ret; /* LCOV_EXCL_LINE */
         }
     }
     if (r) {
-        if (zz_to_sl(v, &sv)) {
+        if (zz_to_i64(v, &sv)) {
             if ((u < 0) == v->negative || !u) {
-                return zz_from_sl(u, r);
+                return zz_from_i64(u, r);
             }
-            return zz_add_sl(v, u, r);
+            return zz_add_i64(v, u, r);
         }
-        return zz_from_sl(u - fdiv_r(u, sv)*sv, r);
+        return zz_from_i64(u - fdiv_r(u, sv)*sv, r);
     }
     return q ? ZZ_OK : ZZ_VAL;
 }
@@ -1205,7 +1205,7 @@ zz_quo_2exp(const zz_t *u, zz_bitcnt_t shift, zz_t *v)
         return ZZ_OK;
     }
     if (shift >= (zz_bitcnt_t)u->size*ZZ_LIMB_T_BITS) {
-        return zz_from_sl(u->negative ? -1 : 0, v);
+        return zz_from_i64(u->negative ? -1 : 0, v);
     }
 
     zz_size_t whole = (zz_size_t)(shift / ZZ_LIMB_T_BITS);
@@ -1295,7 +1295,7 @@ zz_invert(const zz_t *u, zz_t *v)
         v->size -= v->digits[u_size - 1] == 0;
     }
     else if (!u_size) {
-        return zz_from_sl(-1, v);
+        return zz_from_i64(-1, v);
     }
     else {
         if (zz_resize((uint64_t)u_size + 1, v)) {
@@ -1312,7 +1312,7 @@ zz_err
 zz_and(const zz_t *u, const zz_t *v, zz_t *w)
 {
     if (!u->size || !v->size) {
-        return zz_from_sl(0, w);
+        return zz_from_i64(0, w);
     }
 
     zz_size_t u_size = u->size, v_size = v->size;
@@ -1352,7 +1352,7 @@ err:
             if (!u_size) {
                 zz_clear(&o1);
                 zz_clear(&o2);
-                return zz_from_sl(-1, w);
+                return zz_from_i64(-1, w);
             }
             if (zz_resize((uint64_t)u_size + 1, w)) {
                 goto err; /* LCOV_EXCL_LINE */
@@ -1463,7 +1463,7 @@ err:
             if (!v_size) {
                 zz_clear(&o1);
                 zz_clear(&o2);
-                return zz_from_sl(-1, w);
+                return zz_from_i64(-1, w);
             }
             if (zz_resize((uint64_t)v_size + 1, w)) {
                 goto err; /* LCOV_EXCL_LINE */
@@ -1571,7 +1571,7 @@ err:
             if (!u_size) {
                 zz_clear(&o1);
                 zz_clear(&o2);
-                return zz_from_sl(0, w);
+                return zz_from_i64(0, w);
             }
             if (zz_resize((uint64_t)u_size, w)) {
                 goto err; /* LCOV_EXCL_LINE */
@@ -1636,7 +1636,7 @@ err:
 }
 
 zz_err
-zz_pow(const zz_t *u, zz_limb_t v, zz_t *w)
+zz_pow(const zz_t *u, uint64_t v, zz_t *w)
 {
     if (u == w) {
         zz_t tmp;
@@ -1654,13 +1654,13 @@ zz_pow(const zz_t *u, zz_limb_t v, zz_t *w)
         return ret;
     }
     if (!v) {
-        return zz_from_sl(1, w);
+        return zz_from_i64(1, w);
     }
     if (!u->size) {
-        return zz_from_sl(0, w);
+        return zz_from_i64(0, w);
     }
-    if (zz_cmp_sl(u, 1) == ZZ_EQ) {
-        return zz_from_sl(1, w);
+    if (zz_cmp_i64(u, 1) == ZZ_EQ) {
+        return zz_from_i64(1, w);
     }
     if (v > ZZ_LIMBS_MAX / u->size) {
         return ZZ_BUF;
@@ -1764,7 +1764,7 @@ zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
             }
         }
         if (s) {
-            if (zz_from_sl(u->negative ? -1 : 1, s) == ZZ_MEM) {
+            if (zz_from_i64(u->negative ? -1 : 1, s) == ZZ_MEM) {
                 return ZZ_MEM; /* LCOV_EXCL_LINE */
             }
             s->size = u->size > 0;
@@ -1853,7 +1853,7 @@ zz_inverse(const zz_t *u, const zz_t *v, zz_t *w)
         return ZZ_MEM;
         /* LCOV_EXCL_STOP */
     }
-    if (zz_cmp_sl(&g, 1) == ZZ_EQ) {
+    if (zz_cmp_i64(&g, 1) == ZZ_EQ) {
         zz_clear(&g);
         return ZZ_OK;
     }
@@ -1875,7 +1875,7 @@ err:
     }
     if (zz_iszero(&g)) {
         zz_clear(&g);
-        return zz_from_sl(0, w);
+        return zz_from_i64(0, w);
     }
     if (zz_div(u, &g, &g, NULL) || zz_mul(&g, v, w)) {
         goto err; /* LCOV_EXCL_LINE */
@@ -2039,7 +2039,7 @@ zz_sqrtrem(const zz_t *u, zz_t *v, zz_t *w)
 }
 
 zz_err
-zz_fac(zz_limb_t u, zz_t *v)
+zz_fac(uint64_t u, zz_t *v)
 {
 #if ULONG_MAX < ZZ_LIMB_T_MAX
     if (u > ULONG_MAX) {
@@ -2066,7 +2066,7 @@ zz_fac(zz_limb_t u, zz_t *v)
 }
 
 zz_err
-zz_bin(zz_limb_t n, zz_limb_t k, zz_t *v)
+zz_bin(uint64_t n, uint64_t k, zz_t *v)
 {
 #if ULONG_MAX < ZZ_LIMB_T_MAX
     if (n > ULONG_MAX || k > ULONG_MAX) {
