@@ -15,8 +15,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
-      - run: sudo apt-get update
-      - run: sudo apt-get install lcov texlive
+      - run: sudo apt update
+      - run: sudo apt install autoconf-archive lcov texlive
       - name: Cache GNU GMP builds
         id: cache-gmp
         uses: actions/cache@v4

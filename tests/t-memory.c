@@ -12,7 +12,8 @@
 
 #include "tests/tests.h"
 
-void check_fac_outofmem(void)
+void
+check_fac_outofmem(void)
 {
     for (size_t i = 0; i < 7; i++) {
         uint64_t x = 12811 + (uint64_t)(rand() % 12173);
@@ -36,7 +37,8 @@ void check_fac_outofmem(void)
     }
 }
 
-void check_square_outofmem(void)
+void
+check_square_outofmem(void)
 {
     for (size_t i = 0; i < 7; i++) {
         int64_t x = 49846727467293 + rand();
@@ -85,7 +87,8 @@ worker(void *args)
     return NULL;
 }
 
-void check_square_outofmem_pthread(void)
+void
+check_square_outofmem_pthread(void)
 {
     size_t nthreads = 7;
     int ret, succ = 0;
@@ -199,7 +202,8 @@ check_fac_outofmem2(void)
 }
 
 
-int main(void)
+int
+main(void)
 {
     srand((unsigned int)time(NULL));
     zz_setup(NULL);
@@ -207,6 +211,12 @@ int main(void)
     max_size = 32*1000*1000;
     check_fac_outofmem2();
     zz_set_memory_funcs(NULL, NULL, NULL); /* coverage */
+#ifdef HAVE_VALGRIND_VALGRIND_H
+    if (RUNNING_ON_VALGRIND) {
+        zz_finish();
+        return 0;
+    }
+#endif
 
     struct rlimit new, old;
 

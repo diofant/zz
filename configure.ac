@@ -46,6 +46,11 @@ define([AC_LIBTOOL_LANG_CXX_CONFIG],[:])dnl
 define([AC_LIBTOOL_LANG_F77_CONFIG],[:])dnl
 define([AC_LIBTOOL_LANG_GCJ_CONFIG],[:])dnl
 
+AX_VALGRIND_DFLT([sgcheck], [off])
+AX_VALGRIND_DFLT([drd], [off])
+AX_VALGRIND_DFLT([helgrind], [off])
+AX_VALGRIND_CHECK()
+
 # Checks for programs.
 AC_PROG_CC
 AC_LANG(C)
@@ -72,6 +77,7 @@ AS_IF([test "x$HAVE_PTHREAD" = xyes],
 # Checks for header files.
 AC_CHECK_HEADERS([assert.h ctype.h float.h inttypes.h math.h setjmp.h
                   stdlib.h string.h stdbool.h stddef.h stdint.h])
+AC_CHECK_HEADERS([valgrind/valgrind.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

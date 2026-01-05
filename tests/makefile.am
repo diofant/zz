@@ -5,6 +5,8 @@ check_LTLIBRARIES = libtests.la
 libtests_la_SOURCES = tests.h utils.c
 libtests_la_LIBADD = $(libtests_la_DEPENDENCIES) $(top_builddir)/libzz.la
 
+@VALGRIND_CHECK_RULES@
+
 check_PROGRAMS = t-binop t-bytes t-memory t-misc t-powm t-shifts t-str t-unop
 LDADD = libtests.la $(top_builddir)/libzz.la
 AM_CFLAGS = -I$(top_srcdir)

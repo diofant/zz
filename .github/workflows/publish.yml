@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
-      - run: sudo apt-get update
-      - run: sudo apt-get install texlive
+      - run: sudo apt update
+      - run: sudo apt install autoconf-archive texlive
       - run: autoreconf -if
       - run: ./configure -q
       - run: make -s dist

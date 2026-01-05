@@ -24,6 +24,9 @@
 #include <stdlib.h>
 #include <sys/resource.h>
 #include <time.h>
+#ifdef HAVE_VALGRIND_VALGRIND_H
+#  include <valgrind/valgrind.h>
+#endif
 
 extern int nsamples;
 
