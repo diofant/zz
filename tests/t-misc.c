@@ -47,9 +47,8 @@ void
 check_cmp_bulk(void)
 {
     zz_bitcnt_t bs = 512;
-    size_t nex = 1000000;
 
-    for (size_t i = 0; i < nex; i++) {
+    for (size_t i = 0; i < nsamples; i++) {
         zz_t u, v;
 
         if (zz_init(&u) || zz_random(bs, true, &u)) {
@@ -358,9 +357,8 @@ void
 check_isodd_bulk(void)
 {
     zz_bitcnt_t bs = 512;
-    size_t nex = 1000000;
 
-    for (size_t i = 0; i < nex; i++) {
+    for (size_t i = 0; i < nsamples; i++) {
         zz_t u;
 
         if (zz_init(&u) || zz_random(bs, true, &u)) {

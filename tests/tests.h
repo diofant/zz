@@ -21,8 +21,11 @@
 #endif
 #include <stdatomic.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/resource.h>
 #include <time.h>
+
+extern int nsamples;
 
 void zz_testinit(void);
 zz_err zz_random(zz_bitcnt_t bc, bool s, zz_t *u);

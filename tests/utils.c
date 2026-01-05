@@ -10,16 +10,28 @@
     <https://www.gnu.org/licenses/>.
 */
 
-#include <stdlib.h>
-
 #include "tests/tests.h"
 
 static gmp_randstate_t rnd_state;
+int nsamples;
 
 void
 zz_testinit(void)
 {
     gmp_randinit_default(rnd_state);
+
+    char *val = getenv("NSAMPLES");
+    const int nsamples_default = 10000;
+
+    if (val) {
+        nsamples = atoi(val);
+        if (nsamples <= 0) {
+            nsamples = nsamples_default;
+        }
+    }
+    else {
+        nsamples = nsamples_default;
+    }
 }
 
 zz_err

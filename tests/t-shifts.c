@@ -60,9 +60,8 @@ void
 check_lshift_bulk(void)
 {
     zz_bitcnt_t bs = 512;
-    size_t nex = 1000000;
 
-    for (size_t i = 0; i < nex; i++) {
+    for (size_t i = 0; i < nsamples; i++) {
         zz_t u, w, r;
         zz_bitcnt_t v = (zz_bitcnt_t)rand() % 12345;
 
@@ -87,9 +86,8 @@ void
 check_rshift_bulk(void)
 {
     zz_bitcnt_t bs = 512;
-    size_t nex = 1000000;
 
-    for (size_t i = 0; i < nex; i++) {
+    for (size_t i = 0; i < nsamples; i++) {
         zz_t u, w, r;
         zz_bitcnt_t v = (zz_bitcnt_t)rand();
 

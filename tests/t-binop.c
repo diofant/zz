@@ -150,11 +150,11 @@
         zz_clear(&r);                                         \
     } while (0);
 
-#define TEST_BINOP(op, bs, neg, nex)                           \
+#define TEST_BINOP(op, bs, neg)                                \
     void                                                       \
     check_##op##_bulk(void)                                    \
     {                                                          \
-        for (size_t i = 0; i < nex; i++) {                     \
+        for (size_t i = 0; i < nsamples; i++) {                \
             zz_t lhs, rhs;                                     \
                                                                \
             if (zz_init(&lhs) || zz_random(bs, neg, &lhs)) {   \
@@ -169,11 +169,11 @@
         }                                                      \
     }
 
-#define TEST_MIXBINOP(op, bs, neg, nex)                        \
+#define TEST_MIXBINOP(op, bs, neg)                             \
     void                                                       \
     check_##op##_bulk(void)                                    \
     {                                                          \
-        for (size_t i = 0; i < nex; i++) {                     \
+        for (size_t i = 0; i < nsamples; i++) {                \
             zz_t lhs, rhs;                                     \
                                                                \
             if (zz_init(&lhs) || zz_random(bs, neg, &lhs)) {   \
@@ -248,19 +248,19 @@ zz_gcd(const zz_t *u, const zz_t *v, zz_t *w)
 ZZ_BINOP_REF(gcd)
 ZZ_BINOP_REF(lcm)
 
-TEST_MIXBINOP(add, 512, true, 1000000)
-TEST_MIXBINOP(sub, 512, true, 1000000)
-TEST_MIXBINOP(mul, 512, true, 1000000)
+TEST_MIXBINOP(add, 512, true)
+TEST_MIXBINOP(sub, 512, true)
+TEST_MIXBINOP(mul, 512, true)
 
-TEST_MIXBINOP(fdiv_q, 512, true, 1000000)
-TEST_MIXBINOP(fdiv_r, 512, true, 1000000)
+TEST_MIXBINOP(fdiv_q, 512, true)
+TEST_MIXBINOP(fdiv_r, 512, true)
 
-TEST_BINOP(and, 512, true, 1000000)
-TEST_BINOP(ior, 512, true, 1000000)
-TEST_BINOP(xor, 512, true, 1000000)
+TEST_BINOP(and, 512, true)
+TEST_BINOP(ior, 512, true)
+TEST_BINOP(xor, 512, true)
 
-TEST_BINOP(gcd, 512, true, 1000000)
-TEST_BINOP(lcm, 512, true, 1000000)
+TEST_BINOP(gcd, 512, true)
+TEST_BINOP(lcm, 512, true)
 
 void
 check_binop_examples(void)

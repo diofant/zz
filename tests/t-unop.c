@@ -60,11 +60,11 @@
         zz_clear(&r);                                     \
     } while (0);
 
-#define TEST_UNOP(op, bs, neg, nex)                            \
+#define TEST_UNOP(op, bs, neg)                                 \
     void                                                       \
     check_##op##_bulk(void)                                    \
     {                                                          \
-        for (size_t i = 0; i < nex; i++) {                     \
+        for (size_t i = 0; i < nsamples; i++) {                \
             zz_t arg;                                          \
                                                                \
             if (zz_init(&arg) || zz_random(bs, neg, &arg)) {   \
@@ -88,11 +88,11 @@ zz_sqrt(const zz_t *u, zz_t *v)
 }
 ZZ_UNOP_REF(sqrt)
 
-TEST_UNOP(neg, 512, true, 1000000)
-TEST_UNOP(abs, 512, true, 1000000)
-TEST_UNOP(com, 512, true, 1000000)
+TEST_UNOP(neg, 512, true)
+TEST_UNOP(abs, 512, true)
+TEST_UNOP(com, 512, true)
 
-TEST_UNOP(sqrt, 512, false, 1000000)
+TEST_UNOP(sqrt, 512, false)
 
 void
 check_unary_examples(void)
