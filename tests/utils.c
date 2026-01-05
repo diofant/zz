@@ -16,7 +16,8 @@
 
 static gmp_randstate_t rnd_state;
 
-void zz_testinit(void)
+void
+zz_testinit(void)
 {
     gmp_randinit_default(rnd_state);
 }
@@ -32,15 +33,17 @@ zz_random(zz_bitcnt_t bc, bool s, zz_t *u)
     mpz_init(z);
 
     int n = (rand() % 10);
+    void (*f)(mpz_t, gmp_randstate_t, mp_bitcnt_t);
 
+    f = rand() % 2 ? mpz_urandomb : mpz_rrandomb;
     if (n >= 7) {
-        mpz_urandomb(z, rnd_state, bc);
+        f(z, rnd_state, bc);
     }
     else if (n >= 5) {
-        mpz_urandomb(z, rnd_state, bc/4);
+        f(z, rnd_state, bc/4);
     }
     else {
-        mpz_urandomb(z, rnd_state, bc/8);
+        f(z, rnd_state, bc/8);
     }
 
     zz_t tmp = {false, abs(z->_mp_size), abs(z->_mp_size), z->_mp_d};
