@@ -402,6 +402,33 @@ check_binop_examples(void)
     {
         abort();
     }
+    if (zz_from_sl(4, &u)) {
+        abort();
+    }
+    if (zz_from_sl(2, &v)) {
+        abort();
+    }
+    if (zz_div(&u, &v, NULL, NULL) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_sl(0, &v) || zz_div(&u, &v, &v, NULL) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_sl(1, &u)) {
+        abort();
+    }
+    if (zz_div_sl(&u, 0, &u, NULL) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_sl(0, &v)) {
+        abort();
+    }
+    if (zz_sl_div(1, &v, &v, NULL) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_sl(1, &v) || zz_sl_div(1, &v, NULL, NULL) != ZZ_VAL) {
+        abort();
+    }
     zz_clear(&u);
     zz_clear(&v);
 }

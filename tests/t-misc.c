@@ -82,138 +82,6 @@ check_lsbpos(void)
     zz_clear(&u);
 }
 
-static zz_layout int_layout = {30, 4, -1, -1};
-
-void
-check_export(void)
-{
-    zz_t u;
-
-    if (zz_init(&u) || zz_from_sl(123, &u)) {
-        abort();
-    }
-    if (zz_export(&u, int_layout, 0, 0) != ZZ_VAL) {
-        abort();
-    }
-    zz_clear(&u);
-}
-
-void
-check_to_str(void)
-{
-    zz_t u;
-
-    if (zz_init(&u) || zz_from_sl(123, &u)) {
-        abort();
-    }
-    if (zz_to_str(&u, 38, NULL, NULL) != ZZ_VAL) {
-        abort();
-    }
-    zz_clear(&u);
-}
-
-void
-check_from_str(void)
-{
-    zz_t u;
-
-    if (zz_init(&u) || zz_from_str(" ", 1, 2, &u) != ZZ_VAL) {
-        abort();
-    }
-    if (zz_init(&u) || zz_from_str("-", 1, 2, &u) != ZZ_VAL) {
-        abort();
-    }
-    if (zz_from_str("_", 1, 2, &u) != ZZ_VAL) {
-        abort();
-    }
-    if (zz_from_str("1__", 3, 2, &u) != ZZ_VAL) {
-        abort();
-    }
-    if (zz_from_str("1_3", 3, 2, &u) != ZZ_VAL) {
-        abort();
-    }
-    if (zz_from_str(" ", 1, 42, &u) != ZZ_VAL) {
-        abort();
-    }
-    zz_clear(&u);
-}
-
-void
-check_div(void)
-{
-    zz_t u, v;
-
-    if (zz_init(&u) || zz_from_sl(4, &u)) {
-        abort();
-    }
-    if (zz_init(&v) || zz_from_sl(2, &v)) {
-        abort();
-    }
-    if (zz_div(&u, &v, NULL, NULL) != ZZ_VAL) {
-        abort();
-    }
-    if (zz_from_sl(0, &v) || zz_div(&u, &v, &v, NULL) != ZZ_VAL) {
-        abort();
-    }
-    zz_clear(&u);
-    zz_clear(&v);
-}
-
-void
-check_div_sl(void)
-{
-    zz_t u;
-
-    if (zz_init(&u) || zz_from_sl(1, &u)) {
-        abort();
-    }
-    if (zz_div_sl(&u, 0, &u, NULL) != ZZ_VAL) {
-        abort();
-    }
-    zz_clear(&u);
-}
-
-void
-check_sl_div(void)
-{
-    zz_t v;
-
-    if (zz_init(&v) || zz_from_sl(0, &v)) {
-        abort();
-    }
-    if (zz_sl_div(1, &v, &v, NULL) != ZZ_VAL) {
-        abort();
-    }
-    if (zz_from_sl(1, &v) || zz_sl_div(1, &v, NULL, NULL) != ZZ_VAL) {
-        abort();
-    }
-    zz_clear(&v);
-}
-
-void
-check_pow(void)
-{
-    zz_t u;
-
-    if (zz_init(&u) || zz_from_sl(2, &u)) {
-        abort();
-    }
-    if (zz_pow(&u, 2, &u) || zz_cmp_sl(&u, 4) != ZZ_EQ) {
-        abort();
-    }
-    if (zz_pow(&u, 0, &u) || zz_cmp_sl(&u, 1) != ZZ_EQ) {
-        abort();
-    }
-    if (zz_pow(&u, 123, &u) || zz_cmp_sl(&u, 1) != ZZ_EQ) {
-        abort();
-    }
-    if (zz_from_sl(0, &u) || zz_pow(&u, 123, &u) || zz_cmp_sl(&u, 0) != ZZ_EQ)
-    {
-        abort();
-    }
-    zz_clear(&u);
-}
-
 void
 check_sqrtrem(void)
 {
@@ -241,41 +109,6 @@ check_sqrtrem(void)
 }
 
 void
-check_powm(void)
-{
-    zz_t u, v, w;
-
-    if (zz_init(&u) || zz_from_sl(12, &u)) {
-        abort();
-    }
-    if (zz_init(&v) || zz_from_sl(4, &v)) {
-        abort();
-    }
-    if (zz_init(&w) || zz_from_sl(7, &w)) {
-        abort();
-    }
-    if (zz_powm(&u, &v, &w, &u) || zz_cmp_sl(&u, 2) != ZZ_EQ) {
-        abort();
-    }
-    if (zz_from_sl(12, &u) || zz_powm(&u, &v, &w, &v)
-        || zz_cmp_sl(&v, 2) != ZZ_EQ)
-    {
-        abort();
-    }
-    if (zz_from_sl(4, &v) || zz_powm(&u, &v, &w, &w)
-        || zz_cmp_sl(&w, 2) != ZZ_EQ)
-    {
-        abort();
-    }
-    if (zz_from_sl(0, &w) || zz_powm(&u, &v, &w, &w) != ZZ_VAL) {
-        abort();
-    }
-    zz_clear(&u);
-    zz_clear(&v);
-    zz_clear(&w);
-}
-
-void
 check_bin(void)
 {
     zz_t u;
@@ -283,36 +116,6 @@ check_bin(void)
     if (zz_init(&u) || zz_bin(13, 5, &u) || zz_cmp_sl(&u, 1287) != ZZ_EQ) {
         abort();
     }
-    zz_clear(&u);
-}
-
-void
-check_bytes(void)
-{
-    zz_t u;
-
-    if (zz_init(&u) || zz_from_bytes(NULL, 0, false, &u)
-        || zz_cmp_sl(&u, 0) != ZZ_EQ)
-    {
-        abort();
-    }
-
-    unsigned char *buf = malloc(1);
-
-    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u) || zz_neg(&u, &u)
-        || zz_to_bytes(&u, 1, true, &buf) != ZZ_BUF)
-    {
-        abort();
-    }
-    if (zz_to_bytes(&u, 1, false, &buf) != ZZ_BUF) {
-        abort();
-    }
-    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u)
-        || zz_to_bytes(&u, 1, true, &buf) != ZZ_BUF)
-    {
-        abort();
-    }
-    free(buf);
     zz_clear(&u);
 }
 
@@ -452,17 +255,8 @@ int main(void)
     check_cmp();
     check_cmp_bulk();
     check_lsbpos();
-    check_export();
-    check_to_str();
-    check_from_str();
-    check_div();
-    check_div_sl();
-    check_sl_div();
-    check_pow();
     check_sqrtrem();
-    check_powm();
     check_bin();
-    check_bytes();
     check_isodd_bulk();
     check_gcdext();
     check_to_double();

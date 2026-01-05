@@ -73,12 +73,73 @@ check_powm_bulk(void)
     }
 }
 
+void
+check_powm_examples(void)
+{
+    zz_t u, v, w;
+
+    if (zz_init(&u) || zz_from_sl(12, &u)) {
+        abort();
+    }
+    if (zz_init(&v) || zz_from_sl(4, &v)) {
+        abort();
+    }
+    if (zz_init(&w) || zz_from_sl(7, &w)) {
+        abort();
+    }
+    if (zz_powm(&u, &v, &w, &u) || zz_cmp_sl(&u, 2) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_from_sl(12, &u) || zz_powm(&u, &v, &w, &v)
+        || zz_cmp_sl(&v, 2) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(4, &v) || zz_powm(&u, &v, &w, &w)
+        || zz_cmp_sl(&w, 2) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(0, &w) || zz_powm(&u, &v, &w, &w) != ZZ_VAL) {
+        abort();
+    }
+    zz_clear(&u);
+    zz_clear(&v);
+    zz_clear(&w);
+}
+
+void
+check_pow_examples(void)
+{
+    zz_t u;
+
+    if (zz_init(&u) || zz_from_sl(2, &u)) {
+        abort();
+    }
+    if (zz_pow(&u, 2, &u) || zz_cmp_sl(&u, 4) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_pow(&u, 0, &u) || zz_cmp_sl(&u, 1) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_pow(&u, 123, &u) || zz_cmp_sl(&u, 1) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_from_sl(0, &u) || zz_pow(&u, 123, &u) || zz_cmp_sl(&u, 0) != ZZ_EQ)
+    {
+        abort();
+    }
+    zz_clear(&u);
+}
+
 int main(void)
 {
     srand((unsigned int)time(NULL));
     zz_testinit();
     zz_setup(NULL);
     check_powm_bulk();
+    check_powm_examples();
+    check_pow_examples();
     zz_finish();
     zz_testclear();
     return 0;

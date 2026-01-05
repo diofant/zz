@@ -42,6 +42,36 @@ check_bytes_roundtrip(void)
     }
 }
 
+void
+check_bytes_examples(void)
+{
+    zz_t u;
+
+    if (zz_init(&u) || zz_from_bytes(NULL, 0, false, &u)
+        || zz_cmp_sl(&u, 0) != ZZ_EQ)
+    {
+        abort();
+    }
+
+    unsigned char *buf = malloc(1);
+
+    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u) || zz_neg(&u, &u)
+        || zz_to_bytes(&u, 1, true, &buf) != ZZ_BUF)
+    {
+        abort();
+    }
+    if (zz_to_bytes(&u, 1, false, &buf) != ZZ_BUF) {
+        abort();
+    }
+    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u)
+        || zz_to_bytes(&u, 1, true, &buf) != ZZ_BUF)
+    {
+        abort();
+    }
+    free(buf);
+    zz_clear(&u);
+}
+
 static const zz_limb_t endian_test = ((zz_limb_t)(1)
                                       << (ZZ_LIMB_T_BITS-7)) - 1;
 
@@ -49,6 +79,7 @@ void
 check_exportimport_roundtrip(void)
 {
     zz_bitcnt_t bs = 512;
+    const zz_layout bytes_layout = {8, 1, -1, (*(signed char *)&endian_test)};
 
     for (size_t i = 0; i < nsamples; i++) {
         zz_t u, v;
@@ -59,12 +90,11 @@ check_exportimport_roundtrip(void)
 
         size_t len = (zz_bitlen(&u) + 7)/8;
         void *buf = malloc(len);
-        zz_layout layout = {8, 1, -1, (*(signed char *)&endian_test)};
 
-        if (!buf || zz_export(&u, layout, len, buf)) {
+        if (!buf || zz_export(&u, bytes_layout, len, buf)) {
             abort();
         }
-        if (zz_init(&v) || zz_import(len, buf, layout, &v)) {
+        if (zz_init(&v) || zz_import(len, buf, bytes_layout, &v)) {
             abort();
         }
         free(buf);
@@ -76,14 +106,30 @@ check_exportimport_roundtrip(void)
     }
 }
 
+void
+check_exportimport_examples(void)
+{
+    zz_t u;
+    const zz_layout pyint_layout = {30, 4, -1, (*(signed char *)&endian_test)};
+
+    if (zz_init(&u) || zz_from_sl(123, &u)) {
+        abort();
+    }
+    if (zz_export(&u, pyint_layout, 0, 0) != ZZ_VAL) {
+        abort();
+    }
+    zz_clear(&u);
+}
+
 int main(void)
 {
     srand((unsigned int)time(NULL));
     zz_testinit();
     zz_setup(NULL);
-
     check_bytes_roundtrip();
+    check_bytes_examples();
     check_exportimport_roundtrip();
+    check_exportimport_examples();
     zz_finish();
     zz_testclear();
     return 0;

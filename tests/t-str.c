@@ -51,12 +51,45 @@ check_str_roundtrip(void)
     }
 }
 
+void
+check_str_examples(void)
+{
+    zz_t u;
+
+    if (zz_init(&u) || zz_from_sl(123, &u)) {
+        abort();
+    }
+    if (zz_to_str(&u, 38, NULL, NULL) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_str(" ", 1, 2, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_str("-", 1, 2, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_str("_", 1, 2, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_str("1__", 3, 2, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_str("1_3", 3, 2, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_str(" ", 1, 42, &u) != ZZ_VAL) {
+        abort();
+    }
+    zz_clear(&u);
+}
+
 int main(void)
 {
     srand((unsigned int)time(NULL));
     zz_testinit();
     zz_setup(NULL);
     check_str_roundtrip();
+    check_str_examples();
     zz_finish();
     zz_testclear();
     return 0;
