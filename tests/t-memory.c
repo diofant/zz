@@ -125,98 +125,16 @@ check_square_outofmem_pthread(void)
 }
 #endif /* HAVE_PTHREAD_H */
 
-/* Poor-mans allocator routines with memory constraint.
- * total_size should be reset on ZZ_MEM errors. */
-
-atomic_size_t total_size = 0;
-static size_t max_size = 0;
-
-static void *
-my_malloc(size_t size)
-{
-    size_t cur_size = atomic_load(&total_size);
-
-    if (cur_size + size > max_size) {
-        return NULL;
-    }
-
-    void *ptr = malloc(size);
-
-    if (ptr) {
-        atomic_fetch_add(&total_size, size);
-    }
-    return ptr;
-}
-
-static void *
-my_realloc(void *ptr, size_t old_size, size_t new_size)
-{
-    size_t cur_size = atomic_load(&total_size);
-
-    if (cur_size + new_size - old_size > max_size) {
-        return NULL;
-    }
-
-    void *new_ptr = realloc(ptr, new_size);
-
-    if (new_ptr) {
-        atomic_fetch_add(&total_size, new_size);
-        atomic_fetch_sub(&total_size, old_size);
-    }
-    return new_ptr;
-}
-
-static void
-my_free(void *ptr, size_t size)
-{
-    free(ptr);
-    if (!size) {
-        atomic_fetch_sub(&total_size, size);
-    }
-}
-
-void
-check_fac_outofmem2(void)
-{
-    for (size_t i = 0; i < 7; i++) {
-        uint64_t x = 12811 + (uint64_t)(rand() % 12173);
-        zz_t mx;
-
-        if (zz_init(&mx)) {
-            abort();
-        }
-        while (1) {
-            zz_err r = zz_fac(x, &mx);
-
-            if (r != ZZ_OK) {
-                if (r == ZZ_MEM) {
-                    atomic_store(&total_size, 0);
-                    break;
-                }
-                abort();
-            }
-            x *= 2;
-        }
-        zz_clear(&mx);
-    }
-}
-
-
 int
 main(void)
 {
-    srand((unsigned int)time(NULL));
-    zz_setup(NULL);
-    zz_set_memory_funcs(my_malloc, my_realloc, my_free);
-    max_size = 32*1000*1000;
-    check_fac_outofmem2();
-    zz_set_memory_funcs(NULL, NULL, NULL); /* coverage */
 #ifdef HAVE_VALGRIND_VALGRIND_H
     if (RUNNING_ON_VALGRIND) {
-        zz_finish();
         return 0;
     }
 #endif
+    srand((unsigned int)time(NULL));
+    zz_setup(NULL);
 
     struct rlimit new, old;
 
@@ -225,11 +143,6 @@ main(void)
         return 1;
     }
     new.rlim_max = old.rlim_max;
-    new.rlim_cur = 128*1000*1000;
-    if (setrlimit(RLIMIT_AS, &new)) {
-        perror("setrlimit");
-        return 1;
-    }
     new.rlim_cur = 64*1000*1000;
     if (setrlimit(RLIMIT_AS, &new)) {
         perror("setrlimit");
@@ -239,11 +152,6 @@ main(void)
 #if HAVE_PTHREAD_H
     check_square_outofmem_pthread();
 #endif
-    new.rlim_cur = 32*1000*1000;
-    if (setrlimit(RLIMIT_AS, &new)) {
-        perror("setrlimit");
-        return 1;
-    }
     /* to trigger crash for GMP builds with alloca() enabled */
     if (getrlimit(RLIMIT_STACK, &old)) {
         perror("getrlimit");

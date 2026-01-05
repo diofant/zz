@@ -568,6 +568,101 @@ check_shift_examples(void)
     zz_clear(&v);
 }
 
+void
+check_square_outofmem(void)
+{
+    zz_set_memory_funcs(my_malloc, my_realloc, my_free);
+    max_size = 64*1000*1000;
+    for (size_t i = 0; i < 7; i++) {
+        int64_t x = 49846727467293 + rand();
+        zz_t mx;
+
+        if (zz_init(&mx) || zz_from_sl(x, &mx)) {
+            abort();
+        }
+        while (1) {
+            zz_err r = zz_mul(&mx, &mx, &mx);
+
+            if (r != ZZ_OK) {
+                if (r == ZZ_MEM) {
+                    break;
+                }
+                abort();
+            }
+        }
+        zz_clear(&mx);
+    }
+    zz_set_memory_funcs(NULL, NULL, NULL);
+}
+
+#if HAVE_PTHREAD_H
+typedef struct {
+    int ret;
+    zz_t z;
+} data_t;
+
+void *
+worker(void *args)
+{
+    data_t *d = (data_t *)args;
+
+    while (1) {
+        zz_err ret = zz_mul(&d->z, &d->z, &d->z);
+
+        if (ret != ZZ_OK) {
+            if (ret == ZZ_MEM) {
+                break;
+            }
+            d->ret = 1;
+            return NULL;
+        }
+    }
+    d->ret = 0;
+    return NULL;
+}
+
+void
+check_square_outofmem_pthread(void)
+{
+    zz_set_memory_funcs(my_malloc, my_realloc, my_free);
+    max_size = 64*1000*1000;
+
+    size_t nthreads = 7;
+    int ret, succ = 0;
+
+    pthread_t *tid = malloc(nthreads * sizeof(pthread_t));
+    data_t *d = malloc(nthreads * sizeof(data_t));
+    for (size_t i = 0; i < nthreads; i++) {
+        if (zz_init(&d[i].z) || zz_from_sl(10 + 201*(int)i, &d[i].z)) {
+            abort();
+        }
+        ret = pthread_create(&tid[i], NULL, worker, (void *)(d + i));
+        if (!ret) {
+            succ |= (1<<i);
+        }
+        else if (ret != EAGAIN) {
+            perror("pthread_create");
+            abort();
+        }
+    }
+    if (!succ) {
+        abort();
+    }
+    for (size_t i = 0; i < nthreads; i++) {
+        if (succ & (1<<i)) {
+            pthread_join(tid[i], NULL);
+            if (d[i].ret) {
+                abort();
+            }
+            zz_clear(&d[i].z);
+        }
+    }
+    free(d);
+    free(tid);
+    zz_set_memory_funcs(NULL, NULL, NULL);
+}
+#endif /* HAVE_PTHREAD_H */
+
 int
 main(void)
 {
@@ -588,6 +683,10 @@ main(void)
     check_lshift_bulk();
     check_rshift_bulk();
     check_shift_examples();
+    check_square_outofmem();
+#if HAVE_PTHREAD_H
+    check_square_outofmem_pthread();
+#endif
     zz_finish();
     zz_testclear();
     return 0;

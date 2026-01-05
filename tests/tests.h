@@ -34,4 +34,14 @@ void zz_testinit(void);
 zz_err zz_random(zz_bitcnt_t bc, bool s, zz_t *u);
 void zz_testclear(void);
 
+/* Poor-mans allocator routines with memory constraint.
+ * total_size should be reset on ZZ_MEM errors. */
+
+extern atomic_size_t total_size;
+extern size_t max_size;
+
+void * my_malloc(size_t size);
+void * my_realloc(void *ptr, size_t old_size, size_t new_size);
+void my_free(void *ptr, size_t size);
+
 #endif /* TESTS_TESTS_H */

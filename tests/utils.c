@@ -14,6 +14,8 @@
 
 static gmp_randstate_t rnd_state;
 int nsamples;
+atomic_size_t total_size = 0;
+size_t max_size = 0;
 
 void
 zz_testinit(void)
@@ -75,4 +77,48 @@ void
 zz_testclear(void)
 {
     gmp_randclear(rnd_state);
+}
+
+void *
+my_malloc(size_t size)
+{
+    size_t cur_size = atomic_load(&total_size);
+
+    if (cur_size + size > max_size) {
+        return NULL;
+    }
+
+    void *ptr = malloc(size);
+
+    if (ptr) {
+        atomic_fetch_add(&total_size, size);
+    }
+    return ptr;
+}
+
+void *
+my_realloc(void *ptr, size_t old_size, size_t new_size)
+{
+    size_t cur_size = atomic_load(&total_size);
+
+    if (cur_size + new_size - old_size > max_size) {
+        return NULL;
+    }
+
+    void *new_ptr = realloc(ptr, new_size);
+
+    if (new_ptr) {
+        atomic_fetch_add(&total_size, new_size);
+        atomic_fetch_sub(&total_size, old_size);
+    }
+    return new_ptr;
+}
+
+void
+my_free(void *ptr, size_t size)
+{
+    free(ptr);
+    if (!size) {
+        atomic_fetch_sub(&total_size, size);
+    }
 }

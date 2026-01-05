@@ -242,6 +242,35 @@ check_to_sl(void)
     zz_clear(&u);
 }
 
+void
+check_fac_outofmem(void)
+{
+    zz_set_memory_funcs(my_malloc, my_realloc, my_free);
+    max_size = 32*1000*1000;
+    for (size_t i = 0; i < 7; i++) {
+        uint64_t x = 12811 + (uint64_t)(rand() % 12173);
+        zz_t mx;
+
+        if (zz_init(&mx)) {
+            abort();
+        }
+        while (1) {
+            zz_err r = zz_fac(x, &mx);
+
+            if (r != ZZ_OK) {
+                if (r == ZZ_MEM) {
+                    atomic_store(&total_size, 0);
+                    break;
+                }
+                abort();
+            }
+            x *= 2;
+        }
+        zz_clear(&mx);
+    }
+    zz_set_memory_funcs(NULL, NULL, NULL);
+}
+
 int main(void)
 {
     zz_testinit();
@@ -262,6 +291,7 @@ int main(void)
     check_to_double();
     check_sizeinbase();
     check_to_sl();
+    check_fac_outofmem();
     zz_finish();
     zz_testclear();
     return 0;
