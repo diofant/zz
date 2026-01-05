@@ -36,37 +36,6 @@
         return ZZ_OK;                                   \
     }
 
-#define ZZ_MIXBINOP_REF(op)                                \
-    ZZ_BINOP_REF(op)                                       \
-    zz_err                                                 \
-    zz_ref_##op##_sl(const zz_t *u, zz_slimb_t v, zz_t *w) \
-    {                                                      \
-        zz_t tmp;                                          \
-                                                           \
-        if (zz_init(&tmp) || zz_from_sl(v, &tmp)           \
-            || zz_ref_##op(u, &tmp, w))                    \
-        {                                                  \
-            zz_clear(&tmp);                                \
-            return ZZ_MEM;                                 \
-        }                                                  \
-        zz_clear(&tmp);                                    \
-        return ZZ_OK;                                      \
-    }                                                      \
-    zz_err                                                 \
-    zz_ref_sl_##op(zz_slimb_t u, const zz_t *v, zz_t *w)   \
-    {                                                      \
-        zz_t tmp;                                          \
-                                                           \
-        if (zz_init(&tmp) || zz_from_sl(u, &tmp)           \
-            || zz_ref_##op(&tmp, v, w))                    \
-        {                                                  \
-            zz_clear(&tmp);                                \
-            return ZZ_MEM;                                 \
-        }                                                  \
-        zz_clear(&tmp);                                    \
-        return ZZ_OK;                                      \
-    }
-
 #define TEST_BINOP_EXAMPLE(op, lhs, rhs)                      \
     do {                                                      \
         zz_t u, v, w, r;                                      \
@@ -140,7 +109,7 @@
             else if (ret) {                                   \
                 abort();                                      \
             }                                                 \
-            if (zz_ref_##op##_sl(&u, limb, &r)                \
+            if (zz_ref_##op(&u, &v, &r)                       \
                 || zz_cmp(&w, &r) != ZZ_EQ)                   \
             {                                                 \
                 abort();                                      \
@@ -164,7 +133,7 @@
             else if (ret) {                                   \
                 abort();                                      \
             }                                                 \
-            if (zz_ref_sl_##op(limb, &v, &r)                  \
+            if (zz_ref_##op(&u, &v, &r)                       \
                 || zz_cmp(&w, &r) != ZZ_EQ)                   \
             {                                                 \
                 abort();                                      \
@@ -222,9 +191,9 @@
 #define zz_sl_add(x, y, r) zz_add_sl((y), (x), (r))
 #define zz_sl_mul(x, y, r) zz_mul_sl((y), (x), (r))
 
-ZZ_MIXBINOP_REF(add)
-ZZ_MIXBINOP_REF(sub)
-ZZ_MIXBINOP_REF(mul)
+ZZ_BINOP_REF(add)
+ZZ_BINOP_REF(sub)
+ZZ_BINOP_REF(mul)
 
 zz_err
 zz_fdiv_q(const zz_t *u, const zz_t *v, zz_t *w)
@@ -262,8 +231,8 @@ zz_sl_fdiv_r(zz_slimb_t u, const zz_t *v, zz_t *w)
     return zz_sl_div(u, v, NULL, w);
 }
 
-ZZ_MIXBINOP_REF(fdiv_q)
-ZZ_MIXBINOP_REF(fdiv_r)
+ZZ_BINOP_REF(fdiv_q)
+ZZ_BINOP_REF(fdiv_r)
 
 ZZ_BINOP_REF(and)
 #define zz_ior zz_or
