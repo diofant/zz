@@ -1824,6 +1824,8 @@ zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
     }
     zz_clear(tmp_s);
     zz_clear(tmp_g);
+    free(tmp_g);
+    free(tmp_s);
     return ZZ_OK;
     /* LCOV_EXCL_START */
 clear:
