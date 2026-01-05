@@ -191,43 +191,6 @@ check_sl_div(void)
 }
 
 void
-check_quo_2exp(void)
-{
-    zz_t u, v;
-
-    if (zz_init(&u) || zz_from_sl(0x7fffffffffffffffLL, &u)) {
-        abort();
-    }
-    if (zz_mul_2exp(&u, 1, &u) || zz_add_sl(&u, 1, &u)
-        || zz_mul_2exp(&u, 64, &u) || zz_quo_2exp(&u, 64, &u))
-    {
-        abort();
-    }
-    if (u.negative || u.alloc < 1 || u.size != 1
-        || u.digits[0] != 0xffffffffffffffffULL)
-    {
-        abort();
-    }
-    if (zz_init(&v) || zz_from_sl(0x7fffffffffffffffLL, &v)) {
-        abort();
-    }
-    if (zz_mul_2exp(&v, 1, &v) || zz_add_sl(&v, 1, &v)
-        || zz_cmp(&u, &v) != ZZ_EQ)
-    {
-        abort();
-    }
-#if ZZ_LIMB_T_BITS == 64
-    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u)
-        || zz_pow(&u, ((zz_limb_t)1<<63), &u) != ZZ_BUF)
-    {
-        abort();
-    }
-#endif
-    zz_clear(&u);
-    zz_clear(&v);
-}
-
-void
 check_pow(void)
 {
     zz_t u;
@@ -446,61 +409,6 @@ check_to_double(void)
     zz_clear(&u);
 }
 
-#define zz_from_dec(s, u) zz_from_str(s, strlen(s), 10, u)
-
-void
-check_shifts(void)
-{
-    zz_t u, v;
-
-    if (zz_init(&u) || zz_from_sl(0, &u) || zz_init(&v)) {
-        abort();
-    }
-    if (zz_mul_2exp(&u, 123, &v) || zz_cmp_sl(&v, 0)) {
-        abort();
-    }
-    if (zz_quo_2exp(&u, 123, &v) || zz_cmp_sl(&v, 0)) {
-        abort();
-    }
-    if (zz_from_dec("-340282366920938463444927863358058659840", &u)
-        || zz_quo_2exp(&u, 64, &v))
-    {
-        abort();
-    }
-    if (zz_from_dec("-18446744073709551615", &u)
-        || zz_cmp(&u, &v) != ZZ_EQ)
-    {
-        abort();
-    }
-    if (zz_from_dec("-514220174162876888173427869549172"
-                    "032807104958010493707296440352", &u)
-        || zz_quo_2exp(&u, 206, &v) || zz_cmp_sl(&v, -6) != ZZ_EQ)
-    {
-        abort();
-    }
-    if (zz_from_dec("-62771017353866807634955070562867279"
-                    "52638980837032266301441", &u)
-        || zz_quo_2exp(&u, 128, &v))
-    {
-        abort();
-    }
-    if (zz_from_dec("-18446744073709551616", &u) || zz_cmp(&u, &v)) {
-        abort();
-    }
-    if (zz_from_sl(-1, &u) || zz_quo_2exp(&u, 1, &v)
-        || zz_cmp_sl(&v, -1) != ZZ_EQ)
-    {
-        abort();
-    }
-    if (zz_from_sl(1, &u) ||
-        zz_mul_2exp(&u, ZZ_BITS_MAX, &u) != ZZ_MEM)
-    {
-        abort();
-    }
-    zz_clear(&u);
-    zz_clear(&v);
-}
-
 void
 check_sizeinbase(void)
 {
@@ -550,7 +458,6 @@ int main(void)
     check_div();
     check_div_sl();
     check_sl_div();
-    check_quo_2exp();
     check_pow();
     check_sqrtrem();
     check_powm();
@@ -559,7 +466,6 @@ int main(void)
     check_isodd_bulk();
     check_gcdext();
     check_to_double();
-    check_shifts();
     check_sizeinbase();
     check_to_sl();
     zz_finish();

@@ -46,7 +46,6 @@ tests/t-bytes
 tests/t-memory
 tests/t-misc
 tests/t-pow
-tests/t-shifts
 tests/t-str
 tests/t-unop
 doc/zz.html/

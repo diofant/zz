@@ -248,6 +248,50 @@ zz_gcd(const zz_t *u, const zz_t *v, zz_t *w)
 ZZ_BINOP_REF(gcd)
 ZZ_BINOP_REF(lcm)
 
+zz_err
+zz_ref_mul_2exp(const zz_t *u, zz_bitcnt_t v, zz_t *w)
+{
+    mpz_t z;
+    TMP_MPZ(mu, u);
+    if (TMP_OVERFLOW) {
+        return ZZ_MEM;
+    }
+    mpz_init(z);
+    mpz_mul_2exp(z, mu, v);
+
+    zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size),
+                abs(z->_mp_size),
+                z->_mp_d};
+    if (zz_copy(&tmp, w)) {
+        mpz_clear(z);
+        return ZZ_MEM;
+    }
+    mpz_clear(z);
+    return ZZ_OK;
+}
+
+zz_err
+zz_ref_quo_2exp(const zz_t *u, zz_bitcnt_t v, zz_t *w)
+{
+    mpz_t z;
+    TMP_MPZ(mu, u);
+    if (TMP_OVERFLOW) {
+        return ZZ_MEM;
+    }
+    mpz_init(z);
+    mpz_fdiv_q_2exp(z, mu, v);
+
+    zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size),
+                abs(z->_mp_size),
+                z->_mp_d};
+    if (zz_copy(&tmp, w)) {
+        mpz_clear(z);
+        return ZZ_MEM;
+    }
+    mpz_clear(z);
+    return ZZ_OK;
+}
+
 TEST_MIXBINOP(add, 512, true)
 TEST_MIXBINOP(sub, 512, true)
 TEST_MIXBINOP(mul, 512, true)
@@ -362,6 +406,141 @@ check_binop_examples(void)
     zz_clear(&v);
 }
 
+void
+check_lshift_bulk(void)
+{
+    zz_bitcnt_t bs = 512;
+
+    for (size_t i = 0; i < nsamples; i++) {
+        zz_t u, w, r;
+        zz_bitcnt_t v = (zz_bitcnt_t)rand() % 12345;
+
+        if (zz_init(&u) || zz_random(bs, true, &u)) {
+            abort();
+        }
+        if (zz_init(&w) || zz_mul_2exp(&u, v, &w)) {
+            abort();
+        }
+        if (zz_init(&r) || zz_ref_mul_2exp(&u, v, &r)
+            || zz_cmp(&w, &r) != ZZ_EQ)
+        {
+            abort();
+        }
+        zz_clear(&u);
+        zz_clear(&w);
+        zz_clear(&r);
+    }
+}
+
+void
+check_rshift_bulk(void)
+{
+    zz_bitcnt_t bs = 512;
+
+    for (size_t i = 0; i < nsamples; i++) {
+        zz_t u, w, r;
+        zz_bitcnt_t v = (zz_bitcnt_t)rand();
+
+        if (zz_init(&u) || zz_random(bs, true, &u)) {
+            abort();
+        }
+        if (zz_init(&w) || zz_quo_2exp(&u, v, &w)) {
+            abort();
+        }
+        if (zz_init(&r) || zz_ref_quo_2exp(&u, v, &r)
+            || zz_cmp(&w, &r) != ZZ_EQ)
+        {
+            abort();
+        }
+        zz_clear(&u);
+        zz_clear(&w);
+        zz_clear(&r);
+    }
+}
+
+#define zz_from_dec(s, u) zz_from_str(s, strlen(s), 10, u)
+
+void
+check_shift_examples(void)
+{
+    zz_t u, v;
+
+    if (zz_init(&u) || zz_from_sl(0, &u) || zz_init(&v)) {
+        abort();
+    }
+    if (zz_mul_2exp(&u, 123, &v) || zz_cmp_sl(&v, 0)) {
+        abort();
+    }
+    if (zz_quo_2exp(&u, 123, &v) || zz_cmp_sl(&v, 0)) {
+        abort();
+    }
+    if (zz_from_dec("-340282366920938463444927863358058659840", &u)
+        || zz_quo_2exp(&u, 64, &v))
+    {
+        abort();
+    }
+    if (zz_from_dec("-18446744073709551615", &u)
+        || zz_cmp(&u, &v) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_dec("-514220174162876888173427869549172"
+                    "032807104958010493707296440352", &u)
+        || zz_quo_2exp(&u, 206, &v) || zz_cmp_sl(&v, -6) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_dec("-62771017353866807634955070562867279"
+                    "52638980837032266301441", &u)
+        || zz_quo_2exp(&u, 128, &v))
+    {
+        abort();
+    }
+    if (zz_from_dec("-18446744073709551616", &u) || zz_cmp(&u, &v)) {
+        abort();
+    }
+    if (zz_from_sl(-1, &u) || zz_quo_2exp(&u, 1, &v)
+        || zz_cmp_sl(&v, -1) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_from_sl(1, &u) ||
+        zz_mul_2exp(&u, ZZ_BITS_MAX, &u) != ZZ_MEM)
+    {
+        abort();
+    }
+    if (zz_from_sl(0x7fffffffffffffffLL, &u)) {
+        abort();
+    }
+    if (zz_mul_2exp(&u, 1, &u) || zz_add_sl(&u, 1, &u)
+        || zz_mul_2exp(&u, 64, &u) || zz_quo_2exp(&u, 64, &u))
+    {
+        abort();
+    }
+    if (u.negative || u.alloc < 1 || u.size != 1
+        || u.digits[0] != 0xffffffffffffffffULL)
+    {
+        abort();
+    }
+    if (zz_from_sl(0x7fffffffffffffffLL, &v)) {
+        abort();
+    }
+    if (zz_mul_2exp(&v, 1, &v) || zz_add_sl(&v, 1, &v)
+        || zz_cmp(&u, &v) != ZZ_EQ)
+    {
+        abort();
+    }
+#if ZZ_LIMB_T_BITS == 64
+    if (zz_from_sl(1, &u) || zz_mul_2exp(&u, 64, &u)
+        || zz_pow(&u, ((zz_limb_t)1<<63), &u) != ZZ_BUF)
+    {
+        abort();
+    }
+#endif
+    zz_clear(&u);
+    zz_clear(&v);
+}
+
 int
 main(void)
 {
@@ -379,6 +558,9 @@ main(void)
     check_gcd_bulk();
     check_lcm_bulk();
     check_binop_examples();
+    check_lshift_bulk();
+    check_rshift_bulk();
+    check_shift_examples();
     zz_finish();
     zz_testclear();
     return 0;
