@@ -119,5 +119,6 @@ int main(void)
     check_sqrt_bulk();
     check_unary_examples();
     zz_finish();
+    zz_testclear();
     return 0;
 }

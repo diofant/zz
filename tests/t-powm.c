@@ -81,5 +81,6 @@ int main(void)
     zz_setup(NULL);
     check_powm_bulk();
     zz_finish();
+    zz_testclear();
     return 0;
 }

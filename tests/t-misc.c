@@ -565,5 +565,6 @@ int main(void)
     check_sizeinbase();
     check_to_sl();
     zz_finish();
+    zz_testclear();
     return 0;
 }

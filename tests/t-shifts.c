@@ -118,5 +118,6 @@ int main(void)
     check_lshift_bulk();
     check_rshift_bulk();
     zz_finish();
+    zz_testclear();
     return 0;
 }

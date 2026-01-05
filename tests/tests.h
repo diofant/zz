@@ -26,5 +26,6 @@
 
 void zz_testinit(void);
 zz_err zz_random(zz_bitcnt_t bc, bool s, zz_t *u);
+void zz_testclear(void);
 
 #endif /* TESTS_TESTS_H */

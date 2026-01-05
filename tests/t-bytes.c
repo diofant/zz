@@ -87,5 +87,6 @@ int main(void)
     check_bytes_roundtrip();
     check_exportimport_roundtrip();
     zz_finish();
+    zz_testclear();
     return 0;
 }

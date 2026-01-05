@@ -411,5 +411,6 @@ main(void)
     check_lcm_bulk();
     check_binop_examples();
     zz_finish();
+    zz_testclear();
     return 0;
 }

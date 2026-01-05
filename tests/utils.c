@@ -58,3 +58,9 @@ zz_random(zz_bitcnt_t bc, bool s, zz_t *u)
     }
     return ZZ_OK;
 }
+
+void
+zz_testclear(void)
+{
+    gmp_randclear(rnd_state);
+}

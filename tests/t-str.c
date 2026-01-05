@@ -57,8 +57,8 @@ int main(void)
     srand((unsigned int)time(NULL));
     zz_testinit();
     zz_setup(NULL);
-
     check_str_roundtrip();
     zz_finish();
+    zz_testclear();
     return 0;
 }
