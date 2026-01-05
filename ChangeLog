@@ -1,4 +1,243 @@
+2026-01-05  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Support valgrind
+
+	Support NSAMPLES environment variable in tests
+
+	Drop ZZ_MIXBINOP_REF macro
+
+	Add zz_testclear() test helper
+
+	Fix memleak in zz_gcdext()
+
+	Use also mpz_rrandomb() in zz_random()
+
+2026-01-03  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Use custom allocation functions
+	Closes #18
+
+	Make check_square_outofmem_pthread() more stable
+
+	Cleanup includes
+
+2026-01-02  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Simplify memory routines, cleanup some LCOV pragmas
+
+	Add missing config.h include and tune memory limits
+
+	Support overlapping arguments in mixed-mode mul/div
+	Closes #35
+
+	cleanup
+
+	Update docs
+
+2026-01-01  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Amend cf5be041
+
+	Simplify zz_from/to_* API
+
+	Update copyright
+
+	Simplify TEST_* macros
+
+	Fix lcov warning
+
+	Optimize zz_gcd()
+
+	Cleanup tests/tests.h
+
+	Fix zz_lcm(), when v is zero
+
+	Cleanup defines for properties of types
+
+2025-12-30  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Move memory testing to tests/t-memory.c
+
+2025-12-29  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Merge pull request #27 from skirpichev/coverage-tests
+	Add coverage tests
+
+	Add coverage tests
+	Closes #5
+
+	Amend 3661a86 (we use more special case)
+
+	Hide hard to test condition in zz_resize()
+
+	Move gmp.h include
+
+	Use more strict exponent bound in zz_to_double()
+
+	Amend TMP_MPZ macro
+
+	Drop zz_fac2() and zz_fib()
+
+	Fix zz_lcm() when v == w
+
+2025-12-27  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Version 0.8.0a0
+
+	Version 0.7.0
+
+	Add Backport PR Action
+
+	Improve zz_import() docs
+
+	Refactor TMP_MPZ macro
+
+	Mention endianness in zz_to/from_bytes() docs
+
+	Document rounding mode in zz_to_double()
+	Closes #30
+
+2025-12-26  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Version 0.7.0a3
+
+	Don't use mpz_tstbit()
+	(and fix zz_to_double())
+
+	Support 8-byte zz_size_t
+	Closes #23
+
+2025-12-25  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Version 0.7.0a2
+
+	Optimize zz_and() and drop zz_and_sl() and Co
+	Closes #21
+
+	Version 0.7.0a1
+
+2025-12-25  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Use zz_bitcnt_t v in zz_mul/quo_2exp()
+	Closes #31
+
+	Fix possible integer overflows.
+
+2025-12-25  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Cleanup macros
+
+	_zz_*() -> zz_*()
+
+	Add define's for libzz types
+
+	Drop rnd arguments, zz_quo/rem_sl() and zz_sl_quo/rem() functions
+	Closes #28
+	Closes #29
+
+2025-12-24  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Move CFLAGS in ci.yml
+
+	Drop support for ZZ_RNDN mode in zz_div()
+
+	Add zz_div_sl/sl_div() functions
+
+	Drop zz_rem_ul()
+
+	Hide zz_gcd(), closes #24
+
+	Drop zz_truediv()
+	Closes #26
+
+	Cleanup zz_truediv(), correct underflow case
+
+	Drop _zz_to_double()
+
+	Simplify zz_to_double()
+
+2025-12-03  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Provide alternative typesetting for equations in docs
+	Closes #16
+
+	Add separate "Division" section in docs
+
+	Move around zz_mul/quo_2exp() docs
+
+2025-11-29  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Add missing type-casts
+
+2025-11-27  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Port tests from tests/test_api.py of python-gmp
+
+	Revert "Ignore tests/t-*"
+	This reverts commit 3cd772d2b8e522cf165b89e14d3af70df1dde7ca.
+
+	Split out impl/zz.h
+
+	Ignore tests/t-*
+
+2025-11-18  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Fix builds on Windows, add --with-gmp
+	Closes #20
+
+2025-11-16  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Version 0.6.0
+
+	Implement mixed-mode arithmetics
+
+2025-11-14  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Add stubs for more mixed-mode ops
+
+2025-11-10  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Add zz_mul_sl(), zz_sl_quo(), zz_quo_sl() and zz_and_sl()
+	Also fix zz_add_sl()
+
+	_i32/i64() -> _sl(), _u64() -> _ul()
+
+2025-11-09  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Cleanup publish.yml
+
+2025-11-07  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	version 0.5
+
+	Final tweaks
+	* note on alloca()
+	* fix zz_mul(u, u, u)
+	* add test for builds with --enable-alloca
+	* use $PREFIX
+
+	Add documentation, closes #4
+	* fix zz_div() when both q and r are NULL
+	* hide zz_resize() and zz_inverse()
+	* make zz_sizeinbase() return size of magnitude
+	* rename zz_layout fields
+	* add rnd argument for zz_rem_u64()
+	* reorder functions per docs, rename some arguments
+
+2025-10-27  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	More helpful errors in tests, set soft limits
+
+2025-10-18  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Revert "Drop unsupported rounding modes"
+	This reverts commit d7e87ae1dcd3a109a712e152044b3a2955bd841c.
+
+	Revert diofant/python-gmp@0e5fd3e, closes #7
+
 2025-10-17  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Update NEWS and ChangeLog, closes #10
 
 	Fill README, closes #9
 
