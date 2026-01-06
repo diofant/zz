@@ -16,8 +16,8 @@ pkgconfig_DATA = zz.pc
 AM_CFLAGS=
 AM_LDFLAGS=
 if ENABLE_GCOV
-AM_CFLAGS += -fprofile-arcs -ftest-coverage
-AM_LDFLAGS += -fprofile-arcs -ftest-coverage
+AM_CFLAGS += -fprofile-arcs -ftest-coverage -fprofile-update=atomic
+AM_LDFLAGS += -fprofile-arcs -ftest-coverage -fprofile-update=atomic
 endif
 AM_LDFLAGS += $(ZZ_LDFLAGS)
 
