@@ -172,12 +172,18 @@ check_gcdext(void)
 }
 
 void
-check_to_double(void)
+check_fromto_double(void)
 {
     zz_t u;
     double d;
 
-    if (zz_init(&u) || zz_from_i64(1, &u) || zz_mul_2exp(&u, 2000, &u)) {
+    if (zz_init(&u) || zz_from_double(INFINITY, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_double(1092.2666666666667, &u) || zz_cmp(&u, 1092) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_from_i64(1, &u) || zz_mul_2exp(&u, 2000, &u)) {
         abort();
     }
     if (zz_to_double(&u, &d) != ZZ_BUF) {
@@ -215,16 +221,60 @@ check_sizeinbase(void)
 }
 
 void
-check_to_i64(void)
+check_fromto_i32(void)
 {
     zz_t u;
+    int32_t v = 123, val;
+
+    if (zz_init(&u) || zz_from_i32(v, &u)) {
+        abort();
+    }
+    if (zz_to_i32(&u, &val) || val != v) {
+        abort();
+    }
+    v = -42;
+    if (zz_from_i32(v, &u)) {
+        abort();
+    }
+    if (zz_to_i32(&u, &val) || val != v) {
+        abort();
+    }
+    v = 0;
+    if (zz_from_i32(v, &u)) {
+        abort();
+    }
+    if (zz_to_i32(&u, &val) || val != v) {
+        abort();
+    }
+    if (zz_from_i64(1LL<<33, &u)) {
+        abort();
+    }
+    if (zz_to_i32(&u, &val) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_i64(-(1LL<<33), &u)) {
+        abort();
+    }
+    if (zz_to_i32(&u, &val) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_from_i32(1, &u) || zz_mul_2exp(&u, 65, &u)
+        || zz_to_i32(&u, &val) != ZZ_VAL)
+    {
+        abort();
+    }
+    zz_clear(&u);
+}
+
+void
+check_fromto_i64(void)
+{
+    zz_t u;
+    int64_t val;
 
     if (zz_init(&u) || zz_from_i64(0, &u)) {
         abort();
     }
-
-    int64_t val;
-
     if (zz_to_i64(&u, &val) || val) {
         abort();
     }
@@ -276,9 +326,10 @@ int main(void)
     check_bin();
     check_isodd_bulk();
     check_gcdext();
-    check_to_double();
+    check_fromto_double();
     check_sizeinbase();
-    check_to_i64();
+    check_fromto_i32();
+    check_fromto_i64();
     check_fac_outofmem();
     zz_finish();
     zz_testclear();

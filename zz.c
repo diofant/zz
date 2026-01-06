@@ -332,6 +332,21 @@ zz_cmp_i64(const zz_t *u, int64_t v)
     return u->negative ? -r : r;
 }
 
+zz_err
+zz_from_i32(int32_t u, zz_t *v)
+{
+    if (!u) {
+        v->size = 0;
+        v->negative = false;
+        return ZZ_OK;
+    }
+    if (zz_resize(1, v)) {
+        return ZZ_MEM; /* LCOV_EXCL_LINE */
+    }
+    v->negative = u < 0;
+    v->digits[0] = (zz_digit_t)imaxabs(u);
+    return ZZ_OK;
+}
 
 zz_err
 zz_from_i64(int64_t u, zz_t *v)
@@ -354,6 +369,62 @@ zz_from_i64(int64_t u, zz_t *v)
 }
 
 zz_err
+zz_from_double(double u, zz_t *v)
+{
+    if (!isfinite(u)) {
+        return ZZ_VAL;
+    }
+
+    mpz_t z;
+
+    if (TMP_OVERFLOW) {
+        return ZZ_MEM; /* LCOV_EXCL_LINE */
+    }
+    mpz_init(z);
+    mpz_set_d(z, u);
+    if (zz_resize((uint64_t)z->_mp_size, v)) {
+        /* LCOV_EXCL_START */
+        mpz_clear(z);
+        return ZZ_MEM;
+        /* LCOV_EXCL_STOP */
+    }
+    v->negative = u < 0;
+    mpn_copyi(v->digits, z->_mp_d, v->size);
+    mpz_clear(z);
+    return ZZ_OK;
+}
+
+zz_err
+zz_to_i32(const zz_t *u, int32_t *v)
+{
+    zz_size_t n = u->size;
+
+    if (!n) {
+        *v = 0;
+        return ZZ_OK;
+    }
+    if (n > 1) {
+        return ZZ_VAL;
+    }
+
+    zz_digit_t uv = u->digits[0];
+
+    if (u->negative) {
+        if (uv <= INT32_MAX + (zz_digit_t)1) {
+            *v = -1 - (int32_t)((uv - 1) & INT32_MAX);
+            return ZZ_OK;
+        }
+    }
+    else {
+        if (uv <= INT32_MAX) {
+            *v = (int32_t)uv;
+            return ZZ_OK;
+        }
+    }
+    return ZZ_VAL;
+}
+
+zz_err
 zz_to_i64(const zz_t *u, int64_t *v)
 {
     zz_size_t n = u->size;
@@ -362,15 +433,12 @@ zz_to_i64(const zz_t *u, int64_t *v)
         *v = 0;
         return ZZ_OK;
     }
-    if (n > 2) {
+    if (n > 1) {
         return ZZ_VAL;
     }
 
     zz_digit_t uv = u->digits[0];
 
-    if (n > 1) {
-        return ZZ_VAL;
-    }
     if (u->negative) {
         if (uv <= INT64_MAX + (zz_digit_t)1) {
             *v = -1 - (int64_t)((uv - 1) & INT64_MAX);
