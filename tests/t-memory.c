@@ -130,7 +130,7 @@ main(void)
 {
 #ifdef HAVE_VALGRIND_VALGRIND_H
     if (RUNNING_ON_VALGRIND) {
-        return 0;
+        return 77;
     }
 #endif
     srand((unsigned int)time(NULL));
