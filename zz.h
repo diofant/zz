@@ -18,9 +18,9 @@
 #include <stdint.h>
 
 #ifndef __APPLE__
-typedef uint64_t zz_limb_t;
+typedef uint64_t zz_digit_t;
 #else
-typedef unsigned long zz_limb_t;
+typedef unsigned long zz_digit_t;
 #endif
 typedef uint64_t zz_bitcnt_t;
 #ifndef _WIN32
@@ -29,13 +29,13 @@ typedef int64_t zz_size_t;
 typedef int32_t zz_size_t;
 #endif
 
-#define ZZ_LIMB_T_BITS 64
+#define ZZ_DIGIT_T_BITS 64
 
 typedef struct {
     bool negative;
     zz_size_t alloc;
     zz_size_t size;
-    zz_limb_t *digits;
+    zz_digit_t *digits;
 } zz_t;
 
 typedef enum {
@@ -47,9 +47,9 @@ typedef enum {
 
 typedef struct {
     uint8_t version[3];
-    uint8_t bits_per_limb;
-    uint8_t limb_bytes;
-    uint8_t limbcnt_bytes;
+    uint8_t bits_per_digit;
+    uint8_t digit_bytes;
+    uint8_t digitcnt_bytes;
     uint8_t bitcnt_bytes;
 } zz_info;
 
@@ -172,10 +172,10 @@ zz_err zz_fac(uint64_t u, zz_t *v);
 zz_err zz_bin(uint64_t n, uint64_t k, zz_t *v);
 
 typedef struct {
-    uint8_t bits_per_limb;
-    uint8_t limb_size;
-    int8_t limbs_order;
-    int8_t limb_endianness;
+    uint8_t bits_per_digit;
+    uint8_t digit_size;
+    int8_t digits_order;
+    int8_t digit_endianness;
 } zz_layout;
 
 zz_err zz_import(size_t len, const void *data, zz_layout layout, zz_t *u);

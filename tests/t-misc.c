@@ -266,7 +266,7 @@ int main(void)
 
     zz_info info;
 
-    if (zz_setup(&info) || (info.limb_bytes != 4 && info.limb_bytes != 8)) {
+    if (zz_setup(&info) || (info.digit_bytes != 4 && info.digit_bytes != 8)) {
         abort();
     }
     check_cmp();

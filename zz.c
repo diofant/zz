@@ -30,8 +30,8 @@
 #  error "GMP_LIMB_BITS expected to be 64"
 #endif
 
-#if ZZ_LIMB_T_BITS < DBL_MANT_DIG
-#  error ZZ_LIMB_T_BITS expected to be more than ZZ_LIMB_T_BITS
+#if ZZ_DIGIT_T_BITS < DBL_MANT_DIG
+#  error ZZ_DIGIT_T_BITS expected to be more than ZZ_DIGIT_T_BITS
 #endif
 
 #if defined(_MSC_VER)
@@ -188,9 +188,9 @@ zz_setup(zz_info *info)
         info->version[0] = __GNU_MP_VERSION;
         info->version[1] = __GNU_MP_VERSION_MINOR;
         info->version[2] = __GNU_MP_VERSION_PATCHLEVEL;
-        info->bits_per_limb = ZZ_LIMB_T_BITS;
-        info->limb_bytes = sizeof(mp_limb_t);
-        info->limbcnt_bytes = sizeof(mp_size_t);
+        info->bits_per_digit = ZZ_DIGIT_T_BITS;
+        info->digit_bytes = sizeof(mp_limb_t);
+        info->digitcnt_bytes = sizeof(mp_size_t);
         info->bitcnt_bytes = sizeof(mp_bitcnt_t);
     }
     return ZZ_OK;
@@ -246,14 +246,14 @@ zz_resize(uint64_t size, zz_t *u)
         }
         return ZZ_OK;
     }
-    if (size > ZZ_LIMBS_MAX) {
+    if (size > ZZ_DIGITS_MAX) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
 
     zz_size_t alloc = (zz_size_t)size;
-    zz_limb_t *t = u->digits;
+    zz_digit_t *t = u->digits;
 
-    u->digits = realloc(u->digits, (size_t)alloc * ZZ_LIMB_T_BYTES);
+    u->digits = realloc(u->digits, (size_t)alloc * ZZ_DIGIT_T_BYTES);
     if (u->digits) {
         u->alloc = alloc;
         u->size = alloc;
@@ -320,7 +320,7 @@ zz_cmp_i64(const zz_t *u, int64_t v)
         return u->size ? sign : (v ? -sign : ZZ_EQ);
     }
 
-    zz_limb_t digit = (zz_limb_t)imaxabs(v);
+    zz_digit_t digit = (zz_digit_t)imaxabs(v);
     zz_ord r = u->digits[0] != digit;
 
     if (u->digits[0] < digit) {
@@ -343,7 +343,7 @@ zz_from_i64(int64_t u, zz_t *v)
     }
 
     bool negative = u < 0;
-    zz_limb_t uv = (negative ? -((zz_limb_t)(u + 1) - 1) : (zz_limb_t)(u));
+    zz_digit_t uv = (negative ? -((zz_digit_t)(u + 1) - 1) : (zz_digit_t)(u));
 
     if (zz_resize(1, v)) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
@@ -366,13 +366,13 @@ zz_to_i64(const zz_t *u, int64_t *v)
         return ZZ_VAL;
     }
 
-    zz_limb_t uv = u->digits[0];
+    zz_digit_t uv = u->digits[0];
 
     if (n > 1) {
         return ZZ_VAL;
     }
     if (u->negative) {
-        if (uv <= INT64_MAX + (zz_limb_t)1) {
+        if (uv <= INT64_MAX + (zz_digit_t)1) {
             *v = -1 - (int64_t)((uv - 1) & INT64_MAX);
             return ZZ_OK;
         }
@@ -478,7 +478,7 @@ zz_to_str(const zz_t *u, int base, char *str, size_t *len)
         *len = mpn_get_str(p, base, u->digits, u->size);
     }
     else { /* generic base, not power of 2, input might be clobbered */
-        mp_limb_t *volatile tmp = malloc(ZZ_LIMB_T_BYTES * (size_t)u->alloc);
+        zz_digit_t *volatile tmp = malloc(ZZ_DIGIT_T_BYTES * (size_t)u->alloc);
 
         if (!tmp || TMP_OVERFLOW) {
             /* LCOV_EXCL_START */
@@ -599,16 +599,16 @@ err:
 static bool
 zz_tstbit(const zz_t *u, zz_bitcnt_t idx)
 {
-    zz_size_t limb_idx = (zz_size_t)(idx / ZZ_LIMB_T_BITS);
+    zz_size_t digit_idx = (zz_size_t)(idx / ZZ_DIGIT_T_BITS);
 
-    assert(u->size > limb_idx);
-    return (u->digits[limb_idx] >> (idx%ZZ_LIMB_T_BITS)) & 1;
+    assert(u->size > digit_idx);
+    return (u->digits[digit_idx] >> (idx%ZZ_DIGIT_T_BITS)) & 1;
 }
 
 zz_err
 zz_to_double(const zz_t *u, double *d)
 {
-    if (u->size > DBL_MAX_EXP/ZZ_LIMB_T_BITS + 1) {
+    if (u->size > DBL_MAX_EXP/ZZ_DIGIT_T_BITS + 1) {
         *d = u->negative ? -INFINITY : INFINITY;
         return ZZ_BUF;
     }
@@ -646,7 +646,7 @@ zz_to_bytes(const zz_t *u, size_t length, bool is_signed,
         if (!is_signed) {
             return ZZ_BUF;
         }
-        if (zz_resize(8*length/ZZ_LIMB_T_BITS + 1, &tmp)) {
+        if (zz_resize(8*length/ZZ_DIGIT_T_BITS + 1, &tmp)) {
             return ZZ_MEM; /* LCOV_EXCL_LINE */
         }
         if (tmp.size < u->size) {
@@ -656,7 +656,7 @@ zz_to_bytes(const zz_t *u, size_t length, bool is_signed,
         mpn_zero(tmp.digits, tmp.size);
         tmp.digits[tmp.size - 1] = 1;
         tmp.digits[tmp.size - 1] <<= ((8*length)
-                                      % (ZZ_LIMB_T_BITS*(size_t)tmp.size));
+                                      % (ZZ_DIGIT_T_BITS*(size_t)tmp.size));
         mpn_sub(tmp.digits, tmp.digits, tmp.size, u->digits, u->size);
         zz_normalize(&tmp);
         u = &tmp;
@@ -672,7 +672,7 @@ zz_to_bytes(const zz_t *u, size_t length, bool is_signed,
         return ZZ_BUF;
     }
 
-    size_t gap = length - (nbits + ZZ_LIMB_T_BITS/8 - 1)/(ZZ_LIMB_T_BITS/8);
+    size_t gap = length - (nbits + ZZ_DIGIT_T_BITS/8 - 1)/(ZZ_DIGIT_T_BITS/8);
 
     /* We use undocumented feature of mpn_get_str(): u->size >= 0 */
     mpn_get_str(*buffer + gap, 256, u->digits, u->size);
@@ -708,10 +708,10 @@ zz_from_bytes(const unsigned char *buffer, size_t length, bool is_signed,
             u->digits[u->size - 1] -= 1;
         }
         u->digits[u->size - 1] = ~u->digits[u->size - 1];
-        assert(ZZ_LIMB_T_BITS*u->size >= 8*length);
-        assert(ZZ_LIMB_T_BITS*u->size < 8*length + ZZ_LIMB_T_BITS);
+        assert(ZZ_DIGIT_T_BITS*u->size >= 8*length);
+        assert(ZZ_DIGIT_T_BITS*u->size < 8*length + ZZ_DIGIT_T_BITS);
 
-        mp_size_t shift = (mp_size_t)(ZZ_LIMB_T_BITS*(size_t)u->size
+        mp_size_t shift = (mp_size_t)(ZZ_DIGIT_T_BITS*(size_t)u->size
                                       - 8*length);
 
         u->digits[u->size - 1] <<= shift;
@@ -743,10 +743,10 @@ zz_bitcnt(const zz_t *u)
 zz_err
 zz_import(size_t len, const void *digits, zz_layout layout, zz_t *u)
 {
-    size_t size = (len*layout.bits_per_limb
-                   + (ZZ_LIMB_T_BITS - 1))/ZZ_LIMB_T_BITS;
+    size_t size = (len*layout.bits_per_digit
+                   + (ZZ_DIGIT_T_BITS - 1))/ZZ_DIGIT_T_BITS;
 
-    if (len > SIZE_MAX / layout.bits_per_limb
+    if (len > SIZE_MAX / layout.bits_per_digit
         || size > INT_MAX
         || zz_resize(size, u))
     {
@@ -754,10 +754,10 @@ zz_import(size_t len, const void *digits, zz_layout layout, zz_t *u)
     }
 
     TMP_MPZ(z, u);
-    assert(layout.limb_size*8 >= layout.bits_per_limb);
-    mpz_import(z, len, layout.limbs_order, layout.limb_size,
-               layout.limb_endianness,
-               (size_t)(layout.limb_size*8 - layout.bits_per_limb),
+    assert(layout.digit_size*8 >= layout.bits_per_digit);
+    mpz_import(z, len, layout.digits_order, layout.digit_size,
+               layout.digit_endianness,
+               (size_t)(layout.digit_size*8 - layout.bits_per_digit),
                digits);
     u->size = z->_mp_size;
     return ZZ_OK;
@@ -766,8 +766,8 @@ zz_import(size_t len, const void *digits, zz_layout layout, zz_t *u)
 zz_err
 zz_export(const zz_t *u, zz_layout layout, size_t len, void *digits)
 {
-    if (len < (zz_bitlen(u) + layout.bits_per_limb
-               - 1)/layout.bits_per_limb)
+    if (len < (zz_bitlen(u) + layout.bits_per_digit
+               - 1)/layout.bits_per_digit)
     {
         return ZZ_VAL;
     }
@@ -776,10 +776,10 @@ zz_export(const zz_t *u, zz_layout layout, size_t len, void *digits)
     }
 
     TMP_MPZ(z, u);
-    assert(layout.limb_size*8 >= layout.bits_per_limb);
-    mpz_export(digits, NULL, layout.limbs_order, layout.limb_size,
-               layout.limb_endianness,
-               (size_t)(layout.limb_size*8 - layout.bits_per_limb),
+    assert(layout.digit_size*8 >= layout.bits_per_digit);
+    mpz_export(digits, NULL, layout.digits_order, layout.digit_size,
+               layout.digit_endianness,
+               (size_t)(layout.digit_size*8 - layout.bits_per_digit),
                z);
     return ZZ_OK;
 }
@@ -833,7 +833,7 @@ zz_addsub_i64(const zz_t *u, int64_t v, bool subtract, zz_t *w)
     bool negu = u->negative, negv = subtract ? v >= 0 : v < 0;
     bool same_sign = negu == negv;
     zz_size_t u_size = u->size, v_size = v != 0;
-    zz_limb_t digit = (zz_limb_t)imaxabs(v);
+    zz_digit_t digit = (zz_digit_t)imaxabs(v);
 
     if (!u_size || u_size < v_size) {
         assert(!u_size);
@@ -982,7 +982,7 @@ zz_mul_i64(const zz_t *u, int64_t v, zz_t *w)
     }
     w->negative = u->negative != (v < 0);
     w->digits[w->size - 1] = mpn_mul_1(w->digits, u->digits, u_size,
-                                       (zz_limb_t)imaxabs(v));
+                                       (zz_digit_t)imaxabs(v));
     w->size -= w->digits[w->size - 1] == 0;
     assert(w->size >= 1);
     return ZZ_OK;
@@ -1112,7 +1112,7 @@ zz_div_i64(const zz_t *u, int64_t v, zz_t *q, zz_t *r)
         return ZZ_VAL;
     }
 
-    zz_limb_t rl, uv = v < 0 ? -((zz_limb_t)(v + 1) - 1) : (zz_limb_t)v;
+    zz_digit_t rl, uv = v < 0 ? -((zz_digit_t)(v + 1) - 1) : (zz_digit_t)v;
     bool same_signs = u->negative == (v < 0);
 
     if (q) {
@@ -1210,15 +1210,15 @@ zz_quo_2exp(const zz_t *u, zz_bitcnt_t shift, zz_t *v)
         v->size = 0;
         return ZZ_OK;
     }
-    if (shift >= (zz_bitcnt_t)u->size*ZZ_LIMB_T_BITS) {
+    if (shift >= (zz_bitcnt_t)u->size*ZZ_DIGIT_T_BITS) {
         return zz_from_i64(u->negative ? -1 : 0, v);
     }
 
-    zz_size_t whole = (zz_size_t)(shift / ZZ_LIMB_T_BITS);
+    zz_size_t whole = (zz_size_t)(shift / ZZ_DIGIT_T_BITS);
     zz_size_t size = u->size - whole;
     bool carry = false, extra = true;
 
-    shift %= ZZ_LIMB_T_BITS;
+    shift %= ZZ_DIGIT_T_BITS;
     for (mp_size_t i = 0; i < whole; i++) {
         if (u->digits[i]) {
             carry = u->negative;
@@ -1226,7 +1226,7 @@ zz_quo_2exp(const zz_t *u, zz_bitcnt_t shift, zz_t *v)
         }
     }
     for (mp_size_t i = whole; i < u->size; i++) {
-        if (u->digits[i] != ZZ_LIMB_T_MAX) {
+        if (u->digits[i] != ZZ_DIGIT_T_MAX) {
             extra = 0;
             break;
         }
@@ -1268,10 +1268,10 @@ zz_mul_2exp(const zz_t *u, zz_bitcnt_t shift, zz_t *v)
         return ZZ_MEM;
     }
 
-    zz_size_t whole = (zz_size_t)(shift / ZZ_LIMB_T_BITS);
+    zz_size_t whole = (zz_size_t)(shift / ZZ_DIGIT_T_BITS);
     zz_size_t u_size = u->size, v_size = u_size + whole;
 
-    shift %= ZZ_LIMB_T_BITS;
+    shift %= ZZ_DIGIT_T_BITS;
     if (zz_resize((uint64_t)v_size + (bool)shift, v)) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
@@ -1668,12 +1668,12 @@ zz_pow(const zz_t *u, uint64_t v, zz_t *w)
     if (zz_cmp_i64(u, 1) == ZZ_EQ) {
         return zz_from_i64(1, w);
     }
-    if (v > ZZ_LIMBS_MAX / u->size) {
+    if (v > ZZ_DIGITS_MAX / u->size) {
         return ZZ_BUF;
     }
 
-    zz_size_t w_size = (zz_size_t)(v * (zz_limb_t)u->size);
-    zz_limb_t *tmp = malloc((size_t)w_size * ZZ_LIMB_T_BYTES);
+    zz_size_t w_size = (zz_size_t)(v * (zz_digit_t)u->size);
+    zz_digit_t *tmp = malloc((size_t)w_size * ZZ_DIGIT_T_BYTES);
 
     if (!tmp || zz_resize((uint64_t)w_size, w)) {
         /* LCOV_EXCL_START */
@@ -2047,7 +2047,7 @@ zz_sqrtrem(const zz_t *u, zz_t *v, zz_t *w)
 zz_err
 zz_fac(uint64_t u, zz_t *v)
 {
-#if ULONG_MAX < ZZ_LIMB_T_MAX
+#if ULONG_MAX < ZZ_DIGIT_T_MAX
     if (u > ULONG_MAX) {
         return ZZ_BUF;
     }
@@ -2074,7 +2074,7 @@ zz_fac(uint64_t u, zz_t *v)
 zz_err
 zz_bin(uint64_t n, uint64_t k, zz_t *v)
 {
-#if ULONG_MAX < ZZ_LIMB_T_MAX
+#if ULONG_MAX < ZZ_DIGIT_T_MAX
     if (n > ULONG_MAX || k > ULONG_MAX) {
         return ZZ_BUF;
     }

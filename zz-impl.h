@@ -38,14 +38,14 @@
 
 #include "zz.h"
 
-#define ZZ_LIMB_T_MAX UINT64_MAX
-#define ZZ_LIMB_T_BYTES 8
+#define ZZ_DIGIT_T_MAX UINT64_MAX
+#define ZZ_DIGIT_T_BYTES 8
 #ifndef _WIN32
 #  define ZZ_BITS_MAX UINT64_MAX
-#  define ZZ_LIMBS_MAX (zz_size_t)(ZZ_BITS_MAX/ZZ_LIMB_T_BITS)
+#  define ZZ_DIGITS_MAX (zz_size_t)(ZZ_BITS_MAX/ZZ_DIGIT_T_BITS)
 #else
-#  define ZZ_LIMBS_MAX INT32_MAX
-#  define ZZ_BITS_MAX (zz_bitcnt_t)INT32_MAX*ZZ_LIMB_T_BITS
+#  define ZZ_DIGITS_MAX INT32_MAX
+#  define ZZ_BITS_MAX (zz_bitcnt_t)INT32_MAX*ZZ_DIGIT_T_BITS
 #endif
 
 extern _Thread_local jmp_buf zz_env;

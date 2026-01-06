@@ -519,9 +519,9 @@ check_shift_examples(void)
     {
         abort();
     }
-#if ZZ_LIMB_T_BITS == 64
+#if ZZ_DIGIT_T_BITS == 64
     if (zz_from_i64(1, &u) || zz_mul_2exp(&u, 64, &u)
-        || zz_pow(&u, ((zz_limb_t)1<<63), &u) != ZZ_BUF)
+        || zz_pow(&u, ((uint64_t)1<<63), &u) != ZZ_BUF)
     {
         abort();
     }
