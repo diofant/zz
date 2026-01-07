@@ -11,12 +11,20 @@ jobs:
   tests:
     strategy:
       matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-arm]
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15-intel, macos-15]
     runs-on: ${{ matrix.os }}
+    env:
+      MACOSX_DEPLOYMENT_TARGET: 10.15
     steps:
       - uses: actions/checkout@v5
-      - run: sudo apt update
-      - run: sudo apt install autoconf-archive lcov texlive
+      - run: |
+          sudo apt update
+          sudo apt install autoconf-archive lcov texlive
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+      - run: |
+          brew install autoconf automake libtool
+          brew install autoconf-archive lcov texlive texinfo
+        if: ${{ startsWith(matrix.os, 'macos') }}
       - name: Cache GNU GMP builds
         id: cache-gmp
         uses: actions/cache@v4
@@ -26,9 +34,7 @@ jobs:
       - run: sh scripts/cibw_before_all.sh
         if: steps.cache-gmp.outputs.cache-hit != 'true'
       - run: autoreconf -if
-      - run: ./configure -q --enable-gcov
-        env:
-          PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
+      - run: ./configure -q --enable-gcov --with-gmp=$(pwd)/.local/
       - run: |
           make -s CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
           make -s check CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
@@ -43,7 +49,9 @@ jobs:
           path: |
             coverage-${{ matrix.os }}.info
           retention-days: 1
-      - run: make -s distcheck
+      - run: |
+          make -s distcheck \
+            DISTCHECK_CONFIGURE_FLAGS="--with-gmp=$(pwd)/.local/"
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
   merge-coverage:
@@ -61,10 +69,10 @@ jobs:
           pattern: coverage-*
           merge-multiple: true
       - run: |
-          genhtml coverage*.info --hierarchical \
+          genhtml coverage-u*.info --hierarchical \
             --output-directory coverage
       - run: |
-          diff-cover coverage*.info --fail-under=100 \
+          diff-cover coverage-u*.info --fail-under=100 \
             --compare-branch=origin/master
       - uses: actions/upload-artifact@v6
         with:
