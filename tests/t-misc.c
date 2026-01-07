@@ -71,8 +71,74 @@ check_lsbpos(void)
     zz_clear(&u);
 }
 
+zz_err
+zz_ref_sqrtrem(const zz_t *u, zz_t *v, zz_t *w)
+{
+    mpz_t z, r;
+    TMP_MPZ(mu, u);
+    if (TMP_OVERFLOW) {
+        return ZZ_MEM;
+    }
+    mpz_init(z);
+    mpz_init(r);
+    mpz_sqrtrem(z, r, mu);
+
+    zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size), abs(z->_mp_size), z->_mp_d};
+
+    if (zz_copy(&tmp, v)) {
+        mpz_clear(z);
+        mpz_clear(r);
+        return ZZ_MEM;
+    }
+    mpz_clear(z);
+    tmp = (zz_t){r->_mp_size < 0, abs(r->_mp_size), abs(r->_mp_size), r->_mp_d};
+    if (zz_copy(&tmp, w)) {
+        mpz_clear(r);
+        return ZZ_MEM;
+    }
+    mpz_clear(r);
+    return ZZ_OK;
+}
+
 void
-check_sqrtrem(void)
+check_sqrtrem_bulk(void)
+{
+    zz_bitcnt_t bs = 512;
+
+    for (size_t i = 0; i < nsamples; i++) {
+        zz_t u, v, w, rv, rw;
+
+        if (zz_init(&u) || zz_random(bs, false, &u)) {
+            abort();
+        }
+        if (zz_init(&v) || zz_init(&w) || zz_init(&rv) || zz_init(&rw)) {
+            abort();
+        }
+        if (zz_sqrtrem(&u, &v, &w) || zz_ref_sqrtrem(&u, &rv, &rw)
+            || zz_cmp(&v, &rv) != ZZ_EQ || zz_cmp(&w, &rw) != ZZ_EQ)
+        {
+            abort();
+        }
+        if (zz_copy(&u, &v) || zz_sqrtrem(&v, &v, &w)
+            || zz_cmp(&v, &rv) != ZZ_EQ || zz_cmp(&w, &rw) != ZZ_EQ)
+        {
+            abort();
+        }
+        if (zz_copy(&u, &w) || zz_sqrtrem(&w, &v, &w)
+            || zz_cmp(&v, &rv) != ZZ_EQ || zz_cmp(&w, &rw) != ZZ_EQ)
+        {
+            abort();
+        }
+        zz_clear(&u);
+        zz_clear(&v);
+        zz_clear(&w);
+        zz_clear(&rv);
+        zz_clear(&rw);
+    }
+}
+
+void
+check_sqrtrem_examples(void)
 {
     zz_t u, v;
 
@@ -128,8 +194,124 @@ check_isodd_bulk(void)
     }
 }
 
+zz_err
+zz_ref_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
+{
+    mpz_t zg, zs, zt;
+    TMP_MPZ(mu, u);
+    TMP_MPZ(mv, v);
+    if (TMP_OVERFLOW) {
+        return ZZ_MEM;
+    }
+    mpz_init(zg);
+    mpz_init(zs);
+    mpz_init(zt);
+    mpz_gcdext(zg, zs, zt, mu, mv);
+
+    zz_t tmp = {zg->_mp_size < 0, abs(zg->_mp_size), abs(zg->_mp_size),
+                zg->_mp_d};
+
+    if (zz_copy(&tmp, g)) {
+        mpz_clear(zg);
+        mpz_clear(zs);
+        mpz_clear(zt);
+        return ZZ_MEM;
+    }
+    mpz_clear(zg);
+    tmp = (zz_t){zs->_mp_size < 0, abs(zs->_mp_size), abs(zs->_mp_size),
+                 zs->_mp_d};
+    if (zz_copy(&tmp, s)) {
+        mpz_clear(zs);
+        mpz_clear(zt);
+        return ZZ_MEM;
+    }
+    mpz_clear(zs);
+    tmp = (zz_t){zt->_mp_size < 0, abs(zt->_mp_size), abs(zt->_mp_size),
+                 zt->_mp_d};
+    if (zz_copy(&tmp, t)) {
+        mpz_clear(zt);
+        return ZZ_MEM;
+    }
+    mpz_clear(zt);
+    return ZZ_OK;
+}
+
 void
-check_gcdext(void)
+check_gcdext_bulk(void)
+{
+    zz_bitcnt_t bs = 512;
+
+    for (size_t i = 0; i < nsamples; i++) {
+        zz_t u, v, g, s, t, rg, rs, rt;
+
+        if (zz_init(&u) || zz_random(bs, true, &u)) {
+            abort();
+        }
+        if (zz_init(&v) || zz_random(bs, true, &v)) {
+            abort();
+        }
+        if (zz_init(&g) || zz_init(&s) || zz_init(&t)
+            || zz_init(&rg) || zz_init(&rs) || zz_init(&rt))
+        {
+            abort();
+        }
+        if (zz_gcdext(&u, &v, &g, &s, &t)
+            || zz_ref_gcdext(&u, &v, &rg, &rs, &rt)
+            || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
+            || zz_cmp(&t, &rt) != ZZ_EQ)
+        {
+            abort();
+        }
+        if (zz_copy(&u, &g) || zz_gcdext(&g, &v, &g, &s, &t)
+            || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
+            || zz_cmp(&t, &rt) != ZZ_EQ)
+        {
+            abort();
+        }
+        if (zz_copy(&u, &s) || zz_gcdext(&s, &v, &g, &s, &t)
+            || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
+            || zz_cmp(&t, &rt) != ZZ_EQ)
+        {
+            abort();
+        }
+        if (zz_copy(&u, &t) || zz_gcdext(&t, &v, &g, &s, &t)
+            || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
+            || zz_cmp(&t, &rt) != ZZ_EQ)
+        {
+            abort();
+        }
+        if (zz_copy(&v, &g) || zz_gcdext(&u, &g, &g, &s, &t)
+            || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
+            || zz_cmp(&t, &rt) != ZZ_EQ)
+        {
+            abort();
+        }
+        if (zz_copy(&v, &s) || zz_gcdext(&u, &s, &g, &s, &t)
+            || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
+            || zz_cmp(&t, &rt) != ZZ_EQ)
+        {
+            abort();
+        }
+        if (zz_copy(&v, &t) || zz_gcdext(&u, &t, &g, &s, &t)
+            || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
+            || zz_cmp(&t, &rt) != ZZ_EQ)
+        {
+            abort();
+        }
+        zz_clear(&u);
+        zz_clear(&v);
+        zz_clear(&g);
+        zz_clear(&s);
+        zz_clear(&t);
+        zz_clear(&rg);
+        zz_clear(&rs);
+        zz_clear(&rt);
+    }
+}
+
+
+void
+check_gcdext_examples(void)
 {
     zz_t u, v, a, b;
 
@@ -322,10 +504,12 @@ int main(void)
     check_cmp();
     check_cmp_bulk();
     check_lsbpos();
-    check_sqrtrem();
+    check_sqrtrem_bulk();
+    check_sqrtrem_examples();
     check_bin();
     check_isodd_bulk();
-    check_gcdext();
+    check_gcdext_bulk();
+    check_gcdext_examples();
     check_fromto_double();
     check_sizeinbase();
     check_fromto_i32();

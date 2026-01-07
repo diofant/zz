@@ -25,10 +25,32 @@ zz_ref_powm(const zz_t *u, const zz_t *v, const zz_t *w, zz_t *r)
     mpz_init(z);
     mpz_powm(z, mu, mv, mw);
 
+    zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size), abs(z->_mp_size), z->_mp_d};
+
+    if (zz_copy(&tmp, r)) {
+        mpz_clear(z);
+        return ZZ_MEM;
+    }
+    mpz_clear(z);
+    return ZZ_OK;
+}
+
+zz_err
+zz_ref_gcd(const zz_t *u, const zz_t *v, zz_t *w)
+{
+    mpz_t z;
+    TMP_MPZ(mu, u);
+    TMP_MPZ(mv, v);
+    if (TMP_OVERFLOW) {
+        return ZZ_MEM;
+    }
+    mpz_init(z);
+    mpz_gcd(z, mu, mv);
+
     zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size),
                 abs(z->_mp_size),
                 z->_mp_d};
-    if (zz_copy(&tmp, r)) {
+    if (zz_copy(&tmp, w)) {
         mpz_clear(z);
         return ZZ_MEM;
     }
@@ -65,6 +87,11 @@ check_powm_bulk(void)
                 abort();
             }
             zz_clear(&r);
+        }
+        else {
+            if (zz_ref_gcd(&u, &w, &z) || zz_cmp(&z, 1) == ZZ_EQ) {
+                abort();
+            }
         }
         zz_clear(&u);
         zz_clear(&v);
@@ -108,6 +135,60 @@ check_powm_examples(void)
     zz_clear(&w);
 }
 
+zz_err
+zz_ref_pow(const zz_t *u, uint64_t v, zz_t *w)
+{
+    mpz_t z;
+    TMP_MPZ(mu, u);
+    if (TMP_OVERFLOW) {
+        return ZZ_MEM;
+    }
+    mpz_init(z);
+    mpz_pow_ui(z, mu, v);
+
+    zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size), abs(z->_mp_size), z->_mp_d};
+
+    if (zz_copy(&tmp, w)) {
+        mpz_clear(z);
+        return ZZ_MEM;
+    }
+    mpz_clear(z);
+    return ZZ_OK;
+}
+
+void
+check_pow_bulk(void)
+{
+    zz_bitcnt_t bs = 512;
+
+    for (size_t i = 0; i < nsamples; i++) {
+        zz_t u, w;
+        uint64_t v = (uint64_t)rand() % (rand() % 10 > 7 ? 1000 : 100);
+
+        if (zz_init(&u) || zz_random(bs, true, &u)) {
+            abort();
+        }
+        if (zz_init(&w)) {
+            abort();
+        }
+        if (zz_pow(&u, v, &w) == ZZ_OK) {
+            zz_t r;
+
+            if (zz_init(&r) || zz_ref_pow(&u, v, &r)
+                || zz_cmp(&w, &r) != ZZ_EQ)
+            {
+                abort();
+            }
+            zz_clear(&r);
+        }
+        else {
+            abort();
+        }
+        zz_clear(&u);
+        zz_clear(&w);
+    }
+}
+
 void
 check_pow_examples(void)
 {
@@ -139,6 +220,7 @@ int main(void)
     zz_setup(NULL);
     check_powm_bulk();
     check_powm_examples();
+    check_pow_bulk();
     check_pow_examples();
     zz_finish();
     zz_testclear();
