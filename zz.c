@@ -571,7 +571,7 @@ zz_to_str(const zz_t *u, int base, char *str, size_t *len)
 /* Table of digit values for 8-bit string->mpz conversion.
    Note that when converting a base B string, a char c is a legitimate
    base B digit iff DIGIT_VALUE_TAB[c] < B. */
-const char DIGIT_VALUE_TAB[] =
+const int DIGIT_VALUE_TAB[] =
 {
   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
   -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
