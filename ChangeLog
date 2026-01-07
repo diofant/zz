@@ -1,4 +1,38 @@
+2026-01-07  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Add more bulk tests
+
+	Fix zz_gcdext() for overlapping arguments
+
+2026-01-06  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	SKIP t-memory on valgrind
+
+	Add -fprofile-update=atomic
+
+	Add zz_from/to_i32() and zz_from_double()
+	Closes #13
+
+	Use "digit" instead of "limb"
+	Closes #37
+
+	Use _Generic to implement arithmetic functions
+	Closes #15
+
+	Rename methods (_sl -> _i64, _sl_ -> _i64_)
+	Also use standard (integer) types as arguments.
+
 2026-01-05  Sergey B Kirpichev  <skirpichev@gmail.com>
+
+	Move memory tests with custom allocator
+
+	Move around more examples from t-misc.c
+
+	Disband tests/t-shifts.c
+
+	tests/t-powm.c -> tests/t-pow.c
+
+	Update ChangeLog
 
 	Support valgrind
 
