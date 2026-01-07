@@ -34,17 +34,44 @@ jobs:
           make -s check CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
-      - run: lcov --capture --directory . --output-file coverage.info
-      - run: genhtml coverage.info --output-directory coverage
+      - run: |
+          lcov --capture --directory . \
+               --output-file coverage-${{ matrix.os }}.info
+      - uses: actions/upload-artifact@v6
+        with:
+          name: coverage-${{ matrix.os }}
+          path: |
+            coverage-${{ matrix.os }}.info
+          retention-days: 1
       - run: make -s distcheck
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
-      - uses: actions/upload-artifact@v4
+  merge-coverage:
+    runs-on: ubuntu-24.04
+    needs:
+      - tests
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - run: sudo apt update
+      - run: sudo apt install lcov diff-cover
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+      - run: |
+          genhtml coverage*.info --hierarchical \
+            --output-directory coverage
+      - run: |
+          diff-cover coverage*.info --fail-under=100 \
+            --compare-branch=origin/master
+      - uses: actions/upload-artifact@v6
         with:
           name: coverage
           path: |
             coverage/
-            coverage.info
+            coverage*.info
       - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
