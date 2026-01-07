@@ -1858,7 +1858,6 @@ zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
     if (!o1 || !o2 || !tmp_g || !tmp_s) {
         goto free; /* LCOV_EXCL_LINE */
     }
-
     if (zz_init(o1) || zz_init(o2)
         || zz_init(tmp_g) || zz_init(tmp_s)
         || zz_copy(u, o1) || zz_copy(v, o2)
@@ -1879,17 +1878,18 @@ zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
                        || (!u->negative && ssize < 0));
     tmp_g->negative = false;
     zz_clear(o1);
-    zz_clear(o2);
     free(o1);
-    free(o2);
-    o1 = o2 = NULL;
+    o1 = NULL;
     if (t) {
-        if (zz_mul(u, tmp_s, t) || zz_sub(tmp_g, t, t)
-            || zz_div(t, v, t, NULL))
+        if (zz_mul(u, tmp_s, o2) || zz_sub(tmp_g, o2, o2)
+            || zz_div(o2, v, t, NULL))
         {
             goto clear; /* LCOV_EXCL_LINE */
         }
     }
+    zz_clear(o2);
+    free(o2);
+    o2 = NULL;
     if (s && zz_copy(tmp_s, s) == ZZ_MEM) {
         goto clear; /* LCOV_EXCL_LINE */
     }
