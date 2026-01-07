@@ -23,7 +23,9 @@
 #include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/resource.h>
+#ifdef HAVE_SYS_RESOURCE_H
+#  include <sys/resource.h>
+#endif
 #include <time.h>
 #ifdef HAVE_VALGRIND_VALGRIND_H
 #  include <valgrind/valgrind.h>

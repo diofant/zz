@@ -79,9 +79,35 @@ AS_IF([test "x$HAVE_PTHREAD" = xyes],
        LIBS="$LIBS -lpthread"],
       [AC_DEFINE_UNQUOTED([HAVE_PTHREAD_H], [0], [Define to 0 if you do not have the <pthread.h> header file.])])
 
+# Check for working setrlimit(RLIMIT_AS)
+AC_RUN_IFELSE([AC_LANG_SOURCE([[
+#include <sys/resource.h>
+int
+main(void)
+{
+    struct rlimit new, old;
+
+    if (getrlimit(RLIMIT_AS, &old)) {
+        return 1;
+    }
+    new.rlim_max = old.rlim_max;
+    new.rlim_cur = 64*1000*1000;
+    if (setrlimit(RLIMIT_AS, &new)) {
+        return 1;
+    }
+    return 0;
+}]])], [ac_cv_can_set_rlimit_as=yes],
+[ac_cv_can_set_rlimit_as=no],
+[ac_cv_can_set_rlimit_as=no])
+if test "$ac_cv_can_set_rlimit_as" = "yes"; then
+    AC_DEFINE([CAN_SET_RLIMIT_AS], [1],
+              [Defined if setrlimit() can set RLIMIT_AS.])
+fi
+
 # Checks for header files.
 AC_CHECK_HEADERS([assert.h ctype.h float.h inttypes.h math.h setjmp.h
                   stdlib.h string.h stdbool.h stddef.h stdint.h])
+AC_CHECK_HEADERS([sys/resource.h])
 AC_CHECK_HEADERS([valgrind/valgrind.h])
 
 # Checks for typedefs, structures, and compiler characteristics.

@@ -133,6 +133,7 @@ main(void)
         return 77;
     }
 #endif
+#if defined(HAVE_SYS_RESOURCE_H) && defined(CAN_SET_RLIMIT_AS)
     srand((unsigned int)time(NULL));
     zz_setup(NULL);
 
@@ -149,9 +150,9 @@ main(void)
         return 1;
     }
     check_square_outofmem();
-#if HAVE_PTHREAD_H
+#  if HAVE_PTHREAD_H
     check_square_outofmem_pthread();
-#endif
+#  endif
     /* to trigger crash for GMP builds with alloca() enabled */
     if (getrlimit(RLIMIT_STACK, &old)) {
         perror("getrlimit");
@@ -166,4 +167,7 @@ main(void)
     check_fac_outofmem();
     zz_finish();
     return 0;
+#else
+    return 77;
+#endif
 }
