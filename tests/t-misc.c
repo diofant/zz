@@ -514,6 +514,21 @@ int main(void)
     check_sizeinbase();
     check_fromto_i32();
     check_fromto_i64();
+#ifdef HAVE_SYS_RESOURCE_H
+    struct rlimit new, old;
+
+    /* to trigger crash for GMP builds with alloca() enabled */
+    if (getrlimit(RLIMIT_STACK, &old)) {
+        perror("getrlimit");
+        return 1;
+    }
+    new.rlim_max = old.rlim_max;
+    new.rlim_cur = 128*1000;
+    if (setrlimit(RLIMIT_STACK, &new)) {
+        perror("setrlimit");
+        return 1;
+    }
+#endif
     check_fac_outofmem();
     zz_finish();
     zz_testclear();
