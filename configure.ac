@@ -54,6 +54,11 @@ AX_VALGRIND_CHECK()
 # Checks for programs.
 AC_PROG_CC
 AC_LANG(C)
+
+# Check for C17 support and add the flag if available, otherwise fail
+AX_CHECK_COMPILE_FLAG([-std=c11], [CFLAGS="$CFLAGS -std=c17"],
+  [AC_MSG_ERROR([A C17 compliant compiler is required])], [-Wall -Wextra])
+
 LT_INIT
 
 AC_ARG_WITH([gmp],

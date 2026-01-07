@@ -30,8 +30,8 @@ jobs:
         env:
           PKG_CONFIG_PATH: ${{ github.workspace }}/.local/lib/pkgconfig
       - run: |
-          make -s CFLAGS="-Wall -Wpedantic -Werror -std=c17 -Wconversion"
-          make -s check CFLAGS="-Wall -Wpedantic -Werror -std=c17 -Wconversion"
+          make -s CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
+          make -s check CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
       - run: lcov --capture --directory . --output-file coverage.info
