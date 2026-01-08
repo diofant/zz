@@ -48,10 +48,6 @@
 #  define ZZ_BITS_MAX (zz_bitcnt_t)INT32_MAX*ZZ_DIGIT_T_BITS
 #endif
 
-#if defined(_MSC_VER)
-#  define _Thread_local __declspec(thread)
-#endif
-
 #ifdef __GNUC__
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wunused-variable"
