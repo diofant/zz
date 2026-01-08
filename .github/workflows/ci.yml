@@ -21,9 +21,9 @@ jobs:
           sudo apt update
           sudo apt install autoconf-archive lcov texlive
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
-      - run: |
-          brew install autoconf automake libtool
-          brew install autoconf-archive lcov texlive texinfo
+      - run: brew install autoconf libtool
+        if: matrix.os == 'macos-15'
+      - run: brew install automake autoconf-archive lcov texinfo
         if: ${{ startsWith(matrix.os, 'macos') }}
       - name: Cache GNU GMP builds
         id: cache-gmp
@@ -54,6 +54,7 @@ jobs:
             DISTCHECK_CONFIGURE_FLAGS="--with-gmp=$(pwd)/.local/"
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
+        if: runner.os == 'Linux'
   merge-coverage:
     runs-on: ubuntu-24.04
     needs:
