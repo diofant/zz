@@ -478,7 +478,10 @@ void
 check_exportimport_roundtrip(void)
 {
     zz_bitcnt_t bs = 512;
-    const zz_layout bytes_layout = {8, 1, -1, 0};
+    const zz_layout bytes_layout = {8, 1, 1, 0};
+    const zz_layout pyint_layout = {30, 4, -1, 0};
+    size_t len;
+    void *buf;
 
     for (size_t i = 0; i < nsamples; i++) {
         zz_t u, v;
@@ -486,14 +489,24 @@ check_exportimport_roundtrip(void)
         if (zz_init(&u) || zz_random(bs, false, &u)) {
             abort();
         }
-
-        size_t len = (zz_bitlen(&u) + 7)/8;
-        void *buf = malloc(len);
-
+        len = (zz_bitlen(&u) + 7)/8;
+        buf = malloc(len);
         if (!buf || zz_export(&u, bytes_layout, len, buf)) {
             abort();
         }
         if (zz_init(&v) || zz_import(len, buf, bytes_layout, &v)) {
+            abort();
+        }
+        free(buf);
+        if (zz_cmp(&u, &v) != ZZ_EQ) {
+            abort();
+        }
+        len = (zz_bitlen(&u) + 29)/30;
+        buf = malloc(len*4);
+        if (!buf || zz_export(&u, pyint_layout, len, buf)) {
+            abort();
+        }
+        if (zz_import(len, buf, pyint_layout, &v)) {
             abort();
         }
         free(buf);

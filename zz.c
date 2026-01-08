@@ -738,6 +738,13 @@ zz_import(size_t len, const void *digits, zz_layout layout, zz_t *u)
     {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
+    if (layout.digit_size == 1 && layout.bits_per_digit == 8
+        && layout.digits_order == 1 && !layout.digit_endianness)
+    {
+        u->size = (zz_size_t)mpn_set_str(u->digits, digits, len, 256);
+        zz_normalize(u);
+        return ZZ_OK;
+    }
 
     TMP_MPZ(z, u);
     assert(layout.digit_size*8 >= layout.bits_per_digit);
@@ -759,6 +766,13 @@ zz_export(const zz_t *u, zz_layout layout, size_t len, void *digits)
     }
     if (u->size > INT_MAX) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
+    }
+    if (layout.digit_size == 1 && layout.bits_per_digit == 8
+        && layout.digits_order == 1 && !layout.digit_endianness)
+    {
+        /* We use undocumented feature of mpn_get_str(): u->size >= 0 */
+        mpn_get_str(digits, 256, u->digits, u->size);
+        return ZZ_OK;
     }
 
     TMP_MPZ(z, u);
