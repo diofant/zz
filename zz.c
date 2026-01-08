@@ -34,12 +34,6 @@
 #  error ZZ_DIGIT_T_BITS expected to be more than ZZ_DIGIT_T_BITS
 #endif
 
-#if defined(_MSC_VER)
-#  define _Thread_local __declspec(thread)
-#endif
-
-_Thread_local jmp_buf zz_env;
-
 static struct {
     void *(*default_allocate_func)(size_t);
     void *(*default_reallocate_func)(void *, size_t, size_t);
