@@ -35,11 +35,10 @@ jobs:
         if: steps.cache-gmp.outputs.cache-hit != 'true'
       - run: mkdir m4 && autoreconf -if
       - run: ./configure --enable-gcov --with-gmp=$(pwd)/.local/
-      - run: |
-          make CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
-          make check CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
+      - run: make all check
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
+          CFLAGS: -Wall -Wpedantic -Werror -Wconversion
       - run: |
           lcov --capture --directory . \
                --output-file coverage-${{ matrix.os }}.info
@@ -49,11 +48,10 @@ jobs:
           path: |
             coverage-${{ matrix.os }}.info
           retention-days: 1
-      - run: |
-          make distcheck \
-            DISTCHECK_CONFIGURE_FLAGS="--with-gmp=$(pwd)/.local/"
+      - run: make distcheck
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
+          DISTCHECK_CONFIGURE_FLAGS: --with-gmp=${{ github.workspace }}/.local/
         if: runner.os == 'Linux'
   merge-coverage:
     runs-on: ubuntu-24.04
