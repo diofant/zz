@@ -143,7 +143,7 @@ Must be called before all other its functions.
 Must be called last.
 @end deftypefun
 
-@node Initializing Integers, Assigning Integers, Functions, Functions
+@node Initializing Integers, Assigning Integers, Library Setup, Functions
 @section Initialization
 @cindex Integer initialization functions
 @cindex Initialization functions
@@ -400,7 +400,7 @@ Return the population count of @var{u} magnitude in binary.
 Determine whether @var{u} is zero, negative or odd.
 @end deftypefun
 
-@node References, GNU Free Documentation License, Miscellaneous Functions, Top
+@node References, GNU Free Documentation License, Functions, Top
 @chapter References
 
 @itemize @bullet
