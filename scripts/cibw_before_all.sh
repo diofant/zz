@@ -22,11 +22,16 @@ done
 # specific code in common code.
 rm config.guess && mv configfsf.guess config.guess && chmod +x config.guess
 
-./configure --enable-fat \
-            --enable-shared \
-            --disable-static \
-            --with-pic \
-            --disable-alloca \
-            --prefix=$PREFIX
+CONFIG_ARGS="--enable-shared --disable-static --with-pic --disable-alloca --prefix=$PREFIX"
+
+if [ "$OSTYPE" = "cygwin" ] && [ "${RUNNER_ARCH}" = "ARM64" ]
+then
+  autoreconf -fi
+  CONFIG_ARGS="${CONFIG_ARGS} --disable-assembly"
+else
+  CONFIG_ARGS="${CONFIG_ARGS} --enable-fat"
+fi
+
+./configure ${CONFIG_ARGS}
 
 make all install

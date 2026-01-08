@@ -12,6 +12,21 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-24.04, ubuntu-24.04-arm, macos-15-intel, macos-15]
+        shell: [bash]
+        msystem: [ucrt64]
+        menv: [ucrt-x86_64]
+        include:
+          - os: windows-2022
+            shell: 'msys2 {0}'
+            msystem: ucrt64
+            menv: ucrt-x86_64
+          - os: windows-11-arm
+            shell: 'msys2 {0}'
+            msystem: clangarm64
+            menv: clang-aarch64
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
     runs-on: ${{ matrix.os }}
     env:
       MACOSX_DEPLOYMENT_TARGET: 10.15
@@ -25,6 +40,23 @@ jobs:
         if: matrix.os == 'macos-15'
       - run: brew install automake autoconf-archive lcov texinfo
         if: ${{ startsWith(matrix.os, 'macos') }}
+      - uses: msys2/setup-msys2@v2.30.0
+        name: Setup msys2
+        with:
+          install: >-
+            mingw-w64-${{ matrix.menv }}-binutils
+            mingw-w64-${{ matrix.menv }}-gcc
+            mingw-w64-${{ matrix.menv }}-tools
+            mingw-w64-${{ matrix.menv }}-lcov
+            diffutils
+            m4
+            make
+            patch
+            autotools
+            autoconf-archive
+            texinfo
+          msystem: ${{ matrix.msystem }}
+        if: ${{ startsWith(matrix.os, 'windows') }}
       - name: Cache GNU GMP builds
         id: cache-gmp
         uses: actions/cache@v4
