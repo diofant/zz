@@ -194,6 +194,17 @@ check_isodd_bulk(void)
     }
 }
 
+void
+check_isneg(void)
+{
+    zz_t u;
+
+    if (zz_init(&u) || zz_from_i32(-3, &u) || !zz_isneg(&u)) {
+        abort();
+    }
+    zz_clear(&u);
+}
+
 zz_err
 zz_ref_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
 {
@@ -464,6 +475,52 @@ check_fromto_i64(void)
 }
 
 void
+check_exportimport_roundtrip(void)
+{
+    zz_bitcnt_t bs = 512;
+    const zz_layout bytes_layout = {8, 1, -1, 0};
+
+    for (size_t i = 0; i < nsamples; i++) {
+        zz_t u, v;
+
+        if (zz_init(&u) || zz_random(bs, false, &u)) {
+            abort();
+        }
+
+        size_t len = (zz_bitlen(&u) + 7)/8;
+        void *buf = malloc(len);
+
+        if (!buf || zz_export(&u, bytes_layout, len, buf)) {
+            abort();
+        }
+        if (zz_init(&v) || zz_import(len, buf, bytes_layout, &v)) {
+            abort();
+        }
+        free(buf);
+        if (zz_cmp(&u, &v) != ZZ_EQ) {
+            abort();
+        }
+        zz_clear(&u);
+        zz_clear(&v);
+    }
+}
+
+void
+check_exportimport_examples(void)
+{
+    zz_t u;
+    const zz_layout pyint_layout = {30, 4, -1, 0};
+
+    if (zz_init(&u) || zz_from_i64(123, &u)) {
+        abort();
+    }
+    if (zz_export(&u, pyint_layout, 0, 0) != ZZ_VAL) {
+        abort();
+    }
+    zz_clear(&u);
+}
+
+void
 check_fac_outofmem(void)
 {
     zz_set_memory_funcs(my_malloc, my_realloc, my_free);
@@ -508,12 +565,15 @@ int main(void)
     check_sqrtrem_examples();
     check_bin();
     check_isodd_bulk();
+    check_isneg();
     check_gcdext_bulk();
     check_gcdext_examples();
     check_fromto_double();
     check_sizeinbase();
     check_fromto_i32();
     check_fromto_i64();
+    check_exportimport_roundtrip();
+    check_exportimport_examples();
 #ifdef HAVE_SYS_RESOURCE_H
     struct rlimit new, old;
 

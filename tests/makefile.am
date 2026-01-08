@@ -7,6 +7,6 @@ libtests_la_LIBADD = $(libtests_la_DEPENDENCIES) $(top_builddir)/libzz.la
 
 @VALGRIND_CHECK_RULES@
 
-check_PROGRAMS = t-binop t-bytes t-memory t-misc t-pow t-str t-unop
+check_PROGRAMS = t-binop t-memory t-misc t-pow t-str t-unop
 LDADD = libtests.la $(top_builddir)/libzz.la
 AM_CFLAGS = -I$(top_srcdir)

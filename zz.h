@@ -64,15 +64,11 @@ zz_err zz_from_i32(int32_t u, zz_t *v);
 zz_err zz_from_i64(int64_t u, zz_t *v);
 zz_err zz_from_double(double u, zz_t *v);
 zz_err zz_from_str(const char *str, size_t len, int base, zz_t *u);
-zz_err zz_from_bytes(const unsigned char *buf, size_t length, bool negative,
-                     zz_t *u);
 
 zz_err zz_to_i32(const zz_t *u, int32_t *v);
 zz_err zz_to_i64(const zz_t *u, int64_t *v);
 zz_err zz_to_double(const zz_t *u, double *d);
 zz_err zz_to_str(const zz_t *u, int base, char *str, size_t *len);
-zz_err zz_to_bytes(const zz_t *u, size_t length, bool is_signed,
-                   unsigned char **buf);
 
 zz_err zz_add(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_add_i64(const zz_t *u, int64_t v, zz_t *w);
