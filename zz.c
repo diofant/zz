@@ -371,7 +371,14 @@ zz_from_i64(int64_t u, zz_t *v)
 zz_err
 zz_from_double(double u, zz_t *v)
 {
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wfloat-conversion"
+#endif
     if (!isfinite(u)) {
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
         return ZZ_VAL;
     }
 
@@ -694,7 +701,14 @@ zz_to_double(const zz_t *u, double *d)
             }
         }
     }
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wfloat-conversion"
+#endif
     if (isinf(*d)) {
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
         return ZZ_BUF;
     }
     return ZZ_OK;
