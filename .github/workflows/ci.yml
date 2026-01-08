@@ -40,7 +40,7 @@ jobs:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
           CFLAGS: -Wall -Wpedantic -Werror -Wconversion
       - run: |
-          lcov --capture --directory . \
+          lcov --capture --no-recursion --directory .libs \
                --output-file coverage-${{ matrix.os }}.info
       - uses: actions/upload-artifact@v6
         with:
