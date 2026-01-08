@@ -51,13 +51,13 @@ zz_random(zz_bitcnt_t bc, bool s, zz_t *u)
 
     f = rand() % 2 ? mpz_urandomb : mpz_rrandomb;
     if (n >= 7) {
-        f(z, rnd_state, bc);
+        f(z, rnd_state, (mp_bitcnt_t)bc);
     }
     else if (n >= 5) {
-        f(z, rnd_state, bc/4);
+        f(z, rnd_state, (mp_bitcnt_t)bc/4);
     }
     else {
-        f(z, rnd_state, bc/8);
+        f(z, rnd_state, (mp_bitcnt_t)bc/8);
     }
 
     zz_t tmp = {false, abs(z->_mp_size), abs(z->_mp_size), z->_mp_d};

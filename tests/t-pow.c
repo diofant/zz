@@ -144,7 +144,7 @@ zz_ref_pow(const zz_t *u, uint64_t v, zz_t *w)
         return ZZ_MEM;
     }
     mpz_init(z);
-    mpz_pow_ui(z, mu, v);
+    mpz_pow_ui(z, mu, (unsigned long int)v);
 
     zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size), abs(z->_mp_size), z->_mp_d};
 
