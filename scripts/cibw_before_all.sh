@@ -27,7 +27,6 @@ rm config.guess && mv configfsf.guess config.guess && chmod +x config.guess
             --disable-static \
             --with-pic \
             --disable-alloca \
-            --prefix=$PREFIX \
-            --quiet
+            --prefix=$PREFIX
 
-make --silent all install
+make all install

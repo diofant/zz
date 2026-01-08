@@ -13,9 +13,9 @@ jobs:
       - run: sudo apt update
       - run: sudo apt install autoconf-archive texlive
       - run: mkdir m4 && autoreconf -if
-      - run: ./configure -q
-      - run: make -s dist
-      - run: make -s pdf
+      - run: ./configure
+      - run: make dist
+      - run: make pdf
       - run: mkdir dist
       - run: cp zz*.tar.gz doc/zz.pdf dist/
       - name: Create GitHub Release

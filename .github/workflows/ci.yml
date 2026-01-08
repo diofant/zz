@@ -34,10 +34,10 @@ jobs:
       - run: sh scripts/cibw_before_all.sh
         if: steps.cache-gmp.outputs.cache-hit != 'true'
       - run: mkdir m4 && autoreconf -if
-      - run: ./configure -q --enable-gcov --with-gmp=$(pwd)/.local/
+      - run: ./configure --enable-gcov --with-gmp=$(pwd)/.local/
       - run: |
-          make -s CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
-          make -s check CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
+          make CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
+          make check CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
       - run: |
@@ -50,7 +50,7 @@ jobs:
             coverage-${{ matrix.os }}.info
           retention-days: 1
       - run: |
-          make -s distcheck \
+          make distcheck \
             DISTCHECK_CONFIGURE_FLAGS="--with-gmp=$(pwd)/.local/"
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/.local/lib
