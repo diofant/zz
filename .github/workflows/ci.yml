@@ -41,6 +41,9 @@ jobs:
           CFLAGS: -Wall -Wpedantic -Werror -Wconversion
       - run: |
           lcov --capture --no-recursion --directory .libs \
+               --output-file coverage.info
+      - run: |
+          lcov --remove coverage.info "*.h" \
                --output-file coverage-${{ matrix.os }}.info
       - uses: actions/upload-artifact@v6
         with:
