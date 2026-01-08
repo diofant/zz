@@ -33,7 +33,7 @@ jobs:
           key: ${{ matrix.os }}-${{ hashFiles('scripts/*') }}
       - run: sh scripts/cibw_before_all.sh
         if: steps.cache-gmp.outputs.cache-hit != 'true'
-      - run: autoreconf -if
+      - run: mkdir m4 && autoreconf -if
       - run: ./configure -q --enable-gcov --with-gmp=$(pwd)/.local/
       - run: |
           make -s CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
