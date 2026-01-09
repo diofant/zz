@@ -580,6 +580,9 @@ int main(void)
 {
     zz_testinit();
     zz_setup();
+    if (strcmp(zz_get_version(), VERSION)) {
+        abort();
+    }
     check_cmp();
     check_cmp_bulk();
     check_lsbpos();

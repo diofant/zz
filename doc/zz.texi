@@ -382,6 +382,10 @@ Return the population count of @var{u} magnitude in binary.
 Determine whether @var{u} is zero, negative or odd.
 @end deftypefun
 
+@deftypefun const char * zz_get_version (void)
+Get the ZZ version number, as a null-terminated string, in the form ``i.j.k''.
+@end deftypefun
+
 @node References, GNU Free Documentation License, Functions, Top
 @chapter References
 

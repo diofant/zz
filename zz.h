@@ -201,4 +201,6 @@ bool zz_iszero(const zz_t *u);
 bool zz_isneg(const zz_t *u);
 bool zz_isodd(const zz_t *u);
 
+const char * zz_get_version(void);
+
 #endif /* ZZ_H */
