@@ -45,15 +45,7 @@ typedef enum {
     ZZ_BUF = -3,
 } zz_err;
 
-typedef struct {
-    uint8_t version[3];
-    uint8_t bits_per_digit;
-    uint8_t digit_bytes;
-    uint8_t digitcnt_bytes;
-    uint8_t bitcnt_bytes;
-} zz_info;
-
-zz_err zz_setup(zz_info *info);
+zz_err zz_setup(void);
 void zz_finish(void);
 
 zz_err zz_init(zz_t *u);
@@ -195,6 +187,8 @@ typedef struct {
     int8_t digits_order;
     int8_t digit_endianness;
 } zz_layout;
+
+const zz_layout * zz_get_layout(void);
 
 zz_err zz_import(size_t len, const void *data, zz_layout layout, zz_t *u);
 zz_err zz_export(const zz_t *u, zz_layout layout, size_t len, void *data);

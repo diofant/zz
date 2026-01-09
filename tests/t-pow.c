@@ -217,7 +217,7 @@ int main(void)
 {
     srand((unsigned int)time(NULL));
     zz_testinit();
-    zz_setup(NULL);
+    zz_setup();
     check_powm_bulk();
     check_powm_examples();
     check_pow_bulk();

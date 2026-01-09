@@ -87,7 +87,7 @@ int main(void)
 {
     srand((unsigned int)time(NULL));
     zz_testinit();
-    zz_setup(NULL);
+    zz_setup();
     check_str_roundtrip();
     check_str_examples();
     zz_finish();

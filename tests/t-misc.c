@@ -480,6 +480,7 @@ check_exportimport_roundtrip(void)
     zz_bitcnt_t bs = 512;
     const zz_layout bytes_layout = {8, 1, 1, 0};
     const zz_layout pyint_layout = {30, 4, -1, 0};
+    const zz_layout *native_layout = zz_get_layout();
     size_t len;
     void *buf;
 
@@ -507,6 +508,19 @@ check_exportimport_roundtrip(void)
             abort();
         }
         if (zz_import(len, buf, pyint_layout, &v)) {
+            abort();
+        }
+        free(buf);
+        if (zz_cmp(&u, &v) != ZZ_EQ) {
+            abort();
+        }
+        len = (zz_bitlen(&u) + native_layout->bits_per_digit
+               - 1)/native_layout->bits_per_digit;
+        buf = malloc(len*native_layout->digit_size);
+        if (!buf || zz_export(&u, *native_layout, len, buf)) {
+            abort();
+        }
+        if (zz_import(len, buf, *native_layout, &v)) {
             abort();
         }
         free(buf);
@@ -565,12 +579,7 @@ check_fac_outofmem(void)
 int main(void)
 {
     zz_testinit();
-
-    zz_info info;
-
-    if (zz_setup(&info) || (info.digit_bytes != 4 && info.digit_bytes != 8)) {
-        abort();
-    }
+    zz_setup();
     check_cmp();
     check_cmp_bulk();
     check_lsbpos();

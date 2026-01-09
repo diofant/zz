@@ -169,7 +169,7 @@ zz_free_function(void *ptr, size_t size)
 }
 
 zz_err
-zz_setup(zz_info *info)
+zz_setup(void)
 {
     mp_get_memory_functions(&zz_state.default_allocate_func,
                             &zz_state.default_reallocate_func,
@@ -180,15 +180,6 @@ zz_setup(zz_info *info)
     zz_state.malloc = &zz_malloc;
     zz_state.realloc = &zz_realloc;
     zz_state.free = &zz_free;
-    if (info) {
-        info->version[0] = __GNU_MP_VERSION;
-        info->version[1] = __GNU_MP_VERSION_MINOR;
-        info->version[2] = __GNU_MP_VERSION_PATCHLEVEL;
-        info->bits_per_digit = ZZ_DIGIT_T_BITS;
-        info->digit_bytes = sizeof(mp_limb_t);
-        info->digitcnt_bytes = sizeof(mp_size_t);
-        info->bitcnt_bytes = sizeof(mp_bitcnt_t);
-    }
     return ZZ_OK;
 }
 
@@ -726,6 +717,19 @@ zz_bitcnt_t
 zz_bitcnt(const zz_t *u)
 {
     return u->size ? mpn_popcount(u->digits, u->size) : 0;
+}
+
+static const zz_layout native_layout = {
+    .bits_per_digit = ZZ_DIGIT_T_BITS,
+    .digit_size = sizeof(zz_digit_t),
+    .digits_order = -1,
+    .digit_endianness = 0,
+};
+
+const zz_layout *
+zz_get_layout(void)
+{
+    return &native_layout;
 }
 
 zz_err

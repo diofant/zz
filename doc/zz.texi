@@ -123,20 +123,8 @@ workspace allocation (and use the heap instead).
 @cindex Library setup functions
 @cindex Library setup
 
-The information about linked GNU GMP library can be kept in the type
-@code{zz_info}:
-
-@itemize @bullet
-@item @code{version}: major, minor and patch level, as array of integers.
-@item @code{bits_per_digit}: number of bits per digit.
-@item @code{digit_bytes}: digit size in bytes.
-@item @code{digitcnt_bytes}: size of @code{mp_size_t} in bytes.
-@item @code{bitcnt_bytes}: size of @code{mp_bitcnt_t} in bytes.
-@end itemize
-
-@deftypefun zz_err zz_setup (zz_info *@var{info})
-Initialize the library and optionally set @var{info}, if its not @code{NULL}.
-Must be called before all other its functions.
+@deftypefun zz_err zz_setup (void)
+Initialize the library.  Must be called before all other its functions.
 @end deftypefun
 
 @deftypefun void zz_finish (void)
@@ -348,8 +336,13 @@ by the type @code{zz_layout} with following fields:
 @item @code{digit_size}: digit size in bytes.
 @item @code{digits_order}: order of digits, either 1 for most significant digit
       first or -1 for last.
-@item @code{digit_endianness}: digit endianness, either 1 for MSB or -1 for LSB.
+@item @code{digit_endianness}: digit endianness, either 1 for MSB, or -1
+      for LSB, or 0 for platforms endianness.
 @end itemize
+
+@deftypefun const zz_layout * zz_get_layout (void)
+Get native layout for the library.
+@end deftypefun
 
 @deftypefun zz_err zz_import (size_t @var{len}, const void *@var{data}, zz_layout @var{layout}, zz_t *@var{u})
 Set magnitude of @var{u} from @var{data} array in specified @var{layout}.

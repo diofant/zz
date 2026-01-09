@@ -112,7 +112,7 @@ int main(void)
 {
     srand((unsigned int)time(NULL));
     zz_testinit();
-    zz_setup(NULL);
+    zz_setup();
     check_neg_bulk();
     check_abs_bulk();
     check_com_bulk();

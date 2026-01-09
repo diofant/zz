@@ -630,7 +630,7 @@ main(void)
 {
     srand((unsigned int)time(NULL));
     zz_testinit();
-    zz_setup(NULL);
+    zz_setup();
     check_add_bulk();
     check_sub_bulk();
     check_mul_bulk();

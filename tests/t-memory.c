@@ -135,7 +135,7 @@ main(void)
 #endif
 #if defined(HAVE_SYS_RESOURCE_H) && defined(CAN_SET_RLIMIT_AS)
     srand((unsigned int)time(NULL));
-    zz_setup(NULL);
+    zz_setup();
 
     struct rlimit new, old;
 
