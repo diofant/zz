@@ -9,4 +9,11 @@ libtests_la_LIBADD = $(libtests_la_DEPENDENCIES) $(top_builddir)/libzz.la
 
 check_PROGRAMS = t-binop t-memory t-misc t-pow t-str t-unop
 LDADD = libtests.la $(top_builddir)/libzz.la
+AM_CFLAGS=
+AM_LDFLAGS=
+if ENABLE_GCOV
+AM_CFLAGS += -fprofile-arcs -ftest-coverage -fprofile-update=atomic
+AM_LDFLAGS += -fprofile-arcs -ftest-coverage -fprofile-update=atomic
+endif
 AM_CFLAGS = -I$(top_srcdir)
+AM_LDFLAGS += $(ZZ_LDFLAGS)

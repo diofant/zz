@@ -48,7 +48,14 @@
 #  define ZZ_BITS_MAX (zz_bitcnt_t)INT32_MAX*ZZ_DIGIT_T_BITS
 #endif
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
 static _Thread_local jmp_buf zz_env;
+#if defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
 /* Function should include if(TMP_OVERFLOW){...} workaround in
    case it calls any mpn_*() API, which does memory allocation for
    temporary storage.  Not all functions do this, sometimes it's
