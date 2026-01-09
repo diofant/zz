@@ -99,7 +99,7 @@ check_unary_examples(void)
 {
     zz_t u;
 
-    if (zz_init(&u) || zz_set_i64(0, &u)) {
+    if (zz_init(&u) || zz_set(0, &u)) {
         abort();
     }
     if (zz_invert(&u, &u) || zz_cmp(&u, -1) != ZZ_EQ) {

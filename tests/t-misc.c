@@ -17,7 +17,7 @@ check_cmp(void)
 {
     zz_t u;
 
-    if (zz_init(&u) || zz_set_i64(13, &u)) {
+    if (zz_init(&u) || zz_set(13, &u)) {
         abort();
     }
     if (zz_cmp(&u, 1) != ZZ_GT || zz_cmp(&u, 100) != ZZ_LT) {
@@ -26,7 +26,7 @@ check_cmp(void)
     if (zz_cmp(&u, -100) != ZZ_GT) {
         abort();
     }
-    if (zz_set_i64(13, &u) || zz_cmp(&u, &u) != ZZ_EQ) {
+    if (zz_set(13, &u) || zz_cmp(&u, &u) != ZZ_EQ) {
         abort();
     }
     zz_clear(&u);
@@ -62,7 +62,7 @@ check_lsbpos(void)
 {
     zz_t u;
 
-    if (zz_init(&u) || zz_set_i64(0, &u)) {
+    if (zz_init(&u) || zz_set(0, &u)) {
         abort();
     }
     if (zz_lsbpos(&u) != 0) {
@@ -142,10 +142,10 @@ check_sqrtrem_examples(void)
 {
     zz_t u, v;
 
-    if (zz_init(&u) || zz_set_i64(4, &u)) {
+    if (zz_init(&u) || zz_set(4, &u)) {
         abort();
     }
-    if (zz_init(&v) || zz_set_i64(0, &v)) {
+    if (zz_init(&v) || zz_set(0, &v)) {
         abort();
     }
     if (zz_sqrtrem(&u, &u, &v) || zz_cmp(&u, 2) != ZZ_EQ
@@ -156,7 +156,7 @@ check_sqrtrem_examples(void)
     if (zz_sqrtrem(&v, &v, &u) || zz_cmp(&u, 0) != ZZ_EQ) {
         abort();
     }
-    if (zz_set_i64(-1, &u) || zz_sqrtrem(&u, &v, NULL) != ZZ_VAL) {
+    if (zz_set(-1, &u) || zz_sqrtrem(&u, &v, NULL) != ZZ_VAL) {
         abort();
     }
     zz_clear(&u);
@@ -199,7 +199,7 @@ check_isneg(void)
 {
     zz_t u;
 
-    if (zz_init(&u) || zz_set_i32(-3, &u) || !zz_isneg(&u)) {
+    if (zz_init(&u) || zz_set(-3, &u) || !zz_isneg(&u)) {
         abort();
     }
     zz_clear(&u);
@@ -326,8 +326,8 @@ check_gcdext_examples(void)
 {
     zz_t u, v, a, b;
 
-    if (zz_init(&u) || zz_init(&v) || zz_set_i64(-2, &u)
-        || zz_set_i64(6, &v))
+    if (zz_init(&u) || zz_init(&v) || zz_set(-2, &u)
+        || zz_set(6, &v))
     {
         abort();
     }
@@ -342,7 +342,7 @@ check_gcdext_examples(void)
     if (zz_gcdext(&u, &v, NULL, NULL, &a) || zz_cmp(&a, 0) != ZZ_EQ) {
         abort();
     }
-    if (zz_set_i64(0, &u) || zz_gcdext(&u, &v, &a, NULL, NULL)
+    if (zz_set(0, &u) || zz_gcdext(&u, &v, &a, NULL, NULL)
         || zz_cmp(&a, 6) != ZZ_EQ)
     {
         abort();
@@ -370,30 +370,30 @@ check_fromto_double(void)
     zz_t u;
     double d;
 
-    if (zz_init(&u) || zz_set_double(INFINITY, &u) != ZZ_VAL) {
+    if (zz_init(&u) || zz_set(INFINITY, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_double(1092.2666666666667, &u) || zz_cmp(&u, 1092) != ZZ_EQ) {
+    if (zz_set(1092.2666666666667, &u) || zz_cmp(&u, 1092) != ZZ_EQ) {
         abort();
     }
-    if (zz_set_i64(1, &u) || zz_mul_2exp(&u, 2000, &u)) {
+    if (zz_set(1, &u) || zz_mul_2exp(&u, 2000, &u)) {
         abort();
     }
-    if (zz_get_double(&u, &d) != ZZ_BUF) {
+    if (zz_get(&u, &d) != ZZ_BUF) {
         abort();
     }
-    if (zz_set_i64(9007199254740993, &u) || zz_get_double(&u, &d)
+    if (zz_set(9007199254740993, &u) || zz_get(&u, &d)
         || d != 9007199254740992.0)
     {
         abort();
     }
-    if (zz_set_i64(18014398509481987, &u) || zz_get_double(&u, &d)
+    if (zz_set(18014398509481987, &u) || zz_get(&u, &d)
         || d != 1.8014398509481988e+16)
     {
         abort();
     }
-    if (zz_set_i64(1, &u) || zz_mul_2exp(&u, 1024, &u)
-        || zz_get_double(&u, &d) != ZZ_BUF)
+    if (zz_set(1, &u) || zz_mul_2exp(&u, 1024, &u)
+        || zz_get(&u, &d) != ZZ_BUF)
     {
         abort();
     }
@@ -405,7 +405,7 @@ check_sizeinbase(void)
 {
     zz_t u;
 
-    if (zz_init(&u) || zz_set_i64(1, &u)
+    if (zz_init(&u) || zz_set(1, &u)
         || zz_sizeinbase(&u, 42, NULL) != ZZ_VAL)
     {
         abort();
@@ -419,40 +419,40 @@ check_fromto_i32(void)
     zz_t u;
     int32_t v = 123, val;
 
-    if (zz_init(&u) || zz_set_i32(v, &u)) {
+    if (zz_init(&u) || zz_set(v, &u)) {
         abort();
     }
-    if (zz_get_i32(&u, &val) || val != v) {
+    if (zz_get(&u, &val) || val != v) {
         abort();
     }
     v = -42;
-    if (zz_set_i32(v, &u)) {
+    if (zz_set(v, &u)) {
         abort();
     }
-    if (zz_get_i32(&u, &val) || val != v) {
+    if (zz_get(&u, &val) || val != v) {
         abort();
     }
     v = 0;
-    if (zz_set_i32(v, &u)) {
+    if (zz_set(v, &u)) {
         abort();
     }
-    if (zz_get_i32(&u, &val) || val != v) {
+    if (zz_get(&u, &val) || val != v) {
         abort();
     }
-    if (zz_set_i64(1LL<<33, &u)) {
+    if (zz_set(1LL<<33, &u)) {
         abort();
     }
-    if (zz_get_i32(&u, &val) != ZZ_VAL) {
+    if (zz_get(&u, &val) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_i64(-(1LL<<33), &u)) {
+    if (zz_set(-(1LL<<33), &u)) {
         abort();
     }
-    if (zz_get_i32(&u, &val) != ZZ_VAL) {
+    if (zz_get(&u, &val) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_i32(1, &u) || zz_mul_2exp(&u, 65, &u)
-        || zz_get_i32(&u, &val) != ZZ_VAL)
+    if (zz_set(1, &u) || zz_mul_2exp(&u, 65, &u)
+        || zz_get(&u, &val) != ZZ_VAL)
     {
         abort();
     }
@@ -465,10 +465,10 @@ check_fromto_i64(void)
     zz_t u;
     int64_t val;
 
-    if (zz_init(&u) || zz_set_i64(0, &u)) {
+    if (zz_init(&u) || zz_set(0, &u)) {
         abort();
     }
-    if (zz_get_i64(&u, &val) || val) {
+    if (zz_get(&u, &val) || val) {
         abort();
     }
     zz_clear(&u);
@@ -524,7 +524,7 @@ check_exportimport_examples(void)
     zz_t u;
     const zz_layout pyint_layout = {30, 4, -1, 0};
 
-    if (zz_init(&u) || zz_set_i64(123, &u)) {
+    if (zz_init(&u) || zz_set(123, &u)) {
         abort();
     }
     if (zz_export(&u, pyint_layout, 0, 0) != ZZ_VAL) {

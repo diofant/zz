@@ -96,7 +96,7 @@
                                                               \
         int64_t val;                                          \
                                                               \
-        if (zz_get_i64(&v, &val) == ZZ_OK) {                   \
+        if (zz_get(&v, &val) == ZZ_OK) {                      \
             zz_err ret = zz_##op(&u, val, &w);                \
                                                               \
             if (ret == ZZ_VAL) {                              \
@@ -120,7 +120,7 @@
                 abort();                                      \
             }                                                 \
         }                                                     \
-        if (zz_get_i64(&u, &val) == ZZ_OK) {                   \
+        if (zz_get(&u, &val) == ZZ_OK) {                      \
             zz_err ret = zz_##op(val, &v, &w);                \
                                                               \
             if (ret == ZZ_VAL) {                              \
@@ -278,28 +278,28 @@ check_binop_examples(void)
     if (zz_init(&u) || zz_init(&v)) {
         abort();
     }
-    if (zz_set_i64(0, &u) || zz_set_i64(0, &v) || zz_add(&u, &v, &u)
+    if (zz_set(0, &u) || zz_set(0, &v) || zz_add(&u, &v, &u)
         || zz_cmp(&u, 0) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(1, &v) || zz_add(&u, &v, &u) || zz_cmp(&u, 1) != ZZ_EQ) {
+    if (zz_set(1, &v) || zz_add(&u, &v, &u) || zz_cmp(&u, 1) != ZZ_EQ) {
         abort();
     }
-    if (zz_set_i64(0, &u) || zz_add(&u, 0, &u)
+    if (zz_set(0, &u) || zz_add(&u, 0, &u)
         || zz_cmp(&u, 0) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(0, &u) || zz_add(&u, 1, &u)
+    if (zz_set(0, &u) || zz_add(&u, 1, &u)
         || zz_cmp(&u, 1) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(0, &v) || zz_mul(&u, &v, &u) || zz_cmp(&u, 0) != ZZ_EQ) {
+    if (zz_set(0, &v) || zz_mul(&u, &v, &u) || zz_cmp(&u, 0) != ZZ_EQ) {
         abort();
     }
-    if (zz_set_i64(1, &u) || zz_mul(&u, 0, &u) || zz_cmp(&u, 0) != ZZ_EQ) {
+    if (zz_set(1, &u) || zz_mul(&u, 0, &u) || zz_cmp(&u, 0) != ZZ_EQ) {
         abort();
     }
     if (zz_div(&u, 1, &u, NULL) || zz_cmp(&u, 0) != ZZ_EQ) {
@@ -308,87 +308,87 @@ check_binop_examples(void)
     if (zz_div(&u, 1, NULL, &u) || zz_cmp(&u, 0) != ZZ_EQ) {
         abort();
     }
-    if (zz_set_i64(2, &u) || zz_div(&u, 2, NULL, &u)
+    if (zz_set(2, &u) || zz_div(&u, 2, NULL, &u)
         || zz_cmp(&u, 0) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(2, &v) || zz_and(&u, &v, &u) || zz_cmp(&u, 0) != ZZ_EQ) {
+    if (zz_set(2, &v) || zz_and(&u, &v, &u) || zz_cmp(&u, 0) != ZZ_EQ) {
         abort();
     }
-    if (zz_set_i64(-1, &u) || zz_set_i64(-1, &v) || zz_and(&u, &v, &u)
+    if (zz_set(-1, &u) || zz_set(-1, &v) || zz_and(&u, &v, &u)
         || zz_cmp(&u, -1) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(1, &u) || zz_set_i64(2, &v) || zz_and(&u, &v, &u)
+    if (zz_set(1, &u) || zz_set(2, &v) || zz_and(&u, &v, &u)
         || zz_cmp(&u, 0) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(2, &v) || zz_or(&u, &v, &u) || zz_cmp(&u, 2) != ZZ_EQ) {
+    if (zz_set(2, &v) || zz_or(&u, &v, &u) || zz_cmp(&u, 2) != ZZ_EQ) {
         abort();
     }
-    if (zz_set_i64(0, &u) || zz_set_i64(2, &v) || zz_or(&v, &u, &u)
+    if (zz_set(0, &u) || zz_set(2, &v) || zz_or(&v, &u, &u)
         || zz_cmp(&u, 2) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(-1, &u) || zz_set_i64(-1, &v) || zz_or(&u, &v, &u)
+    if (zz_set(-1, &u) || zz_set(-1, &v) || zz_or(&u, &v, &u)
         || zz_cmp(&u, -1) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(12, &u) || zz_set_i64(-1, &v) || zz_or(&u, &v, &u)
+    if (zz_set(12, &u) || zz_set(-1, &v) || zz_or(&u, &v, &u)
         || zz_cmp(&u, -1) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(0, &u) || zz_set_i64(2, &v) || zz_xor(&v, &u, &u)
+    if (zz_set(0, &u) || zz_set(2, &v) || zz_xor(&v, &u, &u)
         || zz_cmp(&u, 2) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(0, &u) || zz_set_i64(2, &v) || zz_xor(&u, &v, &u)
+    if (zz_set(0, &u) || zz_set(2, &v) || zz_xor(&u, &v, &u)
         || zz_cmp(&u, 2) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(-1, &u) || zz_set_i64(-1, &v) || zz_xor(&u, &v, &u)
+    if (zz_set(-1, &u) || zz_set(-1, &v) || zz_xor(&u, &v, &u)
         || zz_cmp(&u, 0) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(0, &u) || zz_set_i64(0, &v) || zz_lcm(&u, &v, &u)
+    if (zz_set(0, &u) || zz_set(0, &v) || zz_lcm(&u, &v, &u)
         || zz_cmp(&u, 0) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(4, &u)) {
+    if (zz_set(4, &u)) {
         abort();
     }
-    if (zz_set_i64(2, &v)) {
+    if (zz_set(2, &v)) {
         abort();
     }
     if (zz_div(&u, &v, NULL, NULL) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_i64(0, &v) || zz_div(&u, &v, &v, NULL) != ZZ_VAL) {
+    if (zz_set(0, &v) || zz_div(&u, &v, &v, NULL) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_i64(1, &u)) {
+    if (zz_set(1, &u)) {
         abort();
     }
     if (zz_div(&u, 0, &u, NULL) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_i64(0, &v)) {
+    if (zz_set(0, &v)) {
         abort();
     }
     if (zz_div(1, &v, &v, NULL) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_i64(1, &v) || zz_div(1, &v, NULL, NULL) != ZZ_VAL) {
+    if (zz_set(1, &v) || zz_div(1, &v, NULL, NULL) != ZZ_VAL) {
         abort();
     }
     zz_clear(&u);
@@ -454,7 +454,7 @@ check_shift_examples(void)
 {
     zz_t u, v;
 
-    if (zz_init(&u) || zz_set_i64(0, &u) || zz_init(&v)) {
+    if (zz_init(&u) || zz_set(0, &u) || zz_init(&v)) {
         abort();
     }
     if (zz_mul_2exp(&u, 123, &v) || zz_cmp(&v, 0)) {
@@ -488,17 +488,17 @@ check_shift_examples(void)
     if (zz_set_dec("-18446744073709551616", &u) || zz_cmp(&u, &v)) {
         abort();
     }
-    if (zz_set_i64(-1, &u) || zz_quo_2exp(&u, 1, &v)
+    if (zz_set(-1, &u) || zz_quo_2exp(&u, 1, &v)
         || zz_cmp(&v, -1) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_set_i64(1, &u) ||
+    if (zz_set(1, &u) ||
         zz_mul_2exp(&u, ZZ_BITS_MAX, &u) != ZZ_MEM)
     {
         abort();
     }
-    if (zz_set_i64(0x7fffffffffffffffLL, &u)) {
+    if (zz_set(0x7fffffffffffffffLL, &u)) {
         abort();
     }
     if (zz_mul_2exp(&u, 1, &u) || zz_add(&u, 1, &u)
@@ -511,7 +511,7 @@ check_shift_examples(void)
     {
         abort();
     }
-    if (zz_set_i64(0x7fffffffffffffffLL, &v)) {
+    if (zz_set(0x7fffffffffffffffLL, &v)) {
         abort();
     }
     if (zz_mul_2exp(&v, 1, &v) || zz_add(&v, 1, &v)
@@ -520,7 +520,7 @@ check_shift_examples(void)
         abort();
     }
 #if ZZ_DIGIT_T_BITS == 64
-    if (zz_set_i64(1, &u) || zz_mul_2exp(&u, 64, &u)
+    if (zz_set(1, &u) || zz_mul_2exp(&u, 64, &u)
         || zz_pow(&u, ((uint64_t)1<<63), &u) != ZZ_BUF)
     {
         abort();
@@ -539,7 +539,7 @@ check_square_outofmem(void)
         int64_t x = 49846727467293 + rand();
         zz_t mx;
 
-        if (zz_init(&mx) || zz_set_i64(x, &mx)) {
+        if (zz_init(&mx) || zz_set(x, &mx)) {
             abort();
         }
         while (1) {
@@ -595,7 +595,7 @@ check_square_outofmem_pthread(void)
     pthread_t *tid = malloc(nthreads * sizeof(pthread_t));
     data_t *d = malloc(nthreads * sizeof(data_t));
     for (size_t i = 0; i < nthreads; i++) {
-        if (zz_init(&d[i].z) || zz_set_i64(10 + 201*(int)i, &d[i].z)) {
+        if (zz_init(&d[i].z) || zz_set(10 + 201*(int)i, &d[i].z)) {
             abort();
         }
         ret = pthread_create(&tid[i], NULL, worker, (void *)(d + i));

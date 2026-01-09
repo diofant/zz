@@ -63,11 +63,28 @@ zz_err zz_set_i32(int32_t u, zz_t *v);
 zz_err zz_set_i64(int64_t u, zz_t *v);
 zz_err zz_set_double(double u, zz_t *v);
 
+#define zz_set(U, V)                      \
+    _Generic((U),                         \
+             int: zz_set_i32,             \
+             long: zz_set_i64,            \
+             long long: zz_set_i64,       \
+             float: zz_set_double,        \
+             double: zz_set_double)(U, V)
+
 zz_err zz_set_str(const char *str, size_t len, int base, zz_t *u);
 
 zz_err zz_get_i32(const zz_t *u, int32_t *v);
 zz_err zz_get_i64(const zz_t *u, int64_t *v);
 zz_err zz_get_double(const zz_t *u, double *d);
+
+#define zz_get(U, V)                                           \
+    _Generic((U),                                              \
+             default: _Generic((V),                            \
+                               int *: zz_get_i32,              \
+                               long *: zz_get_i64,             \
+                               long long *: zz_get_i64,        \
+                               float *: zz_get_double,         \
+                               double *: zz_get_double))(U, V)
 
 zz_err zz_get_str(const zz_t *u, int base, char *str, size_t *len);
 
