@@ -28,7 +28,7 @@
         zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size),  \
                     abs(z->_mp_size),                   \
                     z->_mp_d};                          \
-        if (zz_copy(&tmp, w)) {                         \
+        if (zz_pos(&tmp, w)) {                          \
             mpz_clear(z);                               \
             return ZZ_MEM;                              \
         }                                               \
@@ -45,7 +45,7 @@
         {                                                     \
             abort();                                          \
         }                                                     \
-        if (zz_copy(lhs, &u) || zz_copy(rhs, &v)) {           \
+        if (zz_pos(lhs, &u) || zz_pos(rhs, &v)) {             \
             abort();                                          \
         }                                                     \
                                                               \
@@ -66,11 +66,11 @@
         {                                                     \
             abort();                                          \
         }                                                     \
-        if (zz_copy(&u, &w) || zz_##op(&w, &v, &w)            \
+        if (zz_pos(&u, &w) || zz_##op(&w, &v, &w)             \
             || zz_cmp(&w, &r) != ZZ_EQ) {                     \
             abort();                                          \
         }                                                     \
-        if (zz_copy(&v, &w) || zz_##op(&u, &w, &w)            \
+        if (zz_pos(&v, &w) || zz_##op(&u, &w, &w)             \
             || zz_cmp(&w, &r) != ZZ_EQ) {                     \
             abort();                                          \
         }                                                     \
@@ -90,7 +90,7 @@
         {                                                     \
             abort();                                          \
         }                                                     \
-        if (zz_copy(lhs, &u) || zz_copy(rhs, &v)) {           \
+        if (zz_pos(lhs, &u) || zz_pos(rhs, &v)) {             \
             abort();                                          \
         }                                                     \
                                                               \
@@ -114,7 +114,7 @@
             {                                                 \
                 abort();                                      \
             }                                                 \
-            if (zz_copy(&u, &w) || zz_##op(&w, val, &w)       \
+            if (zz_pos(&u, &w) || zz_##op(&w, val, &w)        \
                 || zz_cmp(&w, &r) != ZZ_EQ)                   \
             {                                                 \
                 abort();                                      \
@@ -138,7 +138,7 @@
             {                                                 \
                 abort();                                      \
             }                                                 \
-            if (zz_copy(&v, &w) || zz_##op(val, &w, &w)       \
+            if (zz_pos(&v, &w) || zz_##op(val, &w, &w)        \
                 || zz_cmp(&w, &r) != ZZ_EQ)                   \
             {                                                 \
                 abort();                                      \
@@ -226,7 +226,7 @@ zz_ref_mul_2exp(const zz_t *u, zz_bitcnt_t v, zz_t *w)
     zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size),
                 abs(z->_mp_size),
                 z->_mp_d};
-    if (zz_copy(&tmp, w)) {
+    if (zz_pos(&tmp, w)) {
         mpz_clear(z);
         return ZZ_MEM;
     }
@@ -248,7 +248,7 @@ zz_ref_quo_2exp(const zz_t *u, zz_bitcnt_t v, zz_t *w)
     zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size),
                 abs(z->_mp_size),
                 z->_mp_d};
-    if (zz_copy(&tmp, w)) {
+    if (zz_pos(&tmp, w)) {
         mpz_clear(z);
         return ZZ_MEM;
     }

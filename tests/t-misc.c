@@ -85,14 +85,14 @@ zz_ref_sqrtrem(const zz_t *u, zz_t *v, zz_t *w)
 
     zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size), abs(z->_mp_size), z->_mp_d};
 
-    if (zz_copy(&tmp, v)) {
+    if (zz_pos(&tmp, v)) {
         mpz_clear(z);
         mpz_clear(r);
         return ZZ_MEM;
     }
     mpz_clear(z);
     tmp = (zz_t){r->_mp_size < 0, abs(r->_mp_size), abs(r->_mp_size), r->_mp_d};
-    if (zz_copy(&tmp, w)) {
+    if (zz_pos(&tmp, w)) {
         mpz_clear(r);
         return ZZ_MEM;
     }
@@ -119,12 +119,12 @@ check_sqrtrem_bulk(void)
         {
             abort();
         }
-        if (zz_copy(&u, &v) || zz_sqrtrem(&v, &v, &w)
+        if (zz_pos(&u, &v) || zz_sqrtrem(&v, &v, &w)
             || zz_cmp(&v, &rv) != ZZ_EQ || zz_cmp(&w, &rw) != ZZ_EQ)
         {
             abort();
         }
-        if (zz_copy(&u, &w) || zz_sqrtrem(&w, &v, &w)
+        if (zz_pos(&u, &w) || zz_sqrtrem(&w, &v, &w)
             || zz_cmp(&v, &rv) != ZZ_EQ || zz_cmp(&w, &rw) != ZZ_EQ)
         {
             abort();
@@ -222,7 +222,7 @@ zz_ref_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
     zz_t tmp = {zg->_mp_size < 0, abs(zg->_mp_size), abs(zg->_mp_size),
                 zg->_mp_d};
 
-    if (zz_copy(&tmp, g)) {
+    if (zz_pos(&tmp, g)) {
         mpz_clear(zg);
         mpz_clear(zs);
         mpz_clear(zt);
@@ -231,7 +231,7 @@ zz_ref_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
     mpz_clear(zg);
     tmp = (zz_t){zs->_mp_size < 0, abs(zs->_mp_size), abs(zs->_mp_size),
                  zs->_mp_d};
-    if (zz_copy(&tmp, s)) {
+    if (zz_pos(&tmp, s)) {
         mpz_clear(zs);
         mpz_clear(zt);
         return ZZ_MEM;
@@ -239,7 +239,7 @@ zz_ref_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
     mpz_clear(zs);
     tmp = (zz_t){zt->_mp_size < 0, abs(zt->_mp_size), abs(zt->_mp_size),
                  zt->_mp_d};
-    if (zz_copy(&tmp, t)) {
+    if (zz_pos(&tmp, t)) {
         mpz_clear(zt);
         return ZZ_MEM;
     }
@@ -273,37 +273,37 @@ check_gcdext_bulk(void)
         {
             abort();
         }
-        if (zz_copy(&u, &g) || zz_gcdext(&g, &v, &g, &s, &t)
+        if (zz_pos(&u, &g) || zz_gcdext(&g, &v, &g, &s, &t)
             || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
             || zz_cmp(&t, &rt) != ZZ_EQ)
         {
             abort();
         }
-        if (zz_copy(&u, &s) || zz_gcdext(&s, &v, &g, &s, &t)
+        if (zz_pos(&u, &s) || zz_gcdext(&s, &v, &g, &s, &t)
             || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
             || zz_cmp(&t, &rt) != ZZ_EQ)
         {
             abort();
         }
-        if (zz_copy(&u, &t) || zz_gcdext(&t, &v, &g, &s, &t)
+        if (zz_pos(&u, &t) || zz_gcdext(&t, &v, &g, &s, &t)
             || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
             || zz_cmp(&t, &rt) != ZZ_EQ)
         {
             abort();
         }
-        if (zz_copy(&v, &g) || zz_gcdext(&u, &g, &g, &s, &t)
+        if (zz_pos(&v, &g) || zz_gcdext(&u, &g, &g, &s, &t)
             || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
             || zz_cmp(&t, &rt) != ZZ_EQ)
         {
             abort();
         }
-        if (zz_copy(&v, &s) || zz_gcdext(&u, &s, &g, &s, &t)
+        if (zz_pos(&v, &s) || zz_gcdext(&u, &s, &g, &s, &t)
             || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
             || zz_cmp(&t, &rt) != ZZ_EQ)
         {
             abort();
         }
-        if (zz_copy(&v, &t) || zz_gcdext(&u, &t, &g, &s, &t)
+        if (zz_pos(&v, &t) || zz_gcdext(&u, &t, &g, &s, &t)
             || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
             || zz_cmp(&t, &rt) != ZZ_EQ)
         {

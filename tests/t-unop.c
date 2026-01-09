@@ -27,7 +27,7 @@
         zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size), \
                     abs(z->_mp_size),                  \
                     z->_mp_d};                         \
-        if (zz_copy(&tmp, v)) {                        \
+        if (zz_pos(&tmp, v)) {                         \
             mpz_clear(z);                              \
             return ZZ_MEM;                             \
         }                                              \
@@ -42,7 +42,7 @@
         if (zz_init(&u) || zz_init(&v)) {                 \
             abort();                                      \
         }                                                 \
-        if (zz_copy(arg, &u)) {                           \
+        if (zz_pos(arg, &u)) {                            \
             abort();                                      \
         }                                                 \
         if (zz_init(&r) || zz_ref_##op(&u, &r)) {         \
@@ -51,7 +51,7 @@
         if (zz_##op(&u, &v) || zz_cmp(&v, &r) != ZZ_EQ) { \
             abort();                                      \
         }                                                 \
-        if (zz_copy(&u, &v) || zz_##op(&v, &v)            \
+        if (zz_pos(&u, &v) || zz_##op(&v, &v)             \
             || zz_cmp(&v, &r) != ZZ_EQ) {                 \
             abort();                                      \
         }                                                 \

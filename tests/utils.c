@@ -62,7 +62,7 @@ zz_random(zz_bitcnt_t bc, bool s, zz_t *u)
 
     zz_t tmp = {false, abs(z->_mp_size), abs(z->_mp_size), z->_mp_d};
 
-    if (zz_copy(&tmp, u)) {
+    if (zz_pos(&tmp, u)) {
         mpz_clear(z);
         return ZZ_MEM;
     }

@@ -59,15 +59,16 @@ void zz_finish(void);
 zz_err zz_init(zz_t *u);
 void zz_clear(zz_t *u);
 
-zz_err zz_copy(const zz_t *u, zz_t *v);
 zz_err zz_from_i32(int32_t u, zz_t *v);
 zz_err zz_from_i64(int64_t u, zz_t *v);
 zz_err zz_from_double(double u, zz_t *v);
+
 zz_err zz_from_str(const char *str, size_t len, int base, zz_t *u);
 
 zz_err zz_to_i32(const zz_t *u, int32_t *v);
 zz_err zz_to_i64(const zz_t *u, int64_t *v);
 zz_err zz_to_double(const zz_t *u, double *d);
+
 zz_err zz_to_str(const zz_t *u, int base, char *str, size_t *len);
 
 zz_err zz_add(const zz_t *u, const zz_t *v, zz_t *w);
@@ -75,8 +76,9 @@ zz_err zz_add_i64(const zz_t *u, int64_t v, zz_t *w);
 zz_err zz_sub(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_sub_i64(const zz_t *u, int64_t v, zz_t *w);
 zz_err zz_i64_sub(int64_t u, const zz_t *v, zz_t *w);
-zz_err zz_abs(const zz_t *u, zz_t *v);
+zz_err zz_pos(const zz_t *u, zz_t *v);
 zz_err zz_neg(const zz_t *u, zz_t *v);
+zz_err zz_abs(const zz_t *u, zz_t *v);
 zz_err zz_mul(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_mul_i64(const zz_t *u, int64_t v, zz_t *w);
 zz_err zz_div(const zz_t *u, const zz_t *v, zz_t *q, zz_t *r);
