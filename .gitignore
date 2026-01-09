@@ -42,7 +42,6 @@ m4/
 *.pc
 tests/*.trs
 tests/t-binop
-tests/t-bytes
 tests/t-memory
 tests/t-misc
 tests/t-pow

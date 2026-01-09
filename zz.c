@@ -708,96 +708,6 @@ zz_to_double(const zz_t *u, double *d)
     return ZZ_OK;
 }
 
-zz_err
-zz_to_bytes(const zz_t *u, size_t length, bool is_signed,
-            unsigned char **buffer)
-{
-    zz_t tmp;
-    bool is_negative = u->negative;
-
-    if (zz_init(&tmp)) {
-        return ZZ_MEM; /* LCOV_EXCL_LINE */
-    }
-    if (is_negative) {
-        if (!is_signed) {
-            return ZZ_BUF;
-        }
-        if (zz_resize(8*length/ZZ_DIGIT_T_BITS + 1, &tmp)) {
-            return ZZ_MEM; /* LCOV_EXCL_LINE */
-        }
-        if (tmp.size < u->size) {
-            zz_clear(&tmp);
-            return ZZ_BUF;
-        }
-        mpn_zero(tmp.digits, tmp.size);
-        tmp.digits[tmp.size - 1] = 1;
-        tmp.digits[tmp.size - 1] <<= ((8*length)
-                                      % (ZZ_DIGIT_T_BITS*(size_t)tmp.size));
-        mpn_sub(tmp.digits, tmp.digits, tmp.size, u->digits, u->size);
-        zz_normalize(&tmp);
-        u = &tmp;
-    }
-
-    size_t nbits = zz_bitlen(u);
-
-    if (nbits > 8*length
-        || (is_signed && ((!nbits && is_negative)
-            || (nbits && (nbits == 8 * length ? !is_negative : is_negative)))))
-    {
-        zz_clear(&tmp);
-        return ZZ_BUF;
-    }
-
-    size_t gap = length - (nbits + ZZ_DIGIT_T_BITS/8 - 1)/(ZZ_DIGIT_T_BITS/8);
-
-    /* We use undocumented feature of mpn_get_str(): u->size >= 0 */
-    mpn_get_str(*buffer + gap, 256, u->digits, u->size);
-    memset(*buffer, is_negative ? 0xFF : 0, gap);
-    zz_clear(&tmp);
-    return ZZ_OK;
-}
-
-zz_err
-zz_from_bytes(const unsigned char *buffer, size_t length, bool is_signed,
-              zz_t *u)
-{
-    if (!length) {
-        return zz_from_i64(0, u);
-    }
-    if (zz_resize(1 + length/2, u)) {
-        return ZZ_MEM; /* LCOV_EXCL_LINE */
-    }
-    u->size = (zz_size_t)mpn_set_str(u->digits, buffer, length, 256);
-    if (zz_resize((uint64_t)u->size, u) == ZZ_MEM) {
-        /* LCOV_EXCL_START */
-        zz_clear(u);
-        return ZZ_MEM;
-        /* LCOV_EXCL_STOP */
-    }
-    zz_normalize(u);
-    if (is_signed && zz_bitlen(u) == 8*(size_t)length) {
-        if (u->size > 1) {
-            mpn_sub_1(u->digits, u->digits, u->size, 1);
-            mpn_com(u->digits, u->digits, u->size - 1);
-        }
-        else {
-            u->digits[u->size - 1] -= 1;
-        }
-        u->digits[u->size - 1] = ~u->digits[u->size - 1];
-        assert(ZZ_DIGIT_T_BITS*u->size >= 8*length);
-        assert(ZZ_DIGIT_T_BITS*u->size < 8*length + ZZ_DIGIT_T_BITS);
-
-        mp_size_t shift = (mp_size_t)(ZZ_DIGIT_T_BITS*(size_t)u->size
-                                      - 8*length);
-
-        u->digits[u->size - 1] <<= shift;
-        u->digits[u->size - 1] >>= shift;
-        u->negative = true;
-        zz_normalize(u);
-    }
-    return ZZ_OK;
-}
-
 zz_bitcnt_t
 zz_bitlen(const zz_t *u)
 {
@@ -828,6 +738,13 @@ zz_import(size_t len, const void *digits, zz_layout layout, zz_t *u)
     {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
+    if (layout.digit_size == 1 && layout.bits_per_digit == 8
+        && layout.digits_order == 1 && !layout.digit_endianness)
+    {
+        u->size = (zz_size_t)mpn_set_str(u->digits, digits, len, 256);
+        zz_normalize(u);
+        return ZZ_OK;
+    }
 
     TMP_MPZ(z, u);
     assert(layout.digit_size*8 >= layout.bits_per_digit);
@@ -849,6 +766,13 @@ zz_export(const zz_t *u, zz_layout layout, size_t len, void *digits)
     }
     if (u->size > INT_MAX) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
+    }
+    if (layout.digit_size == 1 && layout.bits_per_digit == 8
+        && layout.digits_order == 1 && !layout.digit_endianness)
+    {
+        /* We use undocumented feature of mpn_get_str(): u->size >= 0 */
+        mpn_get_str(digits, 256, u->digits, u->size);
+        return ZZ_OK;
     }
 
     TMP_MPZ(z, u);
