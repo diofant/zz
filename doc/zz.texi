@@ -386,6 +386,10 @@ Determine whether @var{u} is zero, negative or odd.
 Get the ZZ version number, as a null-terminated string, in the form ``i.j.k''.
 @end deftypefun
 
+@deftypefun zz_bitcnt_t zz_get_bitcnt_max (void)
+Get maximal count of bits for a big integer.
+@end deftypefun
+
 @node References, GNU Free Documentation License, Functions, Top
 @chapter References
 

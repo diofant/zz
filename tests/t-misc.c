@@ -583,6 +583,9 @@ int main(void)
     if (strcmp(zz_get_version(), VERSION)) {
         abort();
     }
+    if (zz_get_bitcnt_max() != ZZ_BITS_MAX) {
+        abort();
+    }
     check_cmp();
     check_cmp_bulk();
     check_lsbpos();

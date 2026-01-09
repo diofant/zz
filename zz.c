@@ -42,6 +42,12 @@ zz_get_version(void)
     return VERSION;
 }
 
+zz_bitcnt_t
+zz_get_bitcnt_max(void)
+{
+    return ZZ_BITS_MAX;
+}
+
 static struct {
     void *(*default_allocate_func)(size_t);
     void *(*default_reallocate_func)(void *, size_t, size_t);

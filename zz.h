@@ -203,4 +203,6 @@ bool zz_isodd(const zz_t *u);
 
 const char * zz_get_version(void);
 
+zz_bitcnt_t zz_get_bitcnt_max(void);
+
 #endif /* ZZ_H */
