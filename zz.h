@@ -29,8 +29,6 @@ typedef int64_t zz_size_t;
 typedef int32_t zz_size_t;
 #endif
 
-#define ZZ_DIGIT_T_BITS 64
-
 typedef struct {
     bool negative;
     zz_size_t alloc;

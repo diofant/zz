@@ -47,6 +47,7 @@
 #  define ZZ_DIGITS_MAX INT32_MAX
 #  define ZZ_BITS_MAX (zz_bitcnt_t)INT32_MAX*ZZ_DIGIT_T_BITS
 #endif
+#define ZZ_DIGIT_T_BITS 64
 
 #ifdef __GNUC__
 #  pragma GCC diagnostic push
