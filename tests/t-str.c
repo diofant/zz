@@ -34,13 +34,13 @@ check_str_roundtrip(void)
         if (rand() % 2) {
             base = -base;
         }
-        if (!buf || zz_to_str(&u, base, buf, &len)) {
+        if (!buf || zz_get_str(&u, base, buf, &len)) {
             abort();
         }
 
         zz_t v;
 
-        if (zz_init(&v) || zz_from_str(buf, len, abs(base), &v)
+        if (zz_init(&v) || zz_set_str(buf, len, abs(base), &v)
             || zz_cmp(&u, &v) != ZZ_EQ)
         {
             abort();
@@ -56,28 +56,28 @@ check_str_examples(void)
 {
     zz_t u;
 
-    if (zz_init(&u) || zz_from_i64(123, &u)) {
+    if (zz_init(&u) || zz_set_i64(123, &u)) {
         abort();
     }
-    if (zz_to_str(&u, 38, NULL, NULL) != ZZ_VAL) {
+    if (zz_get_str(&u, 38, NULL, NULL) != ZZ_VAL) {
         abort();
     }
-    if (zz_from_str(" ", 1, 2, &u) != ZZ_VAL) {
+    if (zz_set_str(" ", 1, 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_from_str("-", 1, 2, &u) != ZZ_VAL) {
+    if (zz_set_str("-", 1, 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_from_str("_", 1, 2, &u) != ZZ_VAL) {
+    if (zz_set_str("_", 1, 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_from_str("1__", 3, 2, &u) != ZZ_VAL) {
+    if (zz_set_str("1__", 3, 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_from_str("1_3", 3, 2, &u) != ZZ_VAL) {
+    if (zz_set_str("1_3", 3, 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_from_str(" ", 1, 42, &u) != ZZ_VAL) {
+    if (zz_set_str(" ", 1, 42, &u) != ZZ_VAL) {
         abort();
     }
     zz_clear(&u);

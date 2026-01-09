@@ -105,29 +105,29 @@ check_powm_examples(void)
 {
     zz_t u, v, w;
 
-    if (zz_init(&u) || zz_from_i64(12, &u)) {
+    if (zz_init(&u) || zz_set_i64(12, &u)) {
         abort();
     }
-    if (zz_init(&v) || zz_from_i64(4, &v)) {
+    if (zz_init(&v) || zz_set_i64(4, &v)) {
         abort();
     }
-    if (zz_init(&w) || zz_from_i64(7, &w)) {
+    if (zz_init(&w) || zz_set_i64(7, &w)) {
         abort();
     }
     if (zz_powm(&u, &v, &w, &u) || zz_cmp(&u, 2) != ZZ_EQ) {
         abort();
     }
-    if (zz_from_i64(12, &u) || zz_powm(&u, &v, &w, &v)
+    if (zz_set_i64(12, &u) || zz_powm(&u, &v, &w, &v)
         || zz_cmp(&v, 2) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_from_i64(4, &v) || zz_powm(&u, &v, &w, &w)
+    if (zz_set_i64(4, &v) || zz_powm(&u, &v, &w, &w)
         || zz_cmp(&w, 2) != ZZ_EQ)
     {
         abort();
     }
-    if (zz_from_i64(0, &w) || zz_powm(&u, &v, &w, &w) != ZZ_VAL) {
+    if (zz_set_i64(0, &w) || zz_powm(&u, &v, &w, &w) != ZZ_VAL) {
         abort();
     }
     zz_clear(&u);
@@ -194,7 +194,7 @@ check_pow_examples(void)
 {
     zz_t u;
 
-    if (zz_init(&u) || zz_from_i64(2, &u)) {
+    if (zz_init(&u) || zz_set_i64(2, &u)) {
         abort();
     }
     if (zz_pow(&u, 2, &u) || zz_cmp(&u, 4) != ZZ_EQ) {
@@ -206,7 +206,7 @@ check_pow_examples(void)
     if (zz_pow(&u, 123, &u) || zz_cmp(&u, 1) != ZZ_EQ) {
         abort();
     }
-    if (zz_from_i64(0, &u) || zz_pow(&u, 123, &u) || zz_cmp(&u, 0) != ZZ_EQ)
+    if (zz_set_i64(0, &u) || zz_pow(&u, 123, &u) || zz_cmp(&u, 0) != ZZ_EQ)
     {
         abort();
     }
