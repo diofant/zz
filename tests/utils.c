@@ -108,8 +108,12 @@ my_realloc(void *ptr, size_t old_size, size_t new_size)
     void *new_ptr = realloc(ptr, new_size);
 
     if (new_ptr) {
-        atomic_fetch_add(&total_size, new_size);
-        atomic_fetch_sub(&total_size, old_size);
+        if (old_size > new_size) {
+            atomic_fetch_sub(&total_size, old_size - new_size);
+        }
+        else {
+            atomic_fetch_add(&total_size, new_size - old_size);
+        }
     }
     return new_ptr;
 }
@@ -118,7 +122,7 @@ void
 my_free(void *ptr, size_t size)
 {
     free(ptr);
-    if (!size) {
+    if (size) {
         atomic_fetch_sub(&total_size, size);
     }
 }
