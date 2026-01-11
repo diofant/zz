@@ -47,4 +47,6 @@ void * my_malloc(size_t size);
 void * my_realloc(void *ptr, size_t old_size, size_t new_size);
 void my_free(void *ptr, size_t size);
 
+void * square_worker(void *args);
+
 #endif /* TESTS_TESTS_H */

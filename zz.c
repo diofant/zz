@@ -58,17 +58,16 @@ static struct {
 } zz_state;
 
 #define TRACKER_SIZE_INCR 64
-_Thread_local struct {
+static _Thread_local struct {
     size_t size;
     size_t alloc;
     void **ptrs;
 } zz_tracker;
 
-static void *
-zz_malloc(size_t new_size)
-{
-    return malloc(new_size);
-}
+/* Thin wrappers over system allocation routines to
+   support GMP's argument convention. */
+
+#define zz_malloc malloc
 
 static void *
 zz_realloc(void *ptr, size_t old_size, size_t new_size)
@@ -89,25 +88,20 @@ zz_reallocate_function(void *ptr, size_t old_size, size_t new_size)
         /* Reallocation shouldn't be required.  Unless...
            you are using the mpz_t from the GNU GMP with
            our memory functions. */
-        /* LCOV_EXCL_START */
         void **tmp = zz_tracker.ptrs;
+        size_t old_alloc = zz_tracker.alloc;
 
         zz_tracker.alloc += TRACKER_SIZE_INCR;
-        zz_tracker.ptrs = realloc(tmp, zz_tracker.alloc * sizeof(void *));
+        zz_tracker.ptrs = zz_state.realloc(zz_tracker.ptrs,
+                                           old_alloc * sizeof(void *),
+                                           zz_tracker.alloc * sizeof(void *));
         if (!zz_tracker.ptrs) {
-            zz_tracker.alloc -= TRACKER_SIZE_INCR;
-            /* https://gcc.gnu.org/bugzilla/show_bug.cgi?id=110501 */
-#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 12
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wuse-after-free"
-#endif
+            /* LCOV_EXCL_START */
+            zz_tracker.alloc = old_alloc;
             zz_tracker.ptrs = tmp;
-#if defined(__GNUC__) && !defined(__clang__)
-#  pragma GCC diagnostic pop
-#endif
             goto err;
+            /* LCOV_EXCL_STOP */
         }
-        /* LCOV_EXCL_STOP */
     }
     if (!ptr) {
         void *ret = zz_state.malloc(new_size);
@@ -143,8 +137,8 @@ err:
         zz_tracker.size--;
         i--;
     }
+    zz_state.free(zz_tracker.ptrs, zz_tracker.alloc * sizeof(void *));
     zz_tracker.alloc = 0;
-    free(zz_tracker.ptrs);
     zz_tracker.ptrs = NULL;
     longjmp(zz_env, 1);
 }
@@ -175,8 +169,8 @@ zz_free_function(void *ptr, size_t size)
         zz_tracker.size--;
         i--;
     }
+    zz_state.free(zz_tracker.ptrs, zz_tracker.alloc * sizeof(void *));
     zz_tracker.alloc = 0;
-    free(zz_tracker.ptrs);
     zz_tracker.ptrs = NULL;
 }
 

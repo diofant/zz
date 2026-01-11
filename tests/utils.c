@@ -126,3 +126,28 @@ my_free(void *ptr, size_t size)
         atomic_fetch_sub(&total_size, size);
     }
 }
+
+void *
+square_worker(void *args)
+{
+    int *d = (int *)args;
+    zz_t z;
+
+    if (zz_init(&z) || zz_set(*d, &z)) {
+        abort();
+    }
+    while (1) {
+        zz_err ret = zz_mul(&z, &z, &z);
+
+        if (ret != ZZ_OK) {
+            if (ret == ZZ_MEM) {
+                break;
+            }
+            *d = 1;
+            return NULL;
+        }
+    }
+    zz_clear(&z);
+    *d = 0;
+    return NULL;
+}

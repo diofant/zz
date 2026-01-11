@@ -564,7 +564,6 @@ check_fac_outofmem(void)
 
             if (r != ZZ_OK) {
                 if (r == ZZ_MEM) {
-                    atomic_store(&total_size, 0);
                     break;
                 }
                 abort();
@@ -572,6 +571,7 @@ check_fac_outofmem(void)
             x *= 2;
         }
         zz_clear(&mx);
+        atomic_store(&total_size, 0);
     }
     zz_set_memory_funcs(NULL, NULL, NULL);
 }
@@ -616,8 +616,8 @@ int main(void)
         perror("setrlimit");
         return 1;
     }
-#endif
     check_fac_outofmem();
+#endif
     zz_finish();
     zz_testclear();
     return 0;

@@ -553,36 +553,12 @@ check_square_outofmem(void)
             }
         }
         zz_clear(&mx);
+        atomic_store(&total_size, 0);
     }
     zz_set_memory_funcs(NULL, NULL, NULL);
 }
 
 #if HAVE_PTHREAD_H
-typedef struct {
-    int ret;
-    zz_t z;
-} data_t;
-
-void *
-worker(void *args)
-{
-    data_t *d = (data_t *)args;
-
-    while (1) {
-        zz_err ret = zz_mul(&d->z, &d->z, &d->z);
-
-        if (ret != ZZ_OK) {
-            if (ret == ZZ_MEM) {
-                break;
-            }
-            d->ret = 1;
-            return NULL;
-        }
-    }
-    d->ret = 0;
-    return NULL;
-}
-
 void
 check_square_outofmem_pthread(void)
 {
@@ -590,33 +566,19 @@ check_square_outofmem_pthread(void)
     max_size = 64*1000*1000;
 
     size_t nthreads = 7;
-    int ret, succ = 0;
-
     pthread_t *tid = malloc(nthreads * sizeof(pthread_t));
-    data_t *d = malloc(nthreads * sizeof(data_t));
+    int *d = malloc(nthreads * sizeof(int));
+
     for (size_t i = 0; i < nthreads; i++) {
-        if (zz_init(&d[i].z) || zz_set(10 + 201*(int)i, &d[i].z)) {
-            abort();
-        }
-        ret = pthread_create(&tid[i], NULL, worker, (void *)(d + i));
-        if (!ret) {
-            succ |= (1<<i);
-        }
-        else if (ret != EAGAIN) {
-            perror("pthread_create");
+        d[i] = 10 + 201*(int)i;
+        if (pthread_create(&tid[i], NULL, square_worker, (void *)(d + i))) {
             abort();
         }
     }
-    if (!succ) {
-        abort();
-    }
     for (size_t i = 0; i < nthreads; i++) {
-        if (succ & (1<<i)) {
-            pthread_join(tid[i], NULL);
-            if (d[i].ret) {
-                abort();
-            }
-            zz_clear(&d[i].z);
+        pthread_join(tid[i], NULL);
+        if (d[i]) {
+            abort();
         }
     }
     free(d);
