@@ -148,6 +148,6 @@ square_worker(void *args)
         }
     }
     zz_clear(&z);
-    *d = 0;
+    *d = zz_get_alloc_state() != 0;
     return NULL;
 }

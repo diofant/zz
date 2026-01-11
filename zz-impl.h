@@ -86,5 +86,6 @@ static _Thread_local jmp_buf zz_env;
 void zz_set_memory_funcs(void *(*malloc) (size_t),
                          void *(*realloc) (void *, size_t, size_t),
                          void (*free) (void *, size_t));
+size_t zz_get_alloc_state(void);
 
 #endif /* IMPL_ZZ_H */

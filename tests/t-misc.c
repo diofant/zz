@@ -571,6 +571,9 @@ check_fac_outofmem(void)
             x *= 2;
         }
         zz_clear(&mx);
+        if (zz_get_alloc_state()) {
+            abort();
+        }
         atomic_store(&total_size, 0);
     }
     zz_set_memory_funcs(NULL, NULL, NULL);

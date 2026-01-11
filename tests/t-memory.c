@@ -34,6 +34,9 @@ check_fac_outofmem(void)
             x *= 2;
         }
         zz_clear(&mx);
+        if (zz_get_alloc_state()) {
+            abort();
+        }
     }
 }
 
@@ -58,6 +61,9 @@ check_square_outofmem(void)
             }
         }
         zz_clear(&mx);
+        if (zz_get_alloc_state()) {
+            abort();
+        }
     }
 }
 

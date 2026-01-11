@@ -208,6 +208,12 @@ zz_set_memory_funcs(void *(*malloc) (size_t),
     zz_state.free = free;
 }
 
+size_t
+zz_get_alloc_state(void)
+{
+    return zz_tracker.alloc;
+}
+
 void
 zz_finish(void)
 {
