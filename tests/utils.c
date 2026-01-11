@@ -14,8 +14,6 @@
 
 static gmp_randstate_t rnd_state;
 int nsamples;
-atomic_size_t total_size = 0;
-size_t max_size = 0;
 
 void
 zz_testinit(void)
@@ -79,19 +77,20 @@ zz_testclear(void)
     gmp_randclear(rnd_state);
 }
 
+_Thread_local size_t total_size = 0;
+_Thread_local size_t max_size = 0;
+
 void *
 my_malloc(size_t size)
 {
-    size_t cur_size = atomic_load(&total_size);
-
-    if (cur_size + size > max_size) {
+    if (total_size + size > max_size) {
         return NULL;
     }
 
     void *ptr = malloc(size);
 
     if (ptr) {
-        atomic_fetch_add(&total_size, size);
+        total_size += size;
     }
     return ptr;
 }
@@ -99,9 +98,7 @@ my_malloc(size_t size)
 void *
 my_realloc(void *ptr, size_t old_size, size_t new_size)
 {
-    size_t cur_size = atomic_load(&total_size);
-
-    if (cur_size + new_size - old_size > max_size) {
+    if (total_size + new_size - old_size > max_size) {
         return NULL;
     }
 
@@ -109,10 +106,10 @@ my_realloc(void *ptr, size_t old_size, size_t new_size)
 
     if (new_ptr) {
         if (old_size > new_size) {
-            atomic_fetch_sub(&total_size, old_size - new_size);
+            total_size -= old_size - new_size;
         }
         else {
-            atomic_fetch_add(&total_size, new_size - old_size);
+            total_size += new_size - old_size;
         }
     }
     return new_ptr;
@@ -122,9 +119,7 @@ void
 my_free(void *ptr, size_t size)
 {
     free(ptr);
-    if (size) {
-        atomic_fetch_sub(&total_size, size);
-    }
+    total_size -= size;
 }
 
 void *
@@ -133,8 +128,9 @@ square_worker(void *args)
     int *d = (int *)args;
     zz_t z;
 
-    if (zz_init(&z) || zz_set(*d, &z)) {
-        abort();
+    if (total_size || zz_init(&z) || zz_set(*d, &z)) {
+        *d = 1;
+        return NULL;
     }
     while (1) {
         zz_err ret = zz_mul(&z, &z, &z);
@@ -149,5 +145,6 @@ square_worker(void *args)
     }
     zz_clear(&z);
     *d = zz_get_alloc_state() != 0;
+    total_size = 0;
     return NULL;
 }

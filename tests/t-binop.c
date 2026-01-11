@@ -534,7 +534,10 @@ void
 check_square_outofmem(void)
 {
     zz_set_memory_funcs(my_malloc, my_realloc, my_free);
-    max_size = 64*1000*1000;
+    max_size = 8*1000*1000;
+    if (total_size) {
+        abort();
+    }
     for (size_t i = 0; i < 7; i++) {
         int64_t x = 49846727467293 + rand();
         zz_t mx;
@@ -556,7 +559,7 @@ check_square_outofmem(void)
         if (zz_get_alloc_state()) {
             abort();
         }
-        atomic_store(&total_size, 0);
+        total_size = 0;
     }
     zz_set_memory_funcs(NULL, NULL, NULL);
 }
@@ -566,7 +569,7 @@ void
 check_square_outofmem_pthread(void)
 {
     zz_set_memory_funcs(my_malloc, my_realloc, my_free);
-    max_size = 64*1000*1000;
+    max_size = 8*1000*1000;
 
     size_t nthreads = 7;
     pthread_t *tid = malloc(nthreads * sizeof(pthread_t));

@@ -20,7 +20,6 @@
 #if HAVE_PTHREAD_H
 #  include <pthread.h>
 #endif
-#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef HAVE_SYS_RESOURCE_H
@@ -40,8 +39,8 @@ void zz_testclear(void);
 /* Poor-mans allocator routines with memory constraint.
  * total_size should be reset on ZZ_MEM errors. */
 
-extern atomic_size_t total_size;
-extern size_t max_size;
+extern _Thread_local size_t total_size;
+extern _Thread_local size_t max_size;
 
 void * my_malloc(size_t size);
 void * my_realloc(void *ptr, size_t old_size, size_t new_size);

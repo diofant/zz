@@ -58,11 +58,11 @@ static struct {
 } zz_state;
 
 #define TRACKER_SIZE_INCR 64
-static _Thread_local struct {
+_Thread_local struct {
     size_t size;
     size_t alloc;
     void **ptrs;
-} zz_tracker;
+} zz_tracker = {0, 0, NULL};
 
 /* Thin wrappers over system allocation routines to
    support GMP's argument convention. */

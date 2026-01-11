@@ -122,7 +122,7 @@ main(void)
         return 1;
     }
     new.rlim_max = old.rlim_max;
-    new.rlim_cur = 64*1000*1000;
+    new.rlim_cur = 32*1000*1000;
     if (setrlimit(RLIMIT_AS, &new)) {
         perror("setrlimit");
         return 1;
