@@ -152,7 +152,7 @@ Free the space occupied by @var{u} and set its value to 0.
 @deftypefun zz_err zz_set_i32 (int32_t @var{u}, zz_t *@var{v})
 @deftypefunx zz_err zz_set_i64 (int64_t @var{u}, zz_t *@var{v})
 @deftypefunx zz_err zz_set_double (double @var{u}, zz_t *@var{v})
-Set @var{u} from @var{v}.
+Set @var{u} from @var{v}.  Available as @code{zz_set} macro.
 @end deftypefun
 
 @deftypefun zz_err zz_set_str (const char *@var{str}, size_t @var{len}, int @var{base}, zz_t *@var{u})
@@ -169,7 +169,7 @@ letters represent values in range 10 to 35.
 @deftypefun zz_err zz_get_i32 (const zz_t *@var{u}, int32_t *@var{v})
 @deftypefunx zz_err zz_get_i64 (const zz_t *@var{u}, int64_t *@var{v})
 @deftypefunx zz_err zz_get_double (const zz_t *@var{u}, double *@var{v})
-Convert @var{u} to @var{v}.
+Convert @var{u} to @var{v}.  Available as @code{zz_get} macro.
 
 Conversion to double uses rounding to nearest, with the half to even
 tie-breaking rounding rule (roundTiesToEven in IEEE 754, the default).
@@ -189,13 +189,13 @@ may vary from 2 to 36, and return the number of characters in @var{len}.  The
 
 @deftypefun zz_err zz_add (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
 @deftypefunx zz_err zz_add_i64 (const zz_t *@var{u}, int64_t @var{v}, zz_t *@var{w})
-Set @var{w} to @math{@var{u} + @var{v}}.
+Set @var{w} to @math{@var{u} + @var{v}}.  Available as @code{zz_add} macro.
 @end deftypefun
 
 @deftypefun zz_err zz_sub (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
 @deftypefunx zz_err zz_sub_i64 (const zz_t *@var{u}, int64_t @var{v}, zz_t *@var{w})
 @deftypefunx zz_err zz_i64_sub (int64_t @var{u}, const zz_t *@var{v}, zz_t *@var{w})
-Set @var{w} to @math{@var{u} - @var{v}}.
+Set @var{w} to @math{@var{u} - @var{v}}.  Available as @code{zz_sub} macro.
 @end deftypefun
 
 @deftypefun zz_err zz_pos (const zz_t *@var{u}, zz_t *@var{v})
@@ -212,7 +212,8 @@ Set @var{v} to the absolute value of @var{u}.
 
 @deftypefun zz_err zz_mul (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
 @deftypefunx zz_err zz_mul_i64 (const zz_t *@var{u}, int64_t @var{v}, zz_t *@var{w})
-Set @var{w} to @m{@var{u} \times @var{v}, @var{u} × @var{v}}.
+Set @var{w} to @m{@var{u} \times @var{v}, @var{u} × @var{v}}.  Available
+as @code{zz_mul} macro.
 @end deftypefun
 
 @deftypefun zz_err zz_mul_2exp (const zz_t *@var{u}, zz_bitcnt_t @var{v}, zz_t *@var{w})
@@ -225,7 +226,7 @@ Set @var{w} to @m{@var{u} \times 2^{@var{v}}, @var{u} × 2 raised to @var{v}}
 @deftypefunx zz_err zz_i64_div (int64_t @var{u}, const zz_t *@var{v}, zz_t *@var{q}, zz_t *@var{r})
 Divide @var{u} by @var{v} and set the quotient @var{q} and the remainder
 @var{r}.  Either @var{q} or @var{r} can be set to @code{NULL}, if their value
-is not required.
+is not required.  Available as @code{zz_div} macro.
 @end deftypefun
 
 @deftypefun zz_err zz_quo_2exp (const zz_t *@var{u}, zz_bitcnt_t @var{v}, zz_t *@var{w})
@@ -264,7 +265,7 @@ values for the data type @code{zz_ord}:
 
 @deftypefun zz_ord zz_cmp (const zz_t *@var{u}, const zz_t *@var{v})
 @deftypefunx zz_ord zz_cmp_i64 (const zz_t *@var{u}, int64_t @var{v})
-Compare @var{u} and @var{v}.
+Compare @var{u} and @var{v}.  Available as @code{zz_cmp} macro.
 @end deftypefun
 
 @node Logical Functions, Number Theoretic Functions, Comparison Functions, Functions
