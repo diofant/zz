@@ -551,7 +551,10 @@ void
 check_fac_outofmem(void)
 {
     zz_set_memory_funcs(my_malloc, my_realloc, my_free);
-    max_size = 32*1000*1000;
+    max_size = 16*1000*1000;
+    if (total_size) {
+        abort();
+    }
     for (size_t i = 0; i < 7; i++) {
         uint64_t x = 12811 + (uint64_t)(rand() % 12173);
         zz_t mx;
@@ -574,7 +577,7 @@ check_fac_outofmem(void)
         if (zz_get_alloc_state()) {
             abort();
         }
-        atomic_store(&total_size, 0);
+        total_size = 0;
     }
     zz_set_memory_funcs(NULL, NULL, NULL);
 }
