@@ -819,7 +819,7 @@ zz_addsub(const zz_t *u, const zz_t *v, bool subtract, zz_t *w)
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
     w->negative = negu;
-    /* We use undocumented feature of mpn_add/sub(): v_size can be 0 */
+    /* We use undocumented feature of mpn_add/sub(): v_size >= 0 */
     if (same_sign) {
         w->digits[w->size - 1] = mpn_add(w->digits, u->digits, u_size,
                                          v->digits, v_size);
@@ -929,8 +929,16 @@ zz_mul(const zz_t *u, const zz_t *v, zz_t *w)
     if (u->size < v->size) {
         SWAP(const zz_t *, u, v);
     }
-    if (!v->size) {
-        return zz_set_i64(0, w);
+    if (v->size <= 1) {
+        bool w_negative = u->negative != v->negative; /* in case v == w */
+
+        if (zz_mul_u64(u, v->size ? v->digits[0] : 0, w)) {
+            return ZZ_MEM; /* LCOV_EXCL_LINE */
+        }
+        if (w->size) {
+            w->negative = w_negative;
+        }
+        return ZZ_OK;
     }
     if (u == w) {
         zz_t tmp;
@@ -966,11 +974,7 @@ zz_mul(const zz_t *u, const zz_t *v, zz_t *w)
         return ZZ_MEM;
     }
     w->negative = u->negative != v->negative;
-    if (v->size == 1) {
-        w->digits[w->size - 1] = mpn_mul_1(w->digits, u->digits, u->size,
-                                           v->digits[0]);
-    }
-    else if (u->size == v->size) {
+    if (u->size == v->size) {
         if (u != v) {
             mpn_mul_n(w->digits, u->digits, v->digits, u->size);
         }
@@ -987,7 +991,7 @@ zz_mul(const zz_t *u, const zz_t *v, zz_t *w)
 }
 
 zz_err
-zz_mul_i64(const zz_t *u, int64_t v, zz_t *w)
+zz_mul_u64(const zz_t *u, uint64_t v, zz_t *w)
 {
     if (!u->size || !v) {
         return zz_set_i64(0, w);
@@ -998,11 +1002,22 @@ zz_mul_i64(const zz_t *u, int64_t v, zz_t *w)
     if (zz_resize((uint64_t)u_size + 1, w) || TMP_OVERFLOW) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
-    w->negative = u->negative != (v < 0);
-    w->digits[w->size - 1] = mpn_mul_1(w->digits, u->digits, u_size,
-                                       (zz_digit_t)imaxabs(v));
+    w->negative = u->negative;
+    w->digits[w->size - 1] = mpn_mul_1(w->digits, u->digits, u_size, v);
     w->size -= w->digits[w->size - 1] == 0;
     assert(w->size >= 1);
+    return ZZ_OK;
+}
+
+zz_err
+zz_mul_i64(const zz_t *u, int64_t v, zz_t *w)
+{
+    if (zz_mul_u64(u, (zz_digit_t)imaxabs(v), w)) {
+        return ZZ_MEM; /* LCOV_EXCL_LINE */
+    }
+    if (w->size) {
+        w->negative = u->negative != (v < 0);
+    }
     return ZZ_OK;
 }
 

@@ -88,6 +88,7 @@ zz_err zz_neg(const zz_t *u, zz_t *v);
 zz_err zz_abs(const zz_t *u, zz_t *v);
 zz_err zz_mul(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_mul_i64(const zz_t *u, int64_t v, zz_t *w);
+zz_err zz_mul_u64(const zz_t *u, uint64_t v, zz_t *w);
 zz_err zz_div(const zz_t *u, const zz_t *v, zz_t *q, zz_t *r);
 zz_err zz_div_i64(const zz_t *u, int64_t v, zz_t *q, zz_t *r);
 zz_err zz_i64_div(int64_t u, const zz_t *v, zz_t *q, zz_t *r);
@@ -102,6 +103,12 @@ static inline zz_err
 zz_i64_mul(int64_t u, const zz_t *v, zz_t *w)
 {
     return zz_mul_i64(v, u, w);
+}
+
+static inline zz_err
+zz_u64_mul(uint64_t u, const zz_t *v, zz_t *w)
+{
+    return zz_mul_u64(v, u, w);
 }
 
 #define zz_add(U, V, W)                                   \
@@ -128,10 +135,13 @@ zz_i64_mul(int64_t u, const zz_t *v, zz_t *w)
     _Generic((U),                                         \
              int64_t: _Generic((V),                       \
                                default: zz_i64_mul),      \
+             uint64_t: _Generic((V),                      \
+                               default: zz_u64_mul),      \
              int: _Generic((V),                           \
                                default: zz_i64_mul),      \
              default: _Generic((V),                       \
                                int64_t: zz_mul_i64,       \
+                               uint64_t: zz_mul_u64,      \
                                int: zz_mul_i64,           \
                                default: zz_mul))(U, V, W)
 #define zz_div(U, V, Q, R)                                   \
