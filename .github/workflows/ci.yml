@@ -31,7 +31,7 @@ jobs:
     env:
       MACOSX_DEPLOYMENT_TARGET: 10.15
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: |
           sudo apt update
           sudo apt install autoconf-archive lcov texlive
@@ -59,7 +59,7 @@ jobs:
         if: ${{ startsWith(matrix.os, 'windows') }}
       - name: Cache GNU GMP builds
         id: cache-gmp
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .local
           key: ${{ matrix.os }}-${{ hashFiles('scripts/*') }}
