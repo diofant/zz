@@ -82,6 +82,64 @@ zz_free(void *ptr, size_t size)
     free(ptr);
 }
 
+/* Following functions are used to handle all *temporary* allocations in the
+   GMP, apart from temporary space from alloca() if that function is available
+   and GMP is configured to use it (bad idea).
+
+   Calls to GMP's functions, which do memory allocations, must be preceded by
+   *one* "if (TMP_OVERFLOW)" block (TMP_OVERFLOW macro calls setjmp), that will
+   handle memory failure *after* freeing *all* GMP's allocations in the
+   zz_reallocate_function().
+
+   Basically, GMP's functions for integers fall into two camps.  First,
+   low-level functions, prefixed by "mpn_", which we prefer.  (See zz_mul() as
+   an example.)  Those will use only zz_allocate_function() and
+   zz_free_function() to allocate temporary storage (not for output variables).
+   This allocation happens essentially in LIFO way and we take that into
+   account for optimization of the memory tracking.
+
+   Second, integer functions, working with objects of type mpz_t, prefixed by
+   "mpz_".  Input variables for them must be created by the TMP_MPZ macro.
+   Output variables (allocated by the GMP) are considered temporary and cleared
+   automatically on memory failure.  Here is an example:
+
+       zz_err
+       my_mul(const zz_t *u, const zz_t *v, zz_t *w)
+       {
+           mpz_t z;
+           TMP_MPZ(a, u);
+           TMP_MPZ(b, v);
+           if (TMP_OVERFLOW) {
+               // Memory allocation failure happened in mpz_mul.
+               // No need to call mpz_clear(z)!
+               return ZZ_MEM;
+           }
+           mpz_init(z);
+           mpz_mul(z, a, b);
+           // Success!  Resize w and copy z's content to it.
+           if (zz_resize((uint64_t)imaxabs(z->_mp_size), w)) {
+               mpz_clear(z);
+               return ZZ_MEM;
+           }
+           w->negative = z->_mp_size < 0;
+           mpn_copyi(w->digits, z->_mp_d, w->size);
+           mpz_clear(z); // That finally clear all temporary allocations.
+           return ZZ_OK;
+       }
+
+   Note that our memory allocation functions are generic enough to work also
+   for usual GMP usage, without above assumptions.  Of course, unless memory
+   allocation failure happens, which will lead to undefined behavior (calling
+   longjmp() without a prior call to setjmp()).
+
+   Don't forget known pitfails of working with setjmp/longjmp:
+
+     * Don't use VLA (may introduce memory leaks).
+
+     * Declare variables you care about (e.g. to free memory in
+       case of failure) in the scope of the setjmp invocation - with
+       volatile type qualifier.  See zz_gcd() as an example. */
+
 static void *
 zz_reallocate_function(void *ptr, size_t old_size, size_t new_size)
 {
