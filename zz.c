@@ -13,6 +13,7 @@
 #include <ctype.h>
 #include <float.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <math.h>
 
 #include "zz-impl.h"
