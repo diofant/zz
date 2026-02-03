@@ -73,6 +73,19 @@ AC_ARG_WITH([gmp],
 AC_SEARCH_LIBS([nextafter], [m])
 AC_CHECK_LIB(gmp,__gmpz_init,,AC_MSG_ERROR([GNU GMP library is required.]))
 
+# We need mpn_sizeinbase()
+AC_MSG_CHECKING(for recent GMP)
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include "gmp.h"
+#if (__GNU_MP_VERSION*100+__GNU_MP_VERSION_MINOR*10 < 600)
+# error "GMP 6.0.0 or newer is required"
+error
+#endif
+  ]])],[AC_MSG_RESULT(yes)],[
+   AC_MSG_RESULT(no)
+   AC_MSG_ERROR([GMP 6.0.0 or newer is required])
+])
+
 AC_CHECK_LIB([pthread], [pthread_create], [HAVE_PTHREAD=yes], [HAVE_PTHREAD=no])
 AS_IF([test "x$HAVE_PTHREAD" = xyes],
       [AC_DEFINE_UNQUOTED([HAVE_PTHREAD_H], [1], [Define to 1 if you have the <pthread.h> header file.])
