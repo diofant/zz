@@ -1075,7 +1075,7 @@ zz_div(const zz_t *u, const zz_t *v, zz_t *q, zz_t *r)
         }
     }
     else {
-        if (u == q) {
+        if (u == q || u == r) {
             zz_t tmp;
 
             if (zz_init(&tmp) || zz_pos(u, &tmp)) {

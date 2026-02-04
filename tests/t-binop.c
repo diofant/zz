@@ -415,6 +415,11 @@ check_lshift_bulk(void)
         {
             abort();
         }
+        if (zz_pos(&u, &w) || zz_mul_2exp(&w, v, &w)
+            || zz_cmp(&w, &r) != ZZ_EQ)
+        {
+            abort();
+        }
         zz_clear(&u);
         zz_clear(&w);
         zz_clear(&r);
@@ -437,6 +442,11 @@ check_rshift_bulk(void)
             abort();
         }
         if (zz_init(&r) || zz_ref_quo_2exp(&u, v, &r)
+            || zz_cmp(&w, &r) != ZZ_EQ)
+        {
+            abort();
+        }
+        if (zz_pos(&u, &w) || zz_quo_2exp(&w, v, &w)
             || zz_cmp(&w, &r) != ZZ_EQ)
         {
             abort();

@@ -96,6 +96,8 @@ return codes are supported:
 @item @code{ZZ_BUF}: Buffer overflow, supplied buffer too small.
 @end itemize
 
+The same variable could be used for both input and output in one function call.
+
 Please note, that the GNU GMP library must be compiled with the
 @option{--disable-alloca} configure option to prevent using alloca() for temporary
 workspace allocation (and use the heap instead).

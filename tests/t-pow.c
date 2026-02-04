@@ -93,6 +93,51 @@ check_powm_bulk(void)
                 abort();
             }
         }
+        if (zz_pos(&u, &z) == ZZ_OK && zz_powm(&z, &v, &w, &z) == ZZ_OK) {
+            zz_t r;
+
+            if (zz_init(&r) || zz_ref_powm(&u, &v, &w, &r)
+                || zz_cmp(&z, &r) != ZZ_EQ)
+            {
+                abort();
+            }
+            zz_clear(&r);
+        }
+        else {
+            if (zz_ref_gcd(&u, &w, &z) || zz_cmp(&z, 1) == ZZ_EQ) {
+                abort();
+            }
+        }
+        if (zz_pos(&v, &z) == ZZ_OK && zz_powm(&u, &z, &w, &z) == ZZ_OK) {
+            zz_t r;
+
+            if (zz_init(&r) || zz_ref_powm(&u, &v, &w, &r)
+                || zz_cmp(&z, &r) != ZZ_EQ)
+            {
+                abort();
+            }
+            zz_clear(&r);
+        }
+        else {
+            if (zz_ref_gcd(&u, &w, &z) || zz_cmp(&z, 1) == ZZ_EQ) {
+                abort();
+            }
+        }
+        if (zz_pos(&w, &z) == ZZ_OK && zz_powm(&u, &v, &z, &z) == ZZ_OK) {
+            zz_t r;
+
+            if (zz_init(&r) || zz_ref_powm(&u, &v, &w, &r)
+                || zz_cmp(&z, &r) != ZZ_EQ)
+            {
+                abort();
+            }
+            zz_clear(&r);
+        }
+        else {
+            if (zz_ref_gcd(&u, &w, &z) || zz_cmp(&z, 1) == ZZ_EQ) {
+                abort();
+            }
+        }
         zz_clear(&u);
         zz_clear(&v);
         zz_clear(&w);
@@ -172,6 +217,19 @@ check_pow_bulk(void)
             abort();
         }
         if (zz_pow(&u, v, &w) == ZZ_OK) {
+            zz_t r;
+
+            if (zz_init(&r) || zz_ref_pow(&u, v, &r)
+                || zz_cmp(&w, &r) != ZZ_EQ)
+            {
+                abort();
+            }
+            zz_clear(&r);
+        }
+        else {
+            abort();
+        }
+        if (zz_pos(&u, &w) == ZZ_OK && zz_pow(&w, v, &w) == ZZ_OK) {
             zz_t r;
 
             if (zz_init(&r) || zz_ref_pow(&u, v, &r)
