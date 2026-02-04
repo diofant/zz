@@ -61,7 +61,7 @@ zz_err zz_set_double(double u, zz_t *v);
              float: zz_set_double,        \
              double: zz_set_double)(U, V)
 
-zz_err zz_set_str(const char *str, size_t len, int base, zz_t *u);
+zz_err zz_set_str(const char *str, int base, zz_t *u);
 
 zz_err zz_get_i32(const zz_t *u, int32_t *v);
 zz_err zz_get_i64(const zz_t *u, int64_t *v);
@@ -76,7 +76,7 @@ zz_err zz_get_double(const zz_t *u, double *d);
                                float *: zz_get_double,         \
                                double *: zz_get_double))(U, V)
 
-zz_err zz_get_str(const zz_t *u, int base, char *str, size_t *len);
+zz_err zz_get_str(const zz_t *u, int base, char *str);
 
 zz_err zz_add(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_add_i64(const zz_t *u, int64_t v, zz_t *w);

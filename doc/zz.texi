@@ -157,10 +157,11 @@ Free the space occupied by @var{u} and set its value to 0.
 Set @var{u} from @var{v}.  Available as @code{zz_set} macro.
 @end deftypefun
 
-@deftypefun zz_err zz_set_str (const char *@var{str}, size_t @var{len}, int @var{base}, zz_t *@var{u})
-Set @var{u} from string @var{str} of size @var{len} digits in the given
+@deftypefun zz_err zz_set_str (const char *@var{str}, int @var{base}, zz_t *@var{u})
+Set @var{u} from null-terminated string @var{str} of digits in the given
 @var{base}, which may vary from 2 to 36.  Case of characters is ignored.  Ascii
-letters represent values in range 10 to 35.
+letters represent values in range 10 to 35.  Leading and trailing spaces are
+ignored.
 @end deftypefun
 
 @node Converting Integers, Arithmetics on Integers, Assigning Integers, Functions
@@ -177,11 +178,10 @@ Conversion to double uses rounding to nearest, with the half to even
 tie-breaking rounding rule (roundTiesToEven in IEEE 754, the default).
 @end deftypefun
 
-@deftypefun zz_err zz_get_str (const zz_t *@var{u}, int @var{base}, char *@var{str}, size_t *@var{len})
-Convert @var{u} to string @var{str} of digits in the given @var{base}, which
-may vary from 2 to 36, and return the number of characters in @var{len}.  The
-@var{str} has to have enough space, which can be estimated by
-@code{zz_sizeinbase(@var{u}, base)}.
+@deftypefun zz_err zz_get_str (const zz_t *@var{u}, int @var{base}, char *@var{str})
+Convert @var{u} to null-terminated string @var{str} of digits in the given
+@var{base}, which may vary from 2 to 36.  The @var{str} has to have enough
+space, which can be estimated by @code{zz_sizeinbase(@var{u}, base)}.
 @end deftypefun
 
 @node Arithmetics on Integers, Exponentiation, Converting Integers, Functions

@@ -457,7 +457,7 @@ check_rshift_bulk(void)
     }
 }
 
-#define zz_set_dec(s, u) zz_set_str(s, strlen(s), 10, u)
+#define zz_set_dec(s, u) zz_set_str(s, 10, u)
 
 void
 check_shift_examples(void)

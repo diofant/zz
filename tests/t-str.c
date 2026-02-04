@@ -34,13 +34,13 @@ check_str_roundtrip(void)
         if (rand() % 2) {
             base = -base;
         }
-        if (!buf || zz_get_str(&u, base, buf, &len)) {
+        if (!buf || zz_get_str(&u, base, buf)) {
             abort();
         }
 
         zz_t v;
 
-        if (zz_init(&v) || zz_set_str(buf, len, abs(base), &v)
+        if (zz_init(&v) || zz_set_str(buf, abs(base), &v)
             || zz_cmp(&u, &v) != ZZ_EQ)
         {
             abort();
@@ -59,25 +59,37 @@ check_str_examples(void)
     if (zz_init(&u) || zz_set(123, &u)) {
         abort();
     }
-    if (zz_get_str(&u, 38, NULL, NULL) != ZZ_VAL) {
+    if (zz_get_str(&u, 38, NULL) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_str(" ", 1, 2, &u) != ZZ_VAL) {
+    if (zz_set_str(" ", 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_str("-", 1, 2, &u) != ZZ_VAL) {
+    if (zz_set_str("-", 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_str("_", 1, 2, &u) != ZZ_VAL) {
+    if (zz_set_str("_", 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_str("1__", 3, 2, &u) != ZZ_VAL) {
+    if (zz_set_str("1__", 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_str("1_3", 3, 2, &u) != ZZ_VAL) {
+    if (zz_set_str("1_3", 2, &u) != ZZ_VAL) {
         abort();
     }
-    if (zz_set_str(" ", 1, 42, &u) != ZZ_VAL) {
+    if (zz_set_str(" ", 42, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_set_str("  -123", 10, &u) || zz_cmp(&u, -123) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_set_str("123   ", 10, &u) || zz_cmp(&u, 123) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_set_str(" 123   ", 10, &u) || zz_cmp(&u, 123) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_set_str(" 123 321", 10, &u) != ZZ_VAL) {
         abort();
     }
     zz_clear(&u);

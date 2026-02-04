@@ -530,7 +530,7 @@ zz_sizeinbase(const zz_t *u, int base, size_t *len)
 }
 
 zz_err
-zz_get_str(const zz_t *u, int base, char *str, size_t *len)
+zz_get_str(const zz_t *u, int base, char *str)
 {
     /* Maps 1-byte integer to digit character for bases up to 36. */
     const char *NUM_TO_TEXT = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -544,13 +544,14 @@ zz_get_str(const zz_t *u, int base, char *str, size_t *len)
     }
 
     unsigned char *p = (unsigned char *)str;
+    size_t len;
 
     if (u->negative) {
         *(p++) = '-';
     }
     /* We use undocumented feature of mpn_get_str(): u->size >= 0 */
     if ((base & (base - 1)) == 0) {
-        *len = mpn_get_str(p, base, u->digits, u->size);
+        len = mpn_get_str(p, base, u->digits, u->size);
     }
     else { /* generic base, not power of 2, input might be clobbered */
         zz_digit_t *volatile tmp = malloc(ZZ_DIGIT_T_BYTES * (size_t)u->alloc);
@@ -562,16 +563,14 @@ zz_get_str(const zz_t *u, int base, char *str, size_t *len)
             /* LCOV_EXCL_STOP */
         }
         mpn_copyi(tmp, u->digits, u->size);
-        *len = mpn_get_str(p, base, tmp, u->size);
+        len = mpn_get_str(p, base, tmp, u->size);
         free(tmp);
     }
-    for (size_t i = 0; i < *len; i++) {
+    for (size_t i = 0; i < len; i++) {
         *p = (unsigned char)NUM_TO_TEXT[*p];
         p++;
     }
-    if (u->negative) {
-        (*len)++;
-    }
+    *p = '\0';
     return ZZ_OK;
 }
 
@@ -612,18 +611,23 @@ const int DIGIT_VALUE_TAB[] =
 };
 
 zz_err
-zz_set_str(const char *str, size_t len, int base, zz_t *u)
+zz_set_str(const char *str, int base, zz_t *u)
 {
     if (base < 2 || base > 36) {
         return ZZ_VAL;
     }
 
+    size_t len = strlen(str);
     unsigned char *volatile buf = malloc(len), *p = (unsigned char *)buf;
 
     if (!buf) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
     memcpy(buf, str, len);
+    while (isspace(*p)) {
+        p++;
+        len--;
+    }
 
     bool negative = (p[0] == '-');
 
@@ -646,9 +650,24 @@ zz_set_str(const char *str, size_t len, int base, zz_t *u)
             new_len--;
             memmove(p + i, p + i + 1, len - i - 1);
         }
-        p[i] = (unsigned char)DIGIT_VALUE_TAB[p[i]];
-        if (p[i] >= base) {
-            goto err;
+
+        unsigned char c = (unsigned char)DIGIT_VALUE_TAB[p[i]];
+
+        if (c < base) {
+            p[i] = c;
+        }
+        else {
+            if (!isspace(p[i])) {
+                goto err;
+            }
+            new_len--;
+            for (size_t j = i + 1; j < len; j++) {
+                if (!isspace(p[j])) {
+                    goto err;
+                }
+                new_len--;
+            }
+            break;
         }
     }
     len = new_len;
