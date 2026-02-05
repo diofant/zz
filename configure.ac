@@ -93,7 +93,8 @@ AS_IF([test "x$HAVE_PTHREAD" = xyes],
       [AC_DEFINE_UNQUOTED([HAVE_PTHREAD_H], [0], [Define to 0 if you do not have the <pthread.h> header file.])])
 
 # Check for working setrlimit(RLIMIT_AS)
-AC_RUN_IFELSE([AC_LANG_SOURCE([[
+AC_CACHE_CHECK([setrlimit() can set RLIMIT_AS], [ac_cv_can_set_rlimit_as],
+[AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <sys/resource.h>
 int
 main(void)
@@ -111,7 +112,7 @@ main(void)
     return 0;
 }]])], [ac_cv_can_set_rlimit_as=yes],
 [ac_cv_can_set_rlimit_as=no],
-[ac_cv_can_set_rlimit_as=no])
+[ac_cv_can_set_rlimit_as=no])])
 if test "$ac_cv_can_set_rlimit_as" = "yes"; then
     AC_DEFINE([CAN_SET_RLIMIT_AS], [1],
               [Defined if setrlimit() can set RLIMIT_AS.])
