@@ -22,6 +22,10 @@
 #endif
 #include <stdio.h>
 #include <stdlib.h>
+
+#define HAVE_SYS_RESOURCE_H 1
+#define CAN_SET_RLIMIT_AS 1
+
 #ifdef HAVE_SYS_RESOURCE_H
 #  include <sys/resource.h>
 #endif
