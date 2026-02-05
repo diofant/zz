@@ -34,11 +34,11 @@ jobs:
       - uses: actions/checkout@v6
       - run: |
           sudo apt update
-          sudo apt install autoconf-archive lcov texlive
+          sudo apt install autoconf-archive lcov texlive python3
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
       - run: brew install autoconf libtool
         if: matrix.os == 'macos-15'
-      - run: brew install automake autoconf-archive lcov texinfo
+      - run: brew install automake autoconf-archive lcov texinfo python3
         if: ${{ startsWith(matrix.os, 'macos') }}
       - uses: msys2/setup-msys2@v2.30.0
         name: Setup msys2
@@ -48,6 +48,7 @@ jobs:
             mingw-w64-${{ matrix.menv }}-gcc
             mingw-w64-${{ matrix.menv }}-tools
             mingw-w64-${{ matrix.menv }}-lcov
+            mingw-w64-${{ matrix.menv }}-python
             diffutils
             m4
             make
@@ -55,6 +56,7 @@ jobs:
             autotools
             autoconf-archive
             texinfo
+            git
           msystem: ${{ matrix.msystem }}
         if: ${{ startsWith(matrix.os, 'windows') }}
       - name: Cache GNU GMP builds
@@ -65,7 +67,9 @@ jobs:
           key: ${{ matrix.os }}-${{ hashFiles('scripts/*') }}
       - run: sh scripts/cibw_before_all.sh
         if: steps.cache-gmp.outputs.cache-hit != 'true'
-      - run: mkdir m4 && autoreconf -if
+      - run: (cd .. && git clone https://git.savannah.gnu.org/git/gnulib.git)
+      - run: ../gnulib/gnulib-tool --import sys_resource
+      - run: autoreconf -if
       - run: ./configure --enable-gcov --with-gmp=$(pwd)/.local/
       - run: make all check CFLAGS="-Wall -Wpedantic -Werror -Wconversion"
       - run: |

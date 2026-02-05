@@ -26,7 +26,7 @@ define(ZZ_COPYRIGHT_C,[[/*
 AC_COPYRIGHT(ZZ_COPYRIGHT)
 AH_TOP(ZZ_COPYRIGHT_C)
 
-AC_PREREQ(2.62)
+AC_PREREQ(2.64)
 
 AC_INIT([zz],[0.8.0b0],[skirpichev@gmail.com])
 #AC_CONFIG_SRCDIR(zz.h)
@@ -54,6 +54,12 @@ AX_VALGRIND_CHECK()
 # Checks for programs.
 AC_PROG_CC
 AC_LANG(C)
+
+# Since we use gnulib: gl_EARLY must be called as soon as possible after
+# the C compiler is checked.  The others could be later, but we just
+# keep everything together.
+gl_EARLY
+gl_INIT
 
 # Check for C17 support and add the flag if available, otherwise fail
 AX_CHECK_COMPILE_FLAG([-std=c11], [CFLAGS="$CFLAGS -std=c17"],
@@ -168,5 +174,5 @@ case $host in
      ZZ_WINDOWS
 esac
 
-AC_CONFIG_FILES([makefile doc/makefile tests/makefile zz.pc])
+AC_CONFIG_FILES([makefile doc/makefile tests/makefile zz.pc lib/Makefile])
 AC_OUTPUT

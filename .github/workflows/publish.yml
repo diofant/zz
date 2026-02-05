@@ -12,7 +12,9 @@ jobs:
       - uses: actions/checkout@v6
       - run: sudo apt update
       - run: sudo apt install autoconf-archive texlive
-      - run: mkdir m4 && autoreconf -if
+      - run: (cd .. && git clone https://git.savannah.gnu.org/git/gnulib.git)
+      - run: ../gnulib/gnulib-tool --import sys_resource
+      - run: autoreconf -if
       - run: ./configure
       - run: make dist
       - run: make pdf

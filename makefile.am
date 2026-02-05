@@ -3,7 +3,7 @@
 AUTOMAKE_OPTIONS = gnu
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = doc tests
+SUBDIRS = doc tests lib
 
 lib_LTLIBRARIES = libzz.la
 libzz_la_SOURCES = zz-impl.h zz.c
@@ -23,3 +23,5 @@ AM_LDFLAGS += $(ZZ_LDFLAGS)
 
 updatechangelog:
 	/usr/share/gnulib/build-aux/gitlog-to-changelog > ChangeLog
+
+EXTRA_DIST = m4/gnulib-cache.m4

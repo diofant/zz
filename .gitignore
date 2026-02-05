@@ -39,6 +39,7 @@ test-driver
 *~
 a.out
 m4/
+lib/
 *.pc
 tests/*.trs
 tests/t-binop
