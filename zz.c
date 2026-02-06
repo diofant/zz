@@ -98,13 +98,19 @@ zz_free(void *ptr, size_t size)
    This allocation happens essentially in LIFO way and we take that into
    account for optimization of the memory tracking.
 
-   Second, integer functions, working with objects of type mpz_t, prefixed by
-   "mpz_".  Input variables for them must be created by the TMP_MPZ macro.
-   Output variables (allocated by the GMP) are considered temporary and cleared
-   automatically on memory failure.  Here is an example:
+   Not all mpn_*() functions do memory allocation.  Sometimes it's obvious
+   (e.g. mpn_cmp() or mpn_add/sub()), sometimes - not (e.g.  mpn_get/set_str()
+   for power of 2 bases).  Though, these details aren't documented and if you
+   feel that in the given case things might be changed - please add the "if
+   (TMP_OVERFLOW)" block.
+
+   Second, in few cases we use integer functions, working with objects of type
+   mpz_t, prefixed by "mpz_".  Input variables for them must be created by the
+   TMP_MPZ macro.  Output variables (allocated by the GMP) are considered
+   temporary and cleared automatically on memory failure.  Here is an example:
 
        zz_err
-       my_mul(const zz_t *u, const zz_t *v, zz_t *w)
+       mul(const zz_t *u, const zz_t *v, zz_t *w)
        {
            mpz_t z;
            TMP_MPZ(a, u);
@@ -116,13 +122,15 @@ zz_free(void *ptr, size_t size)
            }
            mpz_init(z);
            mpz_mul(z, a, b);
+
            // Success!  Resize w and copy z's content to it.
-           if (zz_resize((uint64_t)imaxabs(z->_mp_size), w)) {
+           zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size),
+                       abs(z->_mp_size), z->_mp_d};
+
+           if (zz_pos(&tmp, w)) {
                mpz_clear(z);
                return ZZ_MEM;
            }
-           w->negative = z->_mp_size < 0;
-           mpn_copyi(w->digits, z->_mp_d, w->size);
            mpz_clear(z); // That finally clear all temporary allocations.
            return ZZ_OK;
        }

@@ -27,6 +27,7 @@
         zz_t tmp = {z->_mp_size < 0, abs(z->_mp_size), \
                     abs(z->_mp_size),                  \
                     z->_mp_d};                         \
+                                                       \
         if (zz_pos(&tmp, v)) {                         \
             mpz_clear(z);                              \
             return ZZ_MEM;                             \

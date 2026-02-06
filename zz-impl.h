@@ -57,13 +57,6 @@ static _Thread_local jmp_buf zz_env;
 #if defined(__GNUC__)
 #  pragma GCC diagnostic pop
 #endif
-/* Function should include if(TMP_OVERFLOW){...} workaround in
-   case it calls any mpn_*() API, which does memory allocation for
-   temporary storage.  Not all functions do this, sometimes it's
-   obvious (e.g. mpn_cmp() or mpn_add/sub()), sometimes - not (e.g.
-   mpn_get/set_str() for power of 2 bases).  Though, these details
-   aren't documented and if you feel that in the given case things
-   might be changed - please add a workaround. */
 #define TMP_OVERFLOW (setjmp(zz_env) == 1)
 
 #define TMP_MPZ(z, u)                                        \
