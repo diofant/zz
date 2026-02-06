@@ -690,9 +690,12 @@ zz_set_str(const char *str, int base, zz_t *u)
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
     memcpy(buf, str, len);
-    while (isspace(*p)) {
+    while (len && isspace(*p)) {
         p++;
         len--;
+    }
+    if (!len) {
+        goto err;
     }
 
     bool negative = (p[0] == '-');
