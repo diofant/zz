@@ -99,7 +99,7 @@ zz_free(void *ptr, size_t size)
    account for optimization of the memory tracking.
 
    Not all mpn_*() functions do memory allocation.  Sometimes it's obvious
-   (e.g. mpn_cmp() or mpn_add/sub()), sometimes - not (e.g.  mpn_get/set_str()
+   (e.g. mpn_cmp() or mpn_add/sub()), sometimes - not (e.g. mpn_get/set_str()
    for power of 2 bases).  Though, these details aren't documented and if you
    feel that in the given case things might be changed - please add the "if
    (TMP_OVERFLOW)" block.
@@ -615,7 +615,7 @@ zz_get_str(const zz_t *u, int base, char *str)
     if (u->negative) {
         *(p++) = '-';
     }
-    /* We use undocumented feature of mpn_get_str(): u->size >= 0 */
+    /* We use undocumented feature of mpn_get_str(): u->size can be 0 */
     if ((base & (base - 1)) == 0) {
         len = mpn_get_str(p, base, u->digits, u->size);
     }
@@ -877,7 +877,7 @@ zz_export(const zz_t *u, zz_layout layout, size_t len, void *digits)
     if (layout.digit_size == 1 && layout.bits_per_digit == 8
         && layout.digits_order == 1 && !layout.digit_endianness)
     {
-        /* We use undocumented feature of mpn_get_str(): u->size >= 0 */
+        /* We use undocumented feature of mpn_get_str(): u->size can be 0 */
         mpn_get_str(digits, 256, u->digits, u->size);
         return ZZ_OK;
     }
@@ -908,7 +908,7 @@ zz_addsub(const zz_t *u, const zz_t *v, bool subtract, zz_t *w)
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
     w->negative = negu;
-    /* We use undocumented feature of mpn_add/sub(): v_size >= 0 */
+    /* We use undocumented feature of mpn_add/sub(): v_size can be 0 */
     if (same_sign) {
         w->digits[w->size - 1] = mpn_add(w->digits, u->digits, u_size,
                                          v->digits, v_size);
