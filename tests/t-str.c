@@ -68,6 +68,12 @@ check_str_examples(void)
     if (zz_set_str("-", 2, &u) != ZZ_VAL) {
         abort();
     }
+    if (zz_set_str("-+", 2, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_set_str("+", 2, &u) != ZZ_VAL) {
+        abort();
+    }
     if (zz_set_str("_", 2, &u) != ZZ_VAL) {
         abort();
     }
@@ -78,6 +84,9 @@ check_str_examples(void)
         abort();
     }
     if (zz_set_str(" ", 42, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_set_str(" +123", 10, &u) || zz_cmp(&u, 123) != ZZ_EQ) {
         abort();
     }
     if (zz_set_str("  -123", 10, &u) || zz_cmp(&u, -123) != ZZ_EQ) {

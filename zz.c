@@ -705,7 +705,11 @@ zz_set_str(const char *str, int base, zz_t *u)
     if (!len) {
         goto err;
     }
-    if (p[0] == '_') {
+    if (!negative && p[0] == '+') {
+        p++;
+        len--;
+    }
+    if (!len || p[0] == '_') {
         goto err;
     }
 
