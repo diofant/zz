@@ -101,6 +101,30 @@ check_str_examples(void)
     if (zz_set_str(" 123 321", 10, &u) != ZZ_VAL) {
         abort();
     }
+    if (zz_set_str("0b11", 0, &u) || zz_cmp(&u, 3) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_set_str("-0b111", 0, &u) || zz_cmp(&u, -7) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_set_str("-0o11", 0, &u) || zz_cmp(&u, -9) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_set_str("0x11", 0, &u) || zz_cmp(&u, 17) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_set_str("01", 0, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_set_str("0x", 0, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_set_str("0x__0", 0, &u) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_set_str("0", 0, &u) || zz_cmp(&u, 0) != ZZ_EQ) {
+        abort();
+    }
     zz_clear(&u);
 }
 

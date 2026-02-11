@@ -679,7 +679,7 @@ const int DIGIT_VALUE_TAB[] =
 zz_err
 zz_set_str(const char *str, int base, zz_t *u)
 {
-    if (base < 2 || base > 36) {
+    if (base && (base < 2 || base > 36)) {
         return ZZ_VAL;
     }
 
@@ -710,6 +710,36 @@ zz_set_str(const char *str, int base, zz_t *u)
         len--;
     }
     if (!len || p[0] == '_') {
+        goto err;
+    }
+    if (p[0] == '0' && base == 0) {
+        if (len == 1) {
+            free(buf);
+            return zz_set_i64(0, u);
+        }
+        else if (tolower(p[1]) == 'b') {
+            base = 2;
+        }
+        else if (tolower(p[1]) == 'o') {
+            base = 8;
+        }
+        else if (tolower(p[1]) == 'x') {
+            base = 16;
+        }
+        else if (!isspace(p[1])) {
+            goto err;
+        }
+        p += 2;
+        len -= 2;
+        if (len && p[0] == '_') {
+            p++;
+            len--;
+        }
+    }
+    if (base == 0) {
+        base = 10;
+    }
+    if (!len || (len && p[0] == '_')) {
         goto err;
     }
 

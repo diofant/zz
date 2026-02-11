@@ -159,9 +159,13 @@ Set @var{u} from @var{v}.  Available as @code{zz_set} macro.
 
 @deftypefun zz_err zz_set_str (const char *@var{str}, int @var{base}, zz_t *@var{u})
 Set @var{u} from null-terminated string @var{str} of digits in the given
-@var{base}, which may vary from 2 to 36.  Case of characters is ignored.  Ascii
-letters represent values in range 10 to 35.  Leading and trailing spaces are
-ignored.
+@var{base}.  The base may vary from 2 to 36, or if base is 0, then the leading
+characters are used: "0x" for hexadecimal, "0b" for binary, "0o" for octal, or
+decimal otherwise.
+
+Case of digits is ignored.  Ascii letters represent values in range 10 to 35.
+Digits can be preceded by '+' or '-' and be surrounded by whitespaces and have
+single underscores interspersed between.
 @end deftypefun
 
 @node Converting Integers, Arithmetics on Integers, Assigning Integers, Functions
