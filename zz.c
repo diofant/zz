@@ -434,6 +434,8 @@ zz_set_i64(int64_t u, zz_t *v)
     return ZZ_OK;
 }
 
+#define DIGITS_PER_DOUBLE ((53 + ZZ_DIGIT_T_BITS - 2) / ZZ_DIGIT_T_BITS + 1)
+
 zz_err
 zz_set_double(double u, zz_t *v)
 {
@@ -457,23 +459,15 @@ zz_set_double(double u, zz_t *v)
 #endif
         return ZZ_BUF;
     }
-
-    mpz_t z;
-
-    if (TMP_OVERFLOW) {
+    if (zz_resize(DIGITS_PER_DOUBLE, v)) {
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
-    mpz_init(z);
+
+    /* v has enough space to prevent new allocation by GMP */
+    TMP_MPZ(z, v);
     mpz_set_d(z, u);
-    if (zz_resize((uint64_t)z->_mp_size, v)) {
-        /* LCOV_EXCL_START */
-        mpz_clear(z);
-        return ZZ_MEM;
-        /* LCOV_EXCL_STOP */
-    }
     v->negative = u < 0;
-    mpn_copyi(v->digits, z->_mp_d, v->size);
-    mpz_clear(z);
+    v->size = abs(z->_mp_size);
     return ZZ_OK;
 }
 
