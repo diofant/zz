@@ -358,6 +358,9 @@ check_gcdext_examples(void)
     {
         abort();
     }
+    if (zz_gcdext(&u, &v, NULL, NULL, NULL) != ZZ_VAL) {
+        abort();
+    }
     zz_clear(&u);
     zz_clear(&v);
     zz_clear(&a);
@@ -370,7 +373,10 @@ check_fromto_double(void)
     zz_t u;
     double d;
 
-    if (zz_init(&u) || zz_set(INFINITY, &u) != ZZ_VAL) {
+    if (zz_init(&u) || zz_set(INFINITY, &u) != ZZ_BUF) {
+        abort();
+    }
+    if (zz_init(&u) || zz_set(NAN, &u) != ZZ_VAL) {
         abort();
     }
     if (zz_set(1092.2666666666667, &u) || zz_cmp(&u, 1092) != ZZ_EQ) {
@@ -442,17 +448,17 @@ check_fromto_i32(void)
     if (zz_set(1LL<<33, &u)) {
         abort();
     }
-    if (zz_get(&u, &val) != ZZ_VAL) {
+    if (zz_get(&u, &val) != ZZ_BUF) {
         abort();
     }
     if (zz_set(-(1LL<<33), &u)) {
         abort();
     }
-    if (zz_get(&u, &val) != ZZ_VAL) {
+    if (zz_get(&u, &val) != ZZ_BUF) {
         abort();
     }
     if (zz_set(1, &u) || zz_mul_2exp(&u, 65, &u)
-        || zz_get(&u, &val) != ZZ_VAL)
+        || zz_get(&u, &val) != ZZ_BUF)
     {
         abort();
     }
@@ -541,7 +547,7 @@ check_exportimport_examples(void)
     if (zz_init(&u) || zz_set(123, &u)) {
         abort();
     }
-    if (zz_export(&u, pyint_layout, 0, 0) != ZZ_VAL) {
+    if (zz_export(&u, pyint_layout, 0, 0) != ZZ_BUF) {
         abort();
     }
     zz_clear(&u);

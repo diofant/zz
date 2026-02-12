@@ -441,11 +441,21 @@ zz_set_double(double u, zz_t *v)
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wfloat-conversion"
 #endif
-    if (!isfinite(u)) {
+    if (isnan(u)) {
 #if defined(__MINGW32__) && defined(__GNUC__)
 #  pragma GCC diagnostic pop
 #endif
         return ZZ_VAL;
+    }
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wfloat-conversion"
+#endif
+    if (isinf(u)) {
+#if defined(__MINGW32__) && defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
+        return ZZ_BUF;
     }
 
     mpz_t z;
@@ -477,7 +487,7 @@ zz_get_i32(const zz_t *u, int32_t *v)
         return ZZ_OK;
     }
     if (n > 1) {
-        return ZZ_VAL;
+        return ZZ_BUF;
     }
 
     zz_digit_t uv = u->digits[0];
@@ -494,7 +504,7 @@ zz_get_i32(const zz_t *u, int32_t *v)
             return ZZ_OK;
         }
     }
-    return ZZ_VAL;
+    return ZZ_BUF;
 }
 
 zz_err
@@ -507,7 +517,7 @@ zz_get_i64(const zz_t *u, int64_t *v)
         return ZZ_OK;
     }
     if (n > 1) {
-        return ZZ_VAL;
+        return ZZ_BUF;
     }
 
     zz_digit_t uv = u->digits[0];
@@ -524,7 +534,7 @@ zz_get_i64(const zz_t *u, int64_t *v)
             return ZZ_OK;
         }
     }
-    return ZZ_VAL;
+    return ZZ_BUF;
 }
 
 bool
@@ -901,12 +911,9 @@ zz_err
 zz_export(const zz_t *u, zz_layout layout, size_t len, void *digits)
 {
     if (len < (zz_bitlen(u) + layout.bits_per_digit
-               - 1)/layout.bits_per_digit)
+               - 1)/layout.bits_per_digit || u->size > INT_MAX)
     {
-        return ZZ_VAL;
-    }
-    if (u->size > INT_MAX) {
-        return ZZ_MEM; /* LCOV_EXCL_LINE */
+        return ZZ_BUF;
     }
     if (layout.digit_size == 1 && layout.bits_per_digit == 8
         && layout.digits_order == 1 && !layout.digit_endianness)
@@ -1421,7 +1428,7 @@ zz_mul_2exp(const zz_t *u, zz_bitcnt_t shift, zz_t *v)
         return ZZ_OK;
     }
     if (shift > ZZ_BITS_MAX - zz_bitcnt(u)) {
-        return ZZ_MEM;
+        return ZZ_BUF;
     }
 
     zz_size_t whole = (zz_size_t)(shift / ZZ_DIGIT_T_BITS);
@@ -1913,6 +1920,9 @@ zz_err
 zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
 {
     if (!s && !t) {
+        if (!g) {
+            return ZZ_VAL;
+        }
         return zz_gcd(u, v, g);
     }
     if (u->size < v->size) {

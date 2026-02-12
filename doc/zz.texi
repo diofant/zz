@@ -87,12 +87,13 @@ Names of public functions and structures are beginning with @code{zz_}.  The
 data type for big integers is @code{zz_t}.
 
 If function might fail, it has the @code{zz_err} as returned type.  Following
-return codes are supported:
+return codes are supported and should be expected from any such function,
+unless otherwise stated:
 
 @itemize @bullet
 @item @code{ZZ_OK}: The function succeeded.
 @item @code{ZZ_MEM}: Heap memory exhausted.
-@item @code{ZZ_VAL}: The function input was invalid.
+@item @code{ZZ_VAL}: The function argument was invalid.
 @item @code{ZZ_BUF}: Buffer overflow, supplied buffer too small.
 @end itemize
 
@@ -100,7 +101,7 @@ The same variable could be used for both input and output in one function call.
 
 Please note, that the GNU GMP library must be compiled with the
 @option{--disable-alloca} configure option to prevent using alloca() for temporary
-workspace allocation (and use the heap instead).
+workspace allocation.
 
 @node Functions, References, Introduction, Top
 @chapter Functions
@@ -127,6 +128,7 @@ workspace allocation (and use the heap instead).
 
 @deftypefun zz_err zz_setup (void)
 Initialize the library.  Must be called before all other its functions.
+Return @code{ZZ_MEM} on failure.
 @end deftypefun
 
 @deftypefun void zz_finish (void)
@@ -139,7 +141,7 @@ Must be called last.
 @cindex Initialization functions
 
 @deftypefun zz_err zz_init (zz_t *@var{u})
-Initialize @var{u} and set its value to 0.
+Initialize @var{u} and set its value to 0.  Return @code{ZZ_MEM} on failure.
 @end deftypefun
 
 @deftypefun void zz_clear (zz_t *@var{u})
@@ -155,6 +157,11 @@ Free the space occupied by @var{u} and set its value to 0.
 @deftypefunx zz_err zz_set_i64 (int64_t @var{u}, zz_t *@var{v})
 @deftypefunx zz_err zz_set_double (double @var{u}, zz_t *@var{v})
 Set @var{u} from @var{v}.  Available as @code{zz_set} macro.
+
+NaNs aren't acceptable in assignment from double, @code{ZZ_BUF} will be
+returned for infinities.
+
+Assignments from integer types return only @code{ZZ_MEM} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_set_str (const char *@var{str}, int @var{base}, zz_t *@var{u})
@@ -176,7 +183,8 @@ single underscores interspersed between.
 @deftypefun zz_err zz_get_i32 (const zz_t *@var{u}, int32_t *@var{v})
 @deftypefunx zz_err zz_get_i64 (const zz_t *@var{u}, int64_t *@var{v})
 @deftypefunx zz_err zz_get_double (const zz_t *@var{u}, double *@var{v})
-Convert @var{u} to @var{v}.  Available as @code{zz_get} macro.
+Convert @var{u} to @var{v}.  Available as @code{zz_get} macro.  Return
+@code{ZZ_BUF} on failure.
 
 Conversion to double uses rounding to nearest, with the half to even
 tie-breaking rounding rule (roundTiesToEven in IEEE 754, the default).
@@ -185,7 +193,8 @@ tie-breaking rounding rule (roundTiesToEven in IEEE 754, the default).
 @deftypefun zz_err zz_get_str (const zz_t *@var{u}, int @var{base}, char *@var{str})
 Convert @var{u} to null-terminated string @var{str} of digits in the given
 @var{base}, which may vary from 2 to 36.  The @var{str} has to have enough
-space, which can be estimated by @code{zz_sizeinbase(@var{u}, base)}.
+space, which can be estimated by @code{zz_sizeinbase(@var{u}, base)}.  Return
+@code{ZZ_MEM} or @code{ZZ_VAL} on failure.
 @end deftypefun
 
 @node Arithmetics on Integers, Exponentiation, Converting Integers, Functions
@@ -205,15 +214,17 @@ Set @var{w} to @math{@var{u} - @var{v}}.  Available as @code{zz_sub} macro.
 @end deftypefun
 
 @deftypefun zz_err zz_pos (const zz_t *@var{u}, zz_t *@var{v})
-Set @var{v} to @math{+@var{u}}, a copy of @var{u}.
+Set @var{v} to @math{+@var{u}}, a copy of @var{u}.  Return @code{ZZ_MEM} on
+failure.
 @end deftypefun
 
 @deftypefun zz_err zz_neg (const zz_t *@var{u}, zz_t *@var{v})
-Set @var{v} to @math{-@var{u}}.
+Set @var{v} to @math{-@var{u}}.  Return @code{ZZ_MEM} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_abs (const zz_t *@var{u}, zz_t *@var{v})
-Set @var{v} to the absolute value of @var{u}.
+Set @var{v} to the absolute value (magnitude) of @var{u}.  Return
+@code{ZZ_MEM} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_mul (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
@@ -233,12 +244,14 @@ Set @var{w} to @m{@var{u} \times 2^{@var{v}}, @var{u} × 2 raised to @var{v}}
 @deftypefunx zz_err zz_i64_div (int64_t @var{u}, const zz_t *@var{v}, zz_t *@var{q}, zz_t *@var{r})
 Divide @var{u} by @var{v} and set the quotient @var{q} and the remainder
 @var{r}.  Either @var{q} or @var{r} can be set to @code{NULL}, if their value
-is not required.  Available as @code{zz_div} macro.
+is not required.  Available as @code{zz_div} macro.  Only nonzero values are
+permitted for the divisor @var{v}.  Return @code{ZZ_VAL} or @code{ZZ_MEM} on
+failure.
 @end deftypefun
 
 @deftypefun zz_err zz_quo_2exp (const zz_t *@var{u}, zz_bitcnt_t @var{v}, zz_t *@var{w})
 Set @var{w} to quotent of @var{u} and @m{2^{@var{v}}, 2 raised to @var{v}}
-(right shift by @var{v} bits).
+(right shift by @var{v} bits).  Return @code{ZZ_MEM} on failure.
 @end deftypefun
 
 @node Exponentiation, Comparison Functions, Arithmetics on Integers, Functions
@@ -252,8 +265,9 @@ Set @var{w} to @m{@var{u}^{@var{v}},@var{u} raised to @var{v}}.
 
 @deftypefun zz_err zz_powm (const zz_t *@var{u}, const zz_t *@var{v}, const zz_t *@var{w}, zz_t *@var{x})
 Set @var{x} to @m{@var{u}^{@var{v}} @bmod @var{w},@var{u} raised to @var{v}
-modulo @var{w}}.  Negative @var{v} is supported if @var{u} has an inverse
-modulo @var{w}.
+modulo @var{w}}.  Negative @var{v} are permitted if @var{u} has an inverse
+modulo @var{w}.  The @var{w} expected to be nonzero.  Return @code{ZZ_VAL} or
+@code{ZZ_MEM} on failure.
 @end deftypefun
 
 @node Comparison Functions, Logical Functions, Exponentiation, Functions
@@ -304,15 +318,17 @@ Set @var{w} to @var{u} bitwise exclusive-or @var{v}.
 
 @deftypefun zz_err zz_sqrtrem (const zz_t *@var{u}, zz_t *@var{v}, zz_t *@var{w})
 Set @var{v} to @m{\lfloor\sqrt{@var{u}}\rfloor,the truncated integer part of
-the square root of @var{u}}.  If @var{w} is not @code{NULL}, set it to the
-remainder @m{@var{u}-@var{v}^2, @var{u} - @var{v}*@var{v}}.
+the square root of @var{u}}, the @var{u} expected to be nonnegative.  If
+@var{w} is not @code{NULL}, set it to the remainder @m{@var{u}-@var{v}^2,
+@var{u} - @var{v}*@var{v}}.  Return @code{ZZ_VAL} or @code{ZZ_MEM} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_gcdext (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{g}, zz_t *@var{s}, zz_t *@var{t})
 Set @var{g} to the greatest common divisor of @var{u} and @var{v}, and in
 addition set @var{s} and @var{t} to coefficients satisfying
-@math{@var{u}@var{s}+@var{v}@var{t}=@var{g}}.  Any output parameter can be set
-to @code{NULL}, if its value not required.
+@math{@var{u}@var{s}+@var{v}@var{t}=@var{g}}.  Any but one output parameter
+can be set to @code{NULL}, if its value not required.  Return @code{ZZ_VAL} or
+@code{ZZ_MEM} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_lcm (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
@@ -353,12 +369,13 @@ Get native layout for the library.
 @end deftypefun
 
 @deftypefun zz_err zz_import (size_t @var{len}, const void *@var{data}, zz_layout @var{layout}, zz_t *@var{u})
-Set magnitude of @var{u} from @var{data} array in specified @var{layout}.
+Set magnitude of @var{u} from @var{data} array of size @var{len} in the
+specified @var{layout}.
 @end deftypefun
 
 @deftypefun zz_err zz_export (const zz_t *@var{u}, zz_layout @var{layout}, size_t @var{len}, void *@var{data})
-Export magnitude of @var{u} as pre-allocated @var{data} array in specified
-@var{layout}.
+Export magnitude of @var{u} as pre-allocated @var{data} array of size @var{len}
+in the specified @var{layout}.  Return @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @node Miscellaneous Functions, References, Import and Export, Functions
@@ -369,7 +386,7 @@ Export magnitude of @var{u} as pre-allocated @var{data} array in specified
 Return the @var{size} of @var{u} magnitude, measured in number of digits in the
 given @var{base}.  The absolute value of @var{base} might vary from 2 to 36.
 The @var{size} will be either exact or 1 too big.  If @var{base} is a power of
-2, its always exact.
+2, its always exact.  Return @code{ZZ_VAL} on failure.
 @end deftypefun
 
 @deftypefun zz_bitcnt_t zz_bitlen (const zz_t *@var{u})
@@ -395,7 +412,7 @@ Get the ZZ version number, as a null-terminated string, in the form ``i.j.k''.
 @end deftypefun
 
 @deftypefun zz_bitcnt_t zz_get_bitcnt_max (void)
-Get maximal count of bits for a big integer.
+Get maximal count of bits for the magnitude of a big integer.
 @end deftypefun
 
 @node References, GNU Free Documentation License, Functions, Top
