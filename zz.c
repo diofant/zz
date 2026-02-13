@@ -1242,29 +1242,30 @@ zz_div(const zz_t *u, const zz_t *v, zz_t *q, zz_t *r)
             return ret;
         }
 
-        bool q_negative = (u->negative != v->negative);
         zz_size_t u_size = u->size;
 
-        if (zz_resize((uint64_t)(u_size - v->size) + 1 + q_negative, q)
+        if (zz_resize((uint64_t)(u_size - v->size) + 1, q)
             || zz_resize((uint64_t)v->size, r) || TMP_OVERFLOW)
         {
             goto err; /* LCOV_EXCL_LINE */
         }
-        q->negative = q_negative;
-        if (q_negative) {
-            q->digits[q->size - 1] = 0;
-        }
+        q->negative = u->negative != v->negative;
         r->negative = v->negative;
         mpn_tdiv_qr(q->digits, r->digits, 0, u->digits, u_size, v->digits,
                     v->size);
+        q->size -= q->digits[q->size - 1] == 0;
         zz_normalize(r);
-        if (q_negative && r->size) {
+        if (q->negative && r->size) {
+            /* Note that we can't get carry here for q of maximal size,
+               as this would mean |v| == 1, thus: r == 0 */
+            assert(q->size < ZZ_DIGITS_MAX);
+            if (zz_sub_i64(q, 1, q)) {
+                goto err; /* LCOV_EXCL_LINE */
+            }
             r->size = v->size;
             mpn_sub_n(r->digits, v->digits, r->digits, v->size);
-            mpn_add_1(q->digits, q->digits, q->size, 1);
+            zz_normalize(r);
         }
-        zz_normalize(q);
-        zz_normalize(r);
     }
     return ZZ_OK;
     /* LCOV_EXCL_START */
