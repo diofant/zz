@@ -104,6 +104,9 @@ check_str_examples(void)
     if (zz_set_str("0b11", 0, &u) || zz_cmp(&u, 3) != ZZ_EQ) {
         abort();
     }
+    if (zz_set_str("0b11", 2, &u) || zz_cmp(&u, 3) != ZZ_EQ) {
+        abort();
+    }
     if (zz_set_str("-0b111", 0, &u) || zz_cmp(&u, -7) != ZZ_EQ) {
         abort();
     }
@@ -111,6 +114,9 @@ check_str_examples(void)
         abort();
     }
     if (zz_set_str("0x11", 0, &u) || zz_cmp(&u, 17) != ZZ_EQ) {
+        abort();
+    }
+    if (zz_set_str("-0x11", 16, &u) || zz_cmp(&u, -17) != ZZ_EQ) {
         abort();
     }
     if (zz_set_str("01", 0, &u) != ZZ_VAL) {

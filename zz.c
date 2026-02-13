@@ -737,6 +737,14 @@ zz_set_str(const char *str, int base, zz_t *u)
             len--;
         }
     }
+    if (p[0] == '0' && len >= 2
+        && ((base == 2 && tolower(p[1]) == 'b')
+            || (base == 8 && tolower(p[1]) == 'o')
+            || (base == 16 && tolower(p[1]) == 'x')))
+    {
+        p += 2;
+        len -= 2;
+    }
     if (base == 0) {
         base = 10;
     }
