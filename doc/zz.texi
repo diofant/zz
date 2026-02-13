@@ -223,8 +223,7 @@ Set @var{v} to @math{-@var{u}}.  Return @code{ZZ_MEM} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_abs (const zz_t *@var{u}, zz_t *@var{v})
-Set @var{v} to the absolute value (magnitude) of @var{u}.  Return
-@code{ZZ_MEM} on failure.
+Set @var{v} to the magnitude of @var{u}.  Return @code{ZZ_MEM} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_mul (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
@@ -328,7 +327,8 @@ Set @var{g} to the greatest common divisor of @var{u} and @var{v}, and in
 addition set @var{s} and @var{t} to coefficients satisfying
 @math{@var{u}@var{s}+@var{v}@var{t}=@var{g}}.  Any but one output parameter
 can be set to @code{NULL}, if its value not required.  Return @code{ZZ_VAL} or
-@code{ZZ_MEM} on failure.
+@code{ZZ_MEM} on failure if @var{t} is @code{NULL}.  Else, can also return
+@code{ZZ_BUF}.
 @end deftypefun
 
 @deftypefun zz_err zz_lcm (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
