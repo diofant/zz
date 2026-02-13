@@ -1955,7 +1955,7 @@ zz_gcdext(const zz_t *u, const zz_t *v, zz_t *g, zz_t *s, zz_t *t)
 {
     if (!s && !t) {
         if (!g) {
-            return ZZ_VAL;
+            return ZZ_OK;
         }
         return zz_gcd(u, v, g);
     }

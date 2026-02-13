@@ -358,7 +358,7 @@ check_gcdext_examples(void)
     {
         abort();
     }
-    if (zz_gcdext(&u, &v, NULL, NULL, NULL) != ZZ_VAL) {
+    if (zz_gcdext(&u, &v, NULL, NULL, NULL) != ZZ_OK) {
         abort();
     }
     zz_clear(&u);

@@ -326,16 +326,22 @@ the square root of @var{u}}, the @var{u} expected to be nonnegative.  If
 @end deftypefun
 
 @deftypefun zz_err zz_gcdext (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{g}, zz_t *@var{s}, zz_t *@var{t})
-Set @var{g} to the greatest common divisor of @var{u} and @var{v}, and in
-addition set @var{s} and @var{t} to coefficients satisfying
-@math{@var{u}@var{s}+@var{v}@var{t}=@var{g}}.  Any but one output parameter
-can be set to @code{NULL}, if its value not required.  Return @code{ZZ_VAL} or
-@code{ZZ_MEM} on failure if @var{t} is @code{NULL}.  Else, can also return
-@code{ZZ_BUF}.
+Set @var{g} to the greatest common divisor of @var{u} and @var{v}, and set
+@var{s} and @var{t} to coefficients, satisfying
+@math{@var{u}@var{s}+@var{v}@var{t}=@var{g}}.
+
+The @var{g} is either positive or zero, if both @var{u} and @var{v} are zero.
+The coefficients @var{s} and @var{t} are same as for the extended
+Euclidean algorithm.
+
+Any output parameter can be set to @code{NULL}, if its value not required.
+Return @code{ZZ_MEM} on failure if @var{t} is @code{NULL}.  Else, can also
+return @code{ZZ_BUF}.
 @end deftypefun
 
 @deftypefun zz_err zz_lcm (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
-Set @var{w} to the least common multiple of @var{u} and @var{v}.
+Set @var{w} to the least common multiple of @var{u} and @var{v}.  @var{w} is
+positive or zero, if either @var{u} or @var{v} are zero.
 @end deftypefun
 
 @node Combinatorics, Import and Export, Number Theoretic Functions, Functions
