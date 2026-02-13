@@ -245,7 +245,7 @@ Divide @var{u} by @var{v} and set the quotient @var{q} and the remainder
 @var{r}.  The quotient rounded down toward @m{-\infty, @minus{}infinity}, and
 @var{r} will have the same sign as @var{v}.  Available as @code{zz_div} macro.
 
-Either @var{q} or @var{r} can be set to @code{NULL}, if their value is not
+Both @var{q} and @var{r} can be set to @code{NULL}, if their value is not
 required.  Only nonzero values are permitted for the divisor @var{v}.  Return
 @code{ZZ_VAL} or @code{ZZ_MEM} on failure.
 @end deftypefun

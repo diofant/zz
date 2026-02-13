@@ -371,7 +371,13 @@ check_binop_examples(void)
     if (zz_set(2, &v)) {
         abort();
     }
-    if (zz_div(&u, &v, NULL, NULL) != ZZ_VAL) {
+    if (zz_div(&u, &v, NULL, NULL) != ZZ_OK) {
+        abort();
+    }
+    if (zz_div_i64(&u, 123, NULL, NULL) != ZZ_OK) {
+        abort();
+    }
+    if (zz_i64_div(123, &v, NULL, NULL) != ZZ_OK) {
         abort();
     }
     if (zz_set(0, &v) || zz_div(&u, &v, &v, NULL) != ZZ_VAL) {
@@ -389,7 +395,7 @@ check_binop_examples(void)
     if (zz_div(1, &v, &v, NULL) != ZZ_VAL) {
         abort();
     }
-    if (zz_set(1, &v) || zz_div(1, &v, NULL, NULL) != ZZ_VAL) {
+    if (zz_set(1, &v) || zz_div(1, &v, NULL, NULL) != ZZ_OK) {
         abort();
     }
     zz_clear(&u);

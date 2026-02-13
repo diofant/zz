@@ -1165,7 +1165,7 @@ zz_div(const zz_t *u, const zz_t *v, zz_t *q, zz_t *r)
     }
     if (!q || !r) {
         if (!q && !r) {
-            return ZZ_VAL;
+            return ZZ_OK;
         }
         if (!q) {
             zz_t tmp;
@@ -1330,7 +1330,7 @@ zz_div_i64(const zz_t *u, int64_t v, zz_t *q, zz_t *r)
         }
         return ZZ_OK;
     }
-    return q ? ZZ_OK : ZZ_VAL;
+    return ZZ_OK;
 }
 
 static int64_t
@@ -1370,7 +1370,7 @@ zz_i64_div(int64_t u, const zz_t *v, zz_t *q, zz_t *r)
         }
         return zz_set_i64(u - fdiv_r(u, sv)*sv, r);
     }
-    return q ? ZZ_OK : ZZ_VAL;
+    return ZZ_OK;
 }
 
 zz_err
