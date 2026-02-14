@@ -131,6 +131,9 @@ check_str_examples(void)
     if (zz_set_str("0", 0, &u) || zz_cmp(&u, 0) != ZZ_EQ) {
         abort();
     }
+    if (zz_set_str("-123", 0, &u) || zz_cmp(&u, -123) != ZZ_EQ) {
+        abort();
+    }
     zz_clear(&u);
 }
 
