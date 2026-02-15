@@ -266,11 +266,24 @@ check_gcdext_bulk(void)
         {
             abort();
         }
+        if (rand() % 2) {
+            zz_t c;
+
+            if (zz_init(&c) || zz_random(bs, true, &c)
+                || zz_mul(&c, &u, &u) || zz_mul(&c, &v, &v))
+            {
+                abort();
+            }
+            zz_clear(&c);
+        }
         if (zz_gcdext(&u, &v, &g, &s, &t)
             || zz_ref_gcdext(&u, &v, &rg, &rs, &rt)
             || zz_cmp(&g, &rg) != ZZ_EQ || zz_cmp(&s, &rs) != ZZ_EQ
             || zz_cmp(&t, &rt) != ZZ_EQ)
         {
+            abort();
+        }
+        if (zz_gcdext(&u, &v, &g, NULL, NULL) || zz_cmp(&g, &rg) != ZZ_EQ) {
             abort();
         }
         if (zz_pos(&u, &g) || zz_gcdext(&g, &v, &g, &s, &t)
