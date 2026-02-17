@@ -30,7 +30,6 @@ typedef int32_t zz_size_t;
 #endif
 
 typedef struct {
-    bool negative;
     zz_size_t alloc;
     zz_size_t size;
     zz_digit_t *digits;

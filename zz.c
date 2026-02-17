@@ -297,7 +297,6 @@ zz_finish(void)
 zz_err
 zz_init(zz_t *u)
 {
-    SETNEG(false, u);
     SETALLOC(0, u);
     u->size = 0;
     u->digits = NULL;
@@ -320,7 +319,7 @@ zz_resize(zz_size_t size, zz_t *u)
 
     u->digits = realloc(u->digits, (size_t)alloc * ZZ_DIGIT_T_BYTES);
     if (u->digits) {
-        SETALLOC(alloc, u);
+        SETALLOC(ISNEG(u) ? -alloc : alloc, u);
         u->size = alloc;
         return ZZ_OK;
     }
@@ -334,7 +333,6 @@ void
 zz_clear(zz_t *u)
 {
     free(u->digits);
-    SETNEG(false, u);
     SETALLOC(0, u);
     u->size = 0;
     u->digits = NULL;
