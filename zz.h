@@ -30,7 +30,7 @@ typedef int32_t zz_size_t;
 #endif
 
 typedef struct {
-    zz_size_t _reserved;
+    uint64_t _reserved;
     zz_size_t size;
     zz_digit_t *digits;
 } zz_t;

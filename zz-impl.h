@@ -63,17 +63,20 @@ static _Thread_local jmp_buf zz_env;
 #define TMP_OVERFLOW (setjmp(zz_env) == 1)
 
 typedef struct {
-    zz_size_t alloc;
+    struct {
+        uint8_t negative : 1;
+        int64_t alloc : 63;
+    };
     zz_size_t size;
     zz_digit_t *digits;
 } zz_private_t;
 
 #define CAST_PRIVATE(u) ((zz_private_t *)u)
 
-#define ISNEG(u) ((bool)(CAST_PRIVATE(u)->alloc < 0))
-#define SETNEG(u, v) (CAST_PRIVATE(v)->alloc = ((u) ? -1 : 1)*ABS(CAST_PRIVATE(v)->alloc))
+#define ISNEG(u) ((bool)(CAST_PRIVATE(u)->negative))
+#define SETNEG(u, v) (CAST_PRIVATE(v)->negative = (bool)(u))
 
-#define GETALLOC(u) (ABS(CAST_PRIVATE(u)->alloc))
+#define GETALLOC(u) (CAST_PRIVATE(u)->alloc)
 #define SETALLOC(u, v) (CAST_PRIVATE(v)->alloc = (u))
 
 #define TMP_MPZ(z, u)                                   \
