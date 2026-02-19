@@ -131,8 +131,7 @@ AC_C_INLINE
 AC_ARG_ENABLE(gcov,[AS_HELP_STRING([--enable-gcov], [enable coverage test])])
 AM_CONDITIONAL([ENABLE_GCOV],[test "x${enable_gcov}" = "xyes"])
 
-# Configs for Windows
-AC_SUBST(ZZ_CFLAGS)
+# Configs for Windows DLLs
 AC_SUBST(ZZ_LDFLAGS)
 #
 # Additional checks on windows
@@ -140,7 +139,6 @@ AC_SUBST(ZZ_LDFLAGS)
 # It also disables the tests involving the linking with LIBGMP if DLL
 #
 AC_DEFUN([ZZ_WINDOWS], [
-   ZZ_CFLAGS="$ZZ_CFLAGS -mno-ms-bitfields"
    if test "$enable_shared" = yes; then
      ZZ_LDFLAGS="$ZZ_LDFLAGS -no-undefined"
      AC_MSG_CHECKING(for DLL/static gmp)

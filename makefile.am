@@ -19,7 +19,6 @@ if ENABLE_GCOV
 AM_CFLAGS += -fprofile-arcs -ftest-coverage -fprofile-update=atomic
 AM_LDFLAGS += -fprofile-arcs -ftest-coverage -fprofile-update=atomic
 endif
-AM_CFLAGS += $(ZZ_CFLAGS)
 AM_LDFLAGS += $(ZZ_LDFLAGS)
 
 updatechangelog:

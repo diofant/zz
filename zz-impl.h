@@ -38,6 +38,9 @@
 
 #include "zz.h"
 
+#define NEGATIVE_MASK 1
+#define NON_ALLOC_BITS 3
+
 #define ZZ_DIGIT_T_MAX UINT64_MAX
 #define ZZ_DIGIT_T_BYTES 8
 #define ZZ_DIGIT_T_BITS 64
@@ -62,22 +65,14 @@ static _Thread_local jmp_buf zz_env;
 #endif
 #define TMP_OVERFLOW (setjmp(zz_env) == 1)
 
-typedef struct {
-    struct {
-        uint8_t negative : 1;
-        int64_t alloc : 63;
-    };
-    zz_size_t size;
-    zz_digit_t *digits;
-} zz_private_t;
+#define ISNEG(u) ((bool)((u)->_reserved & NEGATIVE_MASK))
+#define SETNEG(u, v) ((v)->_reserved = (((v)->_reserved & ~NEGATIVE_MASK) \
+                                        | ((bool)(u) & NEGATIVE_MASK)))
 
-#define CAST_PRIVATE(u) ((zz_private_t *)u)
 
-#define ISNEG(u) ((bool)(CAST_PRIVATE(u)->negative))
-#define SETNEG(u, v) (CAST_PRIVATE(v)->negative = (bool)(u))
-
-#define GETALLOC(u) (CAST_PRIVATE(u)->alloc)
-#define SETALLOC(u, v) (CAST_PRIVATE(v)->alloc = (u))
+#define GETALLOC(u) ((zz_size_t)((u)->_reserved >> NON_ALLOC_BITS))
+#define SETALLOC(u, v) ((v)->_reserved = (((u) << NON_ALLOC_BITS) \
+                                          | ((v)->_reserved & NEGATIVE_MASK)))
 
 #define TMP_MPZ(z, u)                                   \
     mpz_t z;                                            \
