@@ -728,6 +728,7 @@ check_exportimport_examples(void)
 {
     zz_t u;
     const zz_layout pyint_layout = {30, 4, -1, 0};
+    const zz_layout bytes_layout = {8, 1, 1, 0};
 
     if (zz_init(&u) || zz_set(123, &u)) {
         abort();
@@ -735,7 +736,18 @@ check_exportimport_examples(void)
     if (zz_export(&u, pyint_layout, 0, 0) != ZZ_BUF) {
         abort();
     }
+
+    char buf[10];
+    zz_t v;
+
+    if (zz_init(&v) || zz_set(0, &u) || zz_set(123, &v)
+        || zz_export(&u, bytes_layout, 1, buf)
+        || zz_import(1, buf, bytes_layout, &v) || zz_cmp(&u, &v) != ZZ_EQ)
+    {
+        abort();
+    }
     zz_clear(&u);
+    zz_clear(&v);
 }
 
 void

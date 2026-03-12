@@ -663,10 +663,13 @@ zz_get_str(const zz_t *u, int base, char *str)
     unsigned char *p = (unsigned char *)str;
     size_t len;
 
+    if (!u->size) {
+        *(p++) = '0';
+        goto end;
+    }
     if (ISNEG(u)) {
         *(p++) = '-';
     }
-    /* We use undocumented feature of mpn_get_str(): u->size can be 0 */
     if ((base & (base - 1)) == 0) {
         len = mpn_get_str(p, base, u->digits, u->size);
     }
@@ -687,6 +690,7 @@ zz_get_str(const zz_t *u, int base, char *str)
         *p = (unsigned char)NUM_TO_TEXT[*p];
         p++;
     }
+end:
     *p = '\0';
     return ZZ_OK;
 }
@@ -1007,8 +1011,12 @@ zz_export(const zz_t *u, zz_layout layout, size_t len, void *digits)
     if (layout.digit_size == 1 && layout.bits_per_digit == 8
         && layout.digits_order == 1 && !layout.digit_endianness)
     {
-        /* We use undocumented feature of mpn_get_str(): u->size can be 0 */
-        mpn_get_str(digits, 256, u->digits, u->size);
+        if (!u->size) {
+            memset(digits, 0, 1);
+        }
+        else {
+            mpn_get_str(digits, 256, u->digits, u->size);
+        }
         return ZZ_OK;
     }
 
@@ -1028,6 +1036,12 @@ zz_addsub(const zz_t *u, const zz_t *v, bool subtract, zz_t *w)
     bool same_sign = negu == negv;
     zz_size_t u_size = u->size, v_size = v->size;
 
+    if (!v_size) {
+        return zz_pos(u, w);
+    }
+    if (!u_size) {
+        return subtract ? zz_neg(v, w) : zz_pos(v, w);
+    }
     if (u_size < v_size) {
         SWAP(const zz_t *, u, v);
         SWAP(bool, negu, negv);
@@ -1040,7 +1054,6 @@ zz_addsub(const zz_t *u, const zz_t *v, bool subtract, zz_t *w)
         return ZZ_MEM; /* LCOV_EXCL_LINE */
     }
     SETNEG(negu, w);
-    /* We use undocumented feature of mpn_add/sub(): v_size can be 0 */
     if (same_sign) {
         if (!(w->digits[w->size - 1] = mpn_add(w->digits, u->digits, u_size,
                                                v->digits, v_size)))

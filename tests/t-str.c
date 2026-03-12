@@ -134,6 +134,12 @@ check_str_examples(void)
     if (zz_set_str("-123", 0, &u) || zz_cmp(&u, -123) != ZZ_EQ) {
         abort();
     }
+
+    char buf[10];
+
+    if (zz_set(0, &u) || zz_get_str(&u, 2, buf) || strcmp(buf, "0")) {
+        abort();
+    }
     zz_clear(&u);
 }
 
