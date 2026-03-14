@@ -990,13 +990,11 @@ zz_import(size_t len, const void *digits, zz_layout layout, zz_t *u)
         return ZZ_OK;
     }
 
-    TMP_MPZ(z, u);
     assert(layout.digit_size*8 >= layout.bits_per_digit);
-    mpz_import(z, len, layout.digits_order, layout.digit_size,
-               layout.digit_endianness,
+    mpn_import(u->digits, (mp_size_t *)&u->size, len, layout.digits_order,
+               layout.digit_size, layout.digit_endianness,
                (size_t)(layout.digit_size*8 - layout.bits_per_digit),
                digits);
-    u->size = z->_mp_size;
     return ZZ_OK;
 }
 
@@ -1020,12 +1018,11 @@ zz_export(const zz_t *u, zz_layout layout, size_t len, void *digits)
         return ZZ_OK;
     }
 
-    TMP_MPZ(z, u);
     assert(layout.digit_size*8 >= layout.bits_per_digit);
-    mpz_export(digits, NULL, layout.digits_order, layout.digit_size,
+    mpn_export(digits, NULL, layout.digits_order, layout.digit_size,
                layout.digit_endianness,
                (size_t)(layout.digit_size*8 - layout.bits_per_digit),
-               z);
+               u->digits, u->size);
     return ZZ_OK;
 }
 
