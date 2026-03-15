@@ -13,9 +13,13 @@
 #ifndef MPN_H
 #define MPN_H
 
+/* Export {z, zsize} as array of words data.  The parameters specify the format
+   of the data produced.  Same meaning as for mpz_export(). */
 void * mpn_export(void *data, size_t *countp, int order,
                   size_t size, int endian, size_t nail, mp_srcptr z,
                   mp_size_t zsize);
+/* Set {zp, zsize} from an array of word data at data.  The parameters specify
+   the format of the data produced.  Same meaning as for mpz_import(). */
 void mpn_import(mp_ptr zp, mp_size_t *zsize, size_t count, int order,
                 size_t size, int endian, size_t nail, const void *data);
 
