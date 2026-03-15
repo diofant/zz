@@ -361,6 +361,49 @@ mpn_import (mp_ptr zp, mp_size_t *zsize, size_t count, int order,
     MPN_NORMALIZE (zp, *zsize);
 }
 
+extern void __gmpn_powm(mp_limb_t *rp, const mp_limb_t *bp, mp_size_t bn,
+                        const mp_limb_t *ep, mp_size_t en, const mp_limb_t *mp,
+                        mp_size_t n, mp_limb_t *tp);
+extern mp_size_t __gmpn_binvert_itch(mp_size_t n);
+extern void __gmpn_powlo(mp_limb_t *rp, const mp_limb_t *bp,
+                         const mp_limb_t *ep, mp_size_t en, mp_size_t n,
+                         mp_limb_t *tp);
+extern void __gmpn_binvert(mp_limb_t *rp, const mp_limb_t *up, mp_size_t n,
+                           mp_limb_t *scratch);
+extern void __gmpn_mullo_n(mp_limb_t *rp, const mp_limb_t *xp,
+                           const mp_limb_t *yp, mp_size_t n);
+
+void mpn_powm(mp_limb_t *rp, const mp_limb_t *bp, mp_size_t bn,
+              const mp_limb_t *ep, mp_size_t en, const mp_limb_t *mp,
+              mp_size_t n, mp_limb_t *tp)
+{
+    __gmpn_powm(rp, bp, bn, ep, en, mp, n, tp);
+}
+
+mp_size_t mpn_binvert_itch(mp_size_t n)
+{
+    return __gmpn_binvert_itch(n);
+}
+
+void mpn_powlo(mp_limb_t *rp, const mp_limb_t *bp,
+               const mp_limb_t *ep, mp_size_t en, mp_size_t n,
+               mp_limb_t *tp)
+{
+    __gmpn_powlo(rp, bp, ep, en, n, tp);
+}
+
+void mpn_binvert(mp_limb_t *rp, const mp_limb_t *up, mp_size_t n,
+                 mp_limb_t *scratch)
+{
+    __gmpn_binvert(rp, up, n, scratch);
+}
+
+void mpn_mullo_n(mp_limb_t *rp, const mp_limb_t *xp,
+                 const mp_limb_t *yp, mp_size_t n)
+{
+    __gmpn_mullo_n(rp, xp, yp, n);
+}
+
 #ifdef __GNUC__
 #  pragma GCC diagnostic pop
 #endif
