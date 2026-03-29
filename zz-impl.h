@@ -38,9 +38,6 @@
 
 #include "zz.h"
 
-#define NEGATIVE_MASK 1
-#define NON_ALLOC_BITS 3
-
 #define ZZ_DIGIT_T_MAX UINT64_MAX
 #define ZZ_DIGIT_T_BYTES 8
 #define ZZ_DIGIT_T_BITS 64
@@ -65,14 +62,21 @@ static _Thread_local jmp_buf zz_env;
 #endif
 #define TMP_OVERFLOW (setjmp(zz_env) == 1)
 
-#define ISNEG(u) ((bool)((u)->_reserved & NEGATIVE_MASK))
-#define SETNEG(u, v) ((v)->_reserved = (((v)->_reserved & ~NEGATIVE_MASK) \
-                                        | ((bool)(u) & NEGATIVE_MASK)))
+#define NEG_MASK INT64_C(1)
+#define NON_ALLOC_BITS INT64_C(3)
 
+#define RV(u) ((u)->_reserved)
+#define ISNEG(u) (RV(u) & NEG_MASK)
+#define SETNEG(u, v)                                    \
+    do {                                                \
+        RV(v) = (RV(v) & ~NEG_MASK) | ((u) & NEG_MASK); \
+    } while (0)
 
-#define GETALLOC(u) ((zz_size_t)((u)->_reserved >> NON_ALLOC_BITS))
-#define SETALLOC(u, v) ((v)->_reserved = (((u) << NON_ALLOC_BITS) \
-                                          | ((v)->_reserved & NEGATIVE_MASK)))
+#define GETALLOC(u) ((zz_size_t)(RV(u) >> NON_ALLOC_BITS))
+#define SETALLOC(u, v)                                        \
+    do {                                                      \
+        RV(v) = (RV(v) & NEG_MASK) | ((u) << NON_ALLOC_BITS); \
+    } while (0)
 
 #define TMP_MPZ(z, u)                                   \
     mpz_t z;                                            \
@@ -92,7 +96,6 @@ static _Thread_local jmp_buf zz_env;
 #define MAX(a, b) ((a) >= (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define ABS_CAST(T, x) ((x) >= 0 ? ((T) (x)) : ((T) (((T) -((x) + 1)) + 1U)))
-#define ABS(a) (a < 0 ? -a : a)
 
 void zz_set_memory_funcs(void *(*malloc) (size_t),
                          void *(*realloc) (void *, size_t, size_t),

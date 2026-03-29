@@ -297,8 +297,8 @@ zz_finish(void)
 zz_err
 zz_init(zz_t *u)
 {
-    SETALLOC(0, u);
     SETNEG(false, u);
+    SETALLOC(0, u);
     u->size = 0;
     u->digits = NULL;
     return ZZ_OK;
@@ -320,14 +320,7 @@ zz_resize(zz_size_t size, zz_t *u)
 
     u->digits = realloc(u->digits, (size_t)alloc * ZZ_DIGIT_T_BYTES);
     if (u->digits) {
-#ifdef __GNUC__
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wconversion"
-#endif
         SETALLOC(alloc, u);
-#if defined(__GNUC__)
-#  pragma GCC diagnostic pop
-#endif
         u->size = alloc;
         return ZZ_OK;
     }
@@ -341,8 +334,8 @@ void
 zz_clear(zz_t *u)
 {
     free(u->digits);
+    SETNEG(false, u);
     SETALLOC(0, u);
-    SETNEG(0, u);
     u->size = 0;
     u->digits = NULL;
 }
