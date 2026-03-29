@@ -23,12 +23,16 @@ zz_ref_powm(const zz_t *u, const zz_t *v, const zz_t *w, zz_t *r)
         return ZZ_MEM;
     }
     mpz_init(z);
+    mpz_abs(mw, mw);
     mpz_powm(z, mu, mv, mw);
     if (zz_set_mpz_t(z, r)) {
         mpz_clear(z);
         return ZZ_MEM;
     }
     mpz_clear(z);
+    if (zz_isneg(w) && !zz_iszero(r) && !zz_isneg(r)) {
+        return zz_add(w, r, r);
+    }
     return ZZ_OK;
 }
 
@@ -62,10 +66,10 @@ check_powm_bulk(void)
         if (zz_init(&u) || zz_random(bs, true, &u)) {
             abort();
         }
-        if (zz_init(&v) || zz_random(32, true, &v)) {
+        if (zz_init(&v) || zz_random(128, true, &v)) {
             abort();
         }
-        if (zz_init(&w) || zz_random(bs, false, &w)) {
+        if (zz_init(&w) || zz_random(bs, true, &w)) {
             abort();
         }
         if (zz_init(&z)) {
@@ -82,6 +86,12 @@ check_powm_bulk(void)
             zz_clear(&r);
         }
         else {
+            if (zz_iszero(&w)) {
+                if (zz_powm(&u, &v, &w, &z) != ZZ_VAL) {
+                    abort();
+                }
+                goto clear;
+            }
             if (zz_ref_gcd(&u, &w, &z) || zz_cmp(&z, 1) == ZZ_EQ) {
                 abort();
             }
@@ -131,6 +141,7 @@ check_powm_bulk(void)
                 abort();
             }
         }
+clear:
         zz_clear(&u);
         zz_clear(&v);
         zz_clear(&w);
@@ -166,6 +177,31 @@ check_powm_examples(void)
         abort();
     }
     if (zz_set(0, &w) || zz_powm(&u, &v, &w, &w) != ZZ_VAL) {
+        abort();
+    }
+    if (zz_set(123, &u) || zz_set(321, &v) || zz_set(1, &w)
+        || zz_powm(&u, &v, &w, &w) || zz_cmp(&w, 0))
+    {
+        abort();
+    }
+    if (zz_set(123, &u) || zz_set(0, &v) || zz_set(321, &w)
+        || zz_powm(&u, &v, &w, &w) || zz_cmp(&w, 1))
+    {
+        abort();
+    }
+    if (zz_set(0, &u) || zz_set(321, &v) || zz_set(123, &w)
+        || zz_powm(&u, &v, &w, &w) || zz_cmp(&w, 0))
+    {
+        abort();
+    }
+    if (zz_set(1, &u) || zz_set(321, &v) || zz_set(123, &w)
+        || zz_powm(&u, &v, &w, &w) || zz_cmp(&w, 1))
+    {
+        abort();
+    }
+    if (zz_set(321, &u) || zz_set(1, &v) || zz_set(123, &w)
+        || zz_powm(&u, &v, &w, &w) || zz_cmp(&w, 75))
+    {
         abort();
     }
     zz_clear(&u);

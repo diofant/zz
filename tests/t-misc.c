@@ -689,10 +689,11 @@ check_exportimport_roundtrip(void)
         if (zz_init(&v) || zz_import(len, buf, bytes_layout, &v)) {
             abort();
         }
-        free(buf);
         if (zz_cmp(&u, &v) != ZZ_EQ) {
             abort();
         }
+        free(buf);
+
         len = (zz_bitlen(&u) + 29)/30;
         buf = malloc(len*4);
         if (!buf || zz_export(&u, pyint_layout, len, buf)) {
@@ -701,10 +702,76 @@ check_exportimport_roundtrip(void)
         if (zz_import(len, buf, pyint_layout, &v)) {
             abort();
         }
-        free(buf);
         if (zz_cmp(&u, &v) != ZZ_EQ) {
             abort();
         }
+        free(buf);
+
+        zz_layout tmp_layout = {14, 4, -1, 0};
+
+        len = (zz_bitlen(&u) + 13)/14;
+        buf = malloc(len*4);
+        if (!buf || zz_export(&u, tmp_layout, len, buf)) {
+            abort();
+        }
+        if (zz_import(len, buf, tmp_layout, &v)) {
+            abort();
+        }
+        if (zz_cmp(&u, &v) != ZZ_EQ) {
+            abort();
+        }
+        free(buf);
+
+        tmp_layout = *native_layout;
+        len = (zz_bitlen(&u) + native_layout->bits_per_digit
+               - 1)/native_layout->bits_per_digit;
+        buf = malloc(len*native_layout->digit_size);
+        tmp_layout.digits_order = 1;
+        tmp_layout.digit_endianness = 1;
+        if (!buf || zz_export(&u, tmp_layout, len, buf)) {
+            abort();
+        }
+        if (zz_import(len, buf, tmp_layout, &v)) {
+            abort();
+        }
+        if (zz_cmp(&u, &v) != ZZ_EQ) {
+            abort();
+        }
+        tmp_layout.digits_order = -1;
+        tmp_layout.digit_endianness = 1;
+        if (zz_export(&u, tmp_layout, len, buf)) {
+            abort();
+        }
+        if (zz_import(len, buf, tmp_layout, &v)) {
+            abort();
+        }
+        if (zz_cmp(&u, &v) != ZZ_EQ) {
+            abort();
+        }
+        tmp_layout.digits_order = -1;
+        tmp_layout.digit_endianness = -1;
+        if (zz_export(&u, tmp_layout, len, buf)) {
+            abort();
+        }
+        if (zz_import(len, buf, tmp_layout, &v)) {
+            abort();
+        }
+        if (zz_cmp(&u, &v) != ZZ_EQ) {
+            abort();
+        }
+        tmp_layout.digits_order = 1;
+        tmp_layout.digit_endianness = -1;
+        if (zz_export(&u, tmp_layout, len, buf)) {
+            abort();
+        }
+        if (zz_import(len, buf, tmp_layout, &v)) {
+            abort();
+        }
+        if (zz_cmp(&u, &v) != ZZ_EQ) {
+            abort();
+        }
+        free(buf);
+
         len = (zz_bitlen(&u) + native_layout->bits_per_digit
                - 1)/native_layout->bits_per_digit;
         buf = malloc(len*native_layout->digit_size);
@@ -714,10 +781,11 @@ check_exportimport_roundtrip(void)
         if (zz_import(len, buf, *native_layout, &v)) {
             abort();
         }
-        free(buf);
         if (zz_cmp(&u, &v) != ZZ_EQ) {
             abort();
         }
+        free(buf);
+
         zz_clear(&u);
         zz_clear(&v);
     }
@@ -728,6 +796,7 @@ check_exportimport_examples(void)
 {
     zz_t u;
     const zz_layout pyint_layout = {30, 4, -1, 0};
+    const zz_layout bytes_layout = {8, 1, 1, 0};
 
     if (zz_init(&u) || zz_set(123, &u)) {
         abort();
@@ -735,7 +804,23 @@ check_exportimport_examples(void)
     if (zz_export(&u, pyint_layout, 0, 0) != ZZ_BUF) {
         abort();
     }
+
+    char buf[10];
+    zz_t v;
+
+    if (zz_init(&v) || zz_set(0, &u) || zz_set(123, &v)
+        || zz_export(&u, bytes_layout, 1, buf)
+        || zz_import(1, buf, bytes_layout, &v) || zz_cmp(&u, &v) != ZZ_EQ)
+    {
+        abort();
+    }
+    if (zz_set(0, &u) || zz_export(&u, pyint_layout, 0, buf) || zz_set(123, &v)
+        || zz_import(0, buf, pyint_layout, &v) || zz_cmp(&u, &v) != ZZ_EQ)
+    {
+        abort();
+    }
     zz_clear(&u);
+    zz_clear(&v);
 }
 
 void
