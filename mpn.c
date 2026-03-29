@@ -404,6 +404,15 @@ void mpn_mullo_n(mp_limb_t *rp, const mp_limb_t *xp,
     __gmpn_mullo_n(rp, xp, yp, n);
 }
 
+extern double __gmpn_get_d(const mp_limb_t *up, mp_size_t size,
+                           mp_size_t sign, long exp);
+
+double
+mpn_get_d(const mp_limb_t *up, mp_size_t size, mp_size_t sign, long exp)
+{
+    return __gmpn_get_d(up, size, sign, exp);
+}
+
 #ifdef __GNUC__
 #  pragma GCC diagnostic pop
 #endif

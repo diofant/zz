@@ -876,10 +876,15 @@ zz_get_double(const zz_t *u, double *d)
         *d = ISNEG(u) ? -INFINITY : INFINITY;
         return ZZ_BUF;
     }
+    if (!u->size) {
+        *d = 0.0;
+        return ZZ_OK;
+    }
 
     zz_bitcnt_t bits = zz_bitlen(u);
-    TMP_MPZ(z, u);
-    *d = mpz_get_d(z); /* round towards zero */
+
+    /* round towards zero */
+    *d = mpn_get_d(u->digits, u->size, ISNEG(u) ? -1 : 1, 0L);
     if (DBL_MANT_DIG < bits && bits <= DBL_MAX_EXP) {
         bits -= DBL_MANT_DIG + 1;
         if (zz_tstbit(u, bits)) {

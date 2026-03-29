@@ -547,6 +547,9 @@ check_fromto_double(void)
     {
         abort();
     }
+    if (zz_set(0, &u) || zz_get(&u, &d) || d != 0.0) {
+        abort();
+    }
     zz_clear(&u);
 }
 

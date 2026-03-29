@@ -44,4 +44,8 @@ void mpn_binvert(mp_limb_t *rp, const mp_limb_t *up, mp_size_t n,
 void mpn_mullo_n(mp_limb_t *rp, const mp_limb_t *xp,
                  const mp_limb_t *yp, mp_size_t n);
 
+/* Return the value {up,size}*2^exp, and negative if sign<0.  Must have
+   a non-zero high limb up[size-1]. */
+double mpn_get_d(const mp_limb_t *up, mp_size_t size, mp_size_t sign, long exp);
+
 #endif /* MPN_H */
