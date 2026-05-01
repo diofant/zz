@@ -40,7 +40,7 @@ jobs:
         if: matrix.os == 'macos-15'
       - run: brew install automake autoconf-archive lcov texinfo
         if: ${{ startsWith(matrix.os, 'macos') }}
-      - uses: msys2/setup-msys2@v2.31.0
+      - uses: msys2/setup-msys2@v2.31.1
         name: Setup msys2
         with:
           install: >-
