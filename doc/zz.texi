@@ -218,6 +218,7 @@ space, which can be estimated by @code{zz_sizeinbase(@var{u}, base)}.  Return
 @deftypefunx zz_err zz_add_i64 (const zz_t *@var{u}, int64_t @var{v}, zz_t *@var{w})
 @deftypefunx zz_err zz_add_u64 (const zz_t *@var{u}, uint64_t @var{v}, zz_t *@var{w})
 Set @var{w} to @math{@var{u} + @var{v}}.  Available as @code{zz_add} macro.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_sub (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
@@ -226,6 +227,7 @@ Set @var{w} to @math{@var{u} + @var{v}}.  Available as @code{zz_add} macro.
 @deftypefunx zz_err zz_sub_u64 (const zz_t *@var{u}, uint64_t @var{v}, zz_t *@var{w})
 @deftypefunx zz_err zz_u64_sub (uint64_t @var{u}, const zz_t *@var{v}, zz_t *@var{w})
 Set @var{w} to @math{@var{u} - @var{v}}.  Available as @code{zz_sub} macro.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_pos (const zz_t *@var{u}, zz_t *@var{v})
@@ -246,11 +248,13 @@ Set @var{v} to the magnitude of @var{u}.  Return @code{ZZ_MEM} on failure.
 @deftypefunx zz_err zz_mul_u64 (const zz_t *@var{u}, uint64_t @var{v}, zz_t *@var{w})
 Set @var{w} to @m{@var{u} \times @var{v}, @var{u} × @var{v}}.  Available
 as @code{zz_mul} macro.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_mul_2exp (const zz_t *@var{u}, zz_bitcnt_t @var{v}, zz_t *@var{w})
 Set @var{w} to @m{@var{u} \times 2^{@var{v}}, @var{u} × 2 raised to @var{v}}
 (left shift by @var{v} bits).
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_div (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{q}, zz_t *@var{r})
@@ -278,6 +282,7 @@ Set @var{w} to quotent of @var{u} and @m{2^{@var{v}}, 2 raised to @var{v}}
 
 @deftypefun zz_err zz_pow (const zz_t *@var{u}, uint64_t @var{v}, zz_t *@var{w})
 Set @var{w} to @m{@var{u}^{@var{v}},@var{u} raised to @var{v}}.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_powm (const zz_t *@var{u}, const zz_t *@var{v}, const zz_t *@var{w}, zz_t *@var{x})
@@ -315,18 +320,22 @@ These functions behave as if twos complement arithmetic were used.
 
 @deftypefun zz_err zz_invert (const zz_t *@var{u}, zz_t *@var{v})
 Set @var{v} to the ones complement of @var{u}.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_and (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
 Set @var{w} to @var{u} bitwise-and @var{v}.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_or (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
 Set @var{w} to @var{u} bitwise-or @var{v}.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_xor (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
 Set @var{w} to @var{u} bitwise exclusive-or @var{v}.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @node Number Theoretic Functions, Combinatorics, Logical Functions, Functions
@@ -356,6 +365,7 @@ Return @code{ZZ_MEM} on failure.
 @deftypefun zz_err zz_lcm (const zz_t *@var{u}, const zz_t *@var{v}, zz_t *@var{w})
 Set @var{w} to the least common multiple of @var{u} and @var{v}.  @var{w} is
 positive or zero, if either @var{u} or @var{v} are zero.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @node Combinatorics, Import and Export, Number Theoretic Functions, Functions
@@ -365,6 +375,7 @@ positive or zero, if either @var{u} or @var{v} are zero.
 Set @var{v} to @math{@var{u}!}.
 
 The @var{u} expected to be less or equal than @code{ULONG_MAX}.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_bin (uint64_t @var{n}, uint64_t @var{k}, zz_t *@var{v})
@@ -372,6 +383,7 @@ Set @var{v} to the binomial coefficient @m{\left({n}\atop{k}\right),@var{n}
 over @var{k}}.
 
 @var{n} and @var{k} expected to be less or equal than @code{ULONG_MAX}.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @node Import and Export, Miscellaneous Functions, Combinatorics, Functions
@@ -398,6 +410,7 @@ Get native layout for the library.
 @deftypefun zz_err zz_import (size_t @var{len}, const void *@var{data}, zz_layout @var{layout}, zz_t *@var{u})
 Set magnitude of @var{u} from @var{data} array of size @var{len} in the
 specified @var{layout}.
+Return @code{ZZ_MEM} or @code{ZZ_BUF} on failure.
 @end deftypefun
 
 @deftypefun zz_err zz_export (const zz_t *@var{u}, zz_layout @var{layout}, size_t @var{len}, void *@var{data})
