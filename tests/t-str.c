@@ -34,7 +34,7 @@ check_str_roundtrip(void)
         if (rand() % 2) {
             base = -base;
         }
-        if (!buf || zz_get_str(&u, base, buf)) {
+        if (!buf || zz_get_str(&u, base, 0, buf)) {
             abort();
         }
 
@@ -59,7 +59,7 @@ check_str_examples(void)
     if (zz_init(&u) || zz_set(123, &u)) {
         abort();
     }
-    if (zz_get_str(&u, 38, NULL) != ZZ_VAL) {
+    if (zz_get_str(&u, 38, 0, NULL) != ZZ_VAL) {
         abort();
     }
     if (zz_set_str(" ", 2, &u) != ZZ_VAL) {
@@ -137,7 +137,41 @@ check_str_examples(void)
 
     char buf[10];
 
-    if (zz_set(0, &u) || zz_get_str(&u, 2, buf) || strcmp(buf, "0")) {
+    if (zz_set(0, &u) || zz_get_str(&u, 2, 0, buf) || strcmp(buf, "0")) {
+        abort();
+    }
+    zz_clear(&u);
+}
+
+void
+check_str_grouping(void)
+{
+    zz_t u;
+
+    if (zz_init(&u) || zz_set_str("489730051447264218653321153308096162461",
+                                  0, &u))
+    {
+        abort();
+    }
+
+    char buf[100];
+
+    if (zz_get_str(&u, 10, 3, buf)
+        || strcmp(buf, "489_730_051_447_264_218_653_321_153_308_096_162_461"))
+    {
+        abort();
+    }
+    if (zz_get_str(&u, 16, 4, buf)
+        || strcmp(buf, "1_706e_93bb_2d8d_c616_4ed4_0f22_ddd7_6a9d"))
+    {
+        abort();
+    }
+    if (zz_set_str("123", 0, &u) || zz_get_str(&u, 10, 3, buf)
+        || strcmp(buf, "123"))
+    {
+        abort();
+    }
+    if (zz_get_str(&u, 10, 4, buf) || strcmp(buf, "123")) {
         abort();
     }
     zz_clear(&u);
@@ -150,6 +184,7 @@ int main(void)
     zz_setup();
     check_str_roundtrip();
     check_str_examples();
+    check_str_grouping();
     zz_finish();
     zz_testclear();
     return 0;

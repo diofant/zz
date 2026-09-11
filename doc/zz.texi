@@ -202,11 +202,12 @@ Conversion to double uses rounding to nearest, with the half to even
 tie-breaking rounding rule (roundTiesToEven in IEEE 754, the default).
 @end deftypefun
 
-@deftypefun zz_err zz_get_str (const zz_t *@var{u}, int @var{base}, char *@var{str})
+@deftypefun zz_err zz_get_str (const zz_t *@var{u}, int @var{base}, char @var{group}, char *@var{str})
 Convert @var{u} to null-terminated string @var{str} of digits in the given
-@var{base}, which may vary from 2 to 36.  The @var{str} has to have enough
-space, which can be estimated by @code{zz_sizeinbase(@var{u}, base)}.  Return
-@code{ZZ_MEM} or @code{ZZ_VAL} on failure.
+@var{base}, which may vary from 2 to 36.  Insert underscore every @var{group}
+digits.  The @var{str} has to have enough space, which can be estimated by
+@code{zz_sizeinbase(@var{u}, base)}.  Return @code{ZZ_MEM} or @code{ZZ_VAL} on
+failure.
 @end deftypefun
 
 @node Arithmetics on Integers, Exponentiation, Converting Integers, Functions
