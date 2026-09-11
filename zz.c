@@ -646,8 +646,35 @@ zz_sizeinbase(const zz_t *u, int base, size_t *len)
     return ZZ_OK;
 }
 
+static void
+insert_from_end_inplace(char *str, char n, char c)
+{
+    assert(str && n > 0);
+
+    size_t len = strlen(str);
+
+    if (len <= n) {
+        return;
+    }
+
+    size_t num_separators = (len - 1) / (size_t)n;
+    size_t new_len = len + num_separators;
+
+    intmax_t src = (intmax_t)len;
+    intmax_t dest = (intmax_t)new_len;
+    intmax_t count = -1;
+
+    while (src >= 0) {
+        if (count > 0 && count % n == 0 && src < len) {
+            str[dest--] = c;
+        }
+        str[dest--] = str[src--];
+        count++;
+    }
+}
+
 zz_err
-zz_get_str(const zz_t *u, int base, char *str)
+zz_get_str(const zz_t *u, int base, char group, char *str)
 {
     /* Maps 1-byte integer to digit character for bases up to 36. */
     const char *NUM_TO_TEXT = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -692,6 +719,9 @@ zz_get_str(const zz_t *u, int base, char *str)
     }
 end:
     *p = '\0';
+    if (group > 0 && u->size) {
+        insert_from_end_inplace(str + ISNEG(u), group, '_');
+    }
     return ZZ_OK;
 }
 
