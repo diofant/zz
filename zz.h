@@ -82,7 +82,7 @@ zz_err zz_get_double(const zz_t *u, double *d);
                                uint64_t *: zz_get_u64,         \
                                double *: zz_get_double))(U, V)
 
-zz_err zz_get_str(const zz_t *u, int base, char group, char *str);
+zz_err zz_get_str(const zz_t *u, int base, char *str);
 
 zz_err zz_add(const zz_t *u, const zz_t *v, zz_t *w);
 zz_err zz_add_i64(const zz_t *u, int64_t v, zz_t *w);
